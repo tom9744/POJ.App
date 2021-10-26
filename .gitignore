@@ -11,6 +11,12 @@
 # production
 /build
 
+# in dev
+src/components
+
+# static
+public/images
+
 # misc
 .DS_Store
 .env.local
