@@ -1,0 +1,27 @@
+.journey {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 175px;
+  width: 150px;
+}
+
+.journey img {
+  height: 150px;
+  width: 150px;
+
+  flex: none;
+
+  object-fit: cover;
+}
+
+.journey span {
+  height: 25px;
+  width: 150px;
+
+  text-align: center;
+
+  flex: none;
+}

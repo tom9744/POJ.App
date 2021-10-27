@@ -11,9 +11,6 @@
 # production
 /build
 
-# in dev
-src/components
-
 # static
 public/images
 
