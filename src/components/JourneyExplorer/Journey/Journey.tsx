@@ -9,10 +9,10 @@ function Journey(props: JourneyProps) {
   return (
     <div className="journey">
       {/* 대표 사진 */}
-      <img src="/images/IMG_0050.JPG" alt="" />
+      <img src={props.path || "/images/dummy.jpg"} alt="" />
 
       {/* 여행 이름 */}
-      <span>Trip #1</span>
+      <span>부산 해운대</span>
     </div>
   );
 }

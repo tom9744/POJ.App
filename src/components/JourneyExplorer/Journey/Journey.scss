@@ -1,11 +1,32 @@
+@font-face {
+  font-family: "ONE-Mobile-POP";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .journey {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  height: 175px;
+  height: 200px;
   width: 150px;
+
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 2px 16px 1px;
+  border-radius: 10px;
+
+  padding: 10px 10px 0px 10px;
+  margin: 0 auto;
+
+  cursor: pointer;
+
+  &.selected {
+    box-shadow: rgba(105, 94, 201, 0.5) 0px 2px 16px 1px;
+  }
 }
 
 .journey img {
@@ -18,10 +39,17 @@
 }
 
 .journey span {
-  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 50px;
+  line-height: 30px;
   width: 150px;
 
   text-align: center;
+  font-family: "ONE-Mobile-POP";
+  font-size: 18px;
 
   flex: none;
 }

@@ -1,23 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
-import Explorer from "./components/JourneyExplorer/JourneyExplorer";
+import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 
 function App() {
-  const [isOpenExplorer, setIsOpenExplorer] = useState<boolean>(false);
+  const [isExplorerActive, setExplorerActive] = useState<boolean>(false);
+  const [isButtonActive, setButtonActive] = useState<boolean>(false);
 
-  const bubbleClickHandler = (_event: React.MouseEvent) => {
-    setIsOpenExplorer(!isOpenExplorer);
+  useEffect(() => {
+    setButtonActive(true);
+  }, []);
+
+  const openExplorer = (_event: React.MouseEvent) => {
+    setExplorerActive(true);
+    setButtonActive(false);
+  };
+
+  const closeExplorer = (_event: React.MouseEvent) => {
+    setExplorerActive(false);
+    setButtonActive(true);
   };
 
   return (
     <div className="app">
       <KakaoMap />
 
-      <BubbleButton onBubbleClick={bubbleClickHandler} />
+      <BubbleButton isActive={isButtonActive} onBubbleClick={openExplorer} />
 
-      <Explorer isOpen={isOpenExplorer} />
+      <JourneyExplorer
+        isActive={isExplorerActive}
+        onCloseExplorer={closeExplorer}
+      />
     </div>
   );
 }

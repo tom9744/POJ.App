@@ -1,10 +1,18 @@
 import React from "react";
 import "./BubbleButton.scss";
 
-type BubbleButtonProps = { onBubbleClick: (event: React.MouseEvent) => void };
+type BubbleButtonProps = {
+  isActive: boolean;
+  onBubbleClick: (event: React.MouseEvent) => void;
+};
 
 function BubbleButton(props: BubbleButtonProps) {
-  return <div className="bubble" onClick={props.onBubbleClick}></div>;
+  return (
+    <div
+      className={`bubble ${props.isActive ? "active" : "deactive"}`}
+      onClick={props.onBubbleClick}
+    ></div>
+  );
 }
 
 export default BubbleButton;

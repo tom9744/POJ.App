@@ -3,7 +3,8 @@ import Journey from "./Journey/Journey";
 import "./JourneyExplorer.scss";
 
 type JourneyExplorerProps = {
-  isOpen: boolean;
+  isActive: boolean;
+  onCloseExplorer: (event: React.MouseEvent) => void;
 };
 
 function JourneyExplorer(props: JourneyExplorerProps) {
@@ -11,56 +12,67 @@ function JourneyExplorer(props: JourneyExplorerProps) {
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
     { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
+    { path: "" },
   ];
 
-  return props.isOpen ? (
-    <section className="explorer-wrapper">
-      {/* 왼쪽 연도별 탐색기 */}
-      <div className="explorer-content">
+  return (
+    <div
+      className={`explorer-wrapper ${props.isActive ? "active" : "deactive"}`}
+    >
+      <section className="explorer-header">
+        <button className="create-button">새로 기록하기</button>
+
+        <div className="spacer"></div>
+
+        <button className="close-button" onClick={props.onCloseExplorer}>
+          X
+        </button>
+      </section>
+
+      <section className="explorer-content">
         {journeys.map((journey) => (
           <Journey path={journey.path}></Journey>
         ))}
-      </div>
-    </section>
-  ) : null;
+      </section>
+    </div>
+  );
 }
 
 export default JourneyExplorer;
