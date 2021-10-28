@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./App.module.css";
+import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import Explorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
@@ -12,7 +12,7 @@ function App() {
   };
 
   return (
-    <div className={styles.app}>
+    <div className="app">
       <KakaoMap />
 
       <BubbleButton onBubbleClick={bubbleClickHandler} />

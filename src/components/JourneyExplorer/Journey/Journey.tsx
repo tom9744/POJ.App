@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Journey.module.css";
+import "./Journey.scss";
 
 type JourneyProps = {
   path: string;
@@ -7,7 +7,7 @@ type JourneyProps = {
 
 function Journey(props: JourneyProps) {
   return (
-    <div className={styles.journey}>
+    <div className="journey">
       {/* 대표 사진 */}
       <img src="/images/IMG_0050.JPG" alt="" />
 

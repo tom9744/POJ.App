@@ -1,6 +1,6 @@
 import React from "react";
 import Journey from "./Journey/Journey";
-import styles from "./JourneyExplorer.module.css";
+import "./JourneyExplorer.scss";
 
 type JourneyExplorerProps = {
   isOpen: boolean;
@@ -52,10 +52,9 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   ];
 
   return props.isOpen ? (
-    <section className={styles["explorer-wrapper"]}>
+    <section className="explorer-wrapper">
       {/* 왼쪽 연도별 탐색기 */}
-
-      <div className={styles["explorer-content"]}>
+      <div className="explorer-content">
         {journeys.map((journey) => (
           <Journey path={journey.path}></Journey>
         ))}
