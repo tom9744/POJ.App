@@ -6,6 +6,14 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "GmarketSansMedium";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .explorer-wrapper {
   position: absolute;
   bottom: 40px;
@@ -17,41 +25,52 @@
   background-color: white;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px,
     rgba(255, 255, 255, 0.2) 0px 0px 0px;
-  border-radius: 25px;
+  border-radius: 20px;
 
   z-index: 5;
 
+  box-sizing: border-box;
+
   overflow: hidden;
-  overflow-y: scroll;
 
   transform-origin: bottom right;
 
-  box-sizing: border-box;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
   &.active {
+    opacity: 1;
+
     transform: scale(1);
     transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.5s;
   }
 
   &.deactive {
+    opacity: 0;
+
     transform: scale(0);
     transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   .explorer-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
 
-    padding: 15px 20px;
+    width: 100%;
 
-    background-color: rgba(105, 94, 201, 0.5);
+    padding: 12.5px 20px;
 
-    z-index: 5;
+    color: rgb(155, 150, 255);
+    font-size: 15px;
+    font-family: "GmarketSansMedium";
+
+    background-color: white;
+    border-radius: 20px 20px 0px 0px;
+    border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
+
+    box-sizing: border-box;
 
     .create-button {
       all: unset;
@@ -60,11 +79,10 @@
       width: 100px;
 
       margin: 0 5px;
+      padding: 0 5px;
 
-      font-family: "ONE-Mobile-POP";
       color: white;
-
-      background-color: rgba(105, 94, 201, 0.75);
+      background-color: rgb(155, 150, 255);
       border-radius: 5px;
 
       cursor: pointer;
@@ -82,25 +100,27 @@
 
       margin: 0 5px;
 
-      font-family: "ONE-Mobile-POP";
-      color: white;
-
       cursor: pointer;
     }
   }
 
   .explorer-content {
-    position: relative;
-
     display: grid;
     grid-template-columns: repeat(auto-fill, 200px);
     justify-content: space-evenly;
     grid-gap: 30px 15px;
 
+    height: 100%;
     width: 100%;
 
-    padding: 25px 0;
+    padding: 75px 0px 25px 0px;
 
     box-sizing: border-box;
+
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }

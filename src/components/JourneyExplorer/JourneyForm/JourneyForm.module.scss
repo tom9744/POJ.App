@@ -1,0 +1,168 @@
+@font-face {
+  font-family: "GmarketSansMedium";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+.form-wrapper {
+  position: absolute;
+  inset: 0px;
+
+  height: 100%;
+  width: 100%;
+
+  background-color: white;
+  border-radius: 20px;
+
+  z-index: 5;
+
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.open {
+    opacity: 1;
+
+    transform: translate(0);
+    transition: all 0.5s ease-in-out;
+  }
+
+  &.close {
+    opacity: 0;
+
+    transform: translate(100%);
+    transition: all 0.5s ease-in-out;
+  }
+
+  .form-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+
+    padding: 12.5px 20px;
+
+    color: rgb(155, 150, 255);
+    font-size: 15px;
+    font-family: "GmarketSansMedium";
+
+    background-color: white;
+    border-radius: 20px 20px 0px 0px;
+    border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
+
+    box-sizing: border-box;
+
+    .back-button {
+      all: unset;
+
+      height: 30px;
+      width: 30px;
+
+      margin: 0 5px;
+
+      cursor: pointer;
+    }
+  }
+
+  .form-content {
+    height: 100%;
+    width: 100%;
+
+    padding: 55px 0px 25px 0px;
+
+    font-family: "GmarketSansMedium";
+
+    box-sizing: border-box;
+    overflow: hidden;
+    overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .form-content-section {
+      margin: 20px auto;
+
+      .title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .description {
+        font-size: 0.9rem;
+        color: rgb(125, 125, 125);
+      }
+    }
+
+    .divider {
+      width: calc(100% - 25px);
+      margin: 10px;
+      border-top: 1px solid rgb(239, 239, 240);
+    }
+  }
+}
+
+.form-content > .form-content-section > .form {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  label {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+  }
+
+  input {
+    height: 40px;
+    width: 250px;
+
+    padding: 10px;
+    margin-bottom: 10px;
+
+    background-color: rgb(248, 248, 248);
+    box-shadow: rgba(0, 0, 0, 0.03) 0px 1px 2px,
+      rgba(0, 0, 0, 0.05) 0px 0px 0px 1px inset;
+    border-radius: 10px;
+
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+
+    transition: box-shadow 0.25s;
+
+    &:focus {
+      box-shadow: rgba(155, 150, 255, 0.2) 0px 0px 0px 4px,
+        rgb(155, 150, 255) 0px 0px 0px 2px inset;
+    }
+  }
+
+  button {
+    all: unset;
+
+    height: 40px;
+    width: 100%;
+
+    margin-top: 20px;
+
+    color: white;
+    background-color: rgb(155, 150, 255);
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: box-shadow 0.25s;
+
+    &:hover {
+      box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
+    }
+  }
+}

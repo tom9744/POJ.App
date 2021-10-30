@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Journey from "./Journey/Journey";
+import JourneyForm from "./JourneyForm/JourneyForm";
 import "./JourneyExplorer.scss";
+
+import { journeys } from "./constants/journey-data"; // Temporary
 
 type JourneyExplorerProps = {
   isActive: boolean;
@@ -8,61 +11,29 @@ type JourneyExplorerProps = {
 };
 
 function JourneyExplorer(props: JourneyExplorerProps) {
-  const journeys = [
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "/images/IMG_0050.JPG" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-    { path: "" },
-  ];
+  const [isFormActive, setFormActive] = useState<boolean>(false);
+
+  const openForm = () => {
+    setFormActive(true);
+  };
+
+  const closeForm = (event: React.MouseEvent) => {
+    setFormActive(false);
+  };
 
   return (
     <div
       className={`explorer-wrapper ${props.isActive ? "active" : "deactive"}`}
     >
       <section className="explorer-header">
-        <button className="create-button">새로 기록하기</button>
+        <button className="create-button" onClick={openForm}>
+          기록 남기기
+        </button>
 
         <div className="spacer"></div>
 
         <button className="close-button" onClick={props.onCloseExplorer}>
-          X
+          닫기
         </button>
       </section>
 
@@ -71,6 +42,13 @@ function JourneyExplorer(props: JourneyExplorerProps) {
           <Journey path={journey.path}></Journey>
         ))}
       </section>
+
+      <div>
+        <JourneyForm
+          isActive={isFormActive}
+          onCloseForm={closeForm}
+        ></JourneyForm>
+      </div>
     </div>
   );
 }
