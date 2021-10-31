@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import Journey from "./Journey/Journey";
 import JourneyForm from "./JourneyForm/JourneyForm";
 import "./JourneyExplorer.scss";
 
 import { journeys } from "./constants/journey-data"; // Temporary
+import JourneyList from "./JourneyList/JourneyList";
+import JourneyDetail from "./JourneyDetail/JourneyDetail";
 
 type JourneyExplorerProps = {
   isActive: boolean;
@@ -12,6 +13,7 @@ type JourneyExplorerProps = {
 
 function JourneyExplorer(props: JourneyExplorerProps) {
   const [isFormActive, setFormActive] = useState<boolean>(false);
+  const [isDetailActive, setDetailActive] = useState<boolean>(false);
 
   const openForm = () => {
     setFormActive(true);
@@ -19,6 +21,14 @@ function JourneyExplorer(props: JourneyExplorerProps) {
 
   const closeForm = (event: React.MouseEvent) => {
     setFormActive(false);
+  };
+
+  const openDetail = (event: React.MouseEvent) => {
+    setDetailActive(true);
+  };
+
+  const closeDetail = (event: React.MouseEvent) => {
+    setDetailActive(false);
   };
 
   return (
@@ -37,13 +47,18 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         </button>
       </section>
 
-      <section className="explorer-content">
-        {journeys.map((journey) => (
-          <Journey path={journey.path}></Journey>
-        ))}
-      </section>
+      <JourneyList
+        journeys={journeys}
+        onSelectJourney={openDetail}
+      ></JourneyList>
 
-      <div>
+      <div className="component-slot">
+        <JourneyDetail
+          isActive={isDetailActive}
+          journey={journeys[0]}
+          onCloseDetail={closeDetail}
+        ></JourneyDetail>
+
         <JourneyForm
           isActive={isFormActive}
           onCloseForm={closeForm}

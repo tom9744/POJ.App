@@ -1,12 +1,4 @@
-@font-face {
-  font-family: "GmarketSansMedium";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
-    format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-.form-wrapper {
+.detail-wrapper {
   position: absolute;
   inset: 0px;
 
@@ -39,7 +31,7 @@
     transition: all 0.5s ease-in-out;
   }
 
-  .form-header {
+  .detail-header {
     position: absolute;
     top: 0;
     left: 0;
@@ -73,7 +65,7 @@
     }
   }
 
-  .form-content {
+  .detail-content {
     height: 100%;
     width: 100%;
 
@@ -89,7 +81,7 @@
       display: none;
     }
 
-    .form-content-section {
+    .detail-content-section {
       margin: 20px auto;
 
       .title {
@@ -99,8 +91,41 @@
       }
 
       .description {
+        display: block;
+
         font-size: 0.9rem;
         color: rgb(125, 125, 125);
+      }
+
+      .button-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-top: 10px;
+
+        button {
+          all: unset;
+
+          height: 25px;
+          line-height: 27.5px;
+          width: 50px;
+
+          margin: 0px 5px;
+
+          color: white;
+          font-size: 14px;
+          background-color: rgb(155, 150, 255);
+          border-radius: 10px;
+
+          cursor: pointer;
+
+          transition: box-shadow 0.25s;
+
+          &:hover {
+            box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
+          }
+        }
       }
     }
 
@@ -112,58 +137,18 @@
   }
 }
 
-.form-content > .form-content-section > .form {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 100px);
+  justify-content: space-evenly;
+  grid-gap: 10px;
 
-  label {
-    font-size: 0.8rem;
-    margin-bottom: 5px;
-  }
+  padding: 0 10px;
 
-  input {
-    height: 40px;
-    width: 250px;
+  .image {
+    height: 100px;
+    width: 100px;
 
-    padding: 10px;
-    margin-bottom: 10px;
-
-    background-color: rgb(248, 248, 248);
-    box-shadow: rgba(0, 0, 0, 0.03) 0px 1px 2px,
-      rgba(0, 0, 0, 0.05) 0px 0px 0px 1px inset;
-    border-radius: 10px;
-
-    box-sizing: border-box;
-    border: none;
-    outline: none;
-
-    transition: box-shadow 0.25s;
-
-    &:focus {
-      box-shadow: rgba(155, 150, 255, 0.2) 0px 0px 0px 4px,
-        rgb(155, 150, 255) 0px 0px 0px 2px inset;
-    }
-  }
-
-  button {
-    all: unset;
-
-    height: 40px;
-    width: 100%;
-
-    margin-top: 20px;
-
-    color: white;
-    background-color: rgb(155, 150, 255);
-    border-radius: 10px;
-
-    cursor: pointer;
-
-    transition: box-shadow 0.25s;
-
-    &:hover {
-      box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
-    }
+    object-fit: cover;
   }
 }

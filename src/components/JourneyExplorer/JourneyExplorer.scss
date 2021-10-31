@@ -103,24 +103,4 @@
       cursor: pointer;
     }
   }
-
-  .explorer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 200px);
-    justify-content: space-evenly;
-    grid-gap: 30px 15px;
-
-    height: 100%;
-    width: 100%;
-
-    padding: 75px 0px 25px 0px;
-
-    box-sizing: border-box;
-
-    overflow-y: scroll;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 }
