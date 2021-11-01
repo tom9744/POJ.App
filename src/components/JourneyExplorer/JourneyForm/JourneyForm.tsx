@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ExplorerHeader from "../ExplorerHeader/ExplorerHeader";
 import classes from "./JourneyForm.module.scss";
 
 type JourneyFormProps = {
@@ -39,11 +40,7 @@ function JourneyForm({ isActive, onCloseForm }: JourneyFormProps) {
         isActive ? classes.open : classes.close
       }`}
     >
-      <section className={classes["form-header"]}>
-        <button className={classes["back-button"]} onClick={onCloseForm}>
-          이전
-        </button>
-      </section>
+      <ExplorerHeader backward={true} onBackward={onCloseForm}></ExplorerHeader>
 
       <article className={classes["form-content"]}>
         <section className={classes["form-content-section"]}>

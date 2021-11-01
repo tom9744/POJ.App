@@ -2,6 +2,7 @@ import React from "react";
 import classes from "./JourneyDetail.module.scss";
 
 import { Journey, photos } from "../constants/journey-data"; // Temporary
+import ExplorerHeader from "../ExplorerHeader/ExplorerHeader";
 
 type JourneyDetailProps = {
   isActive: boolean;
@@ -28,14 +29,10 @@ function JourneyDetail(props: JourneyDetailProps) {
         props.isActive ? classes.open : classes.close
       }`}
     >
-      <section className={classes["detail-header"]}>
-        <button
-          className={classes["back-button"]}
-          onClick={props.onCloseDetail}
-        >
-          이전
-        </button>
-      </section>
+      <ExplorerHeader
+        backward={true}
+        onBackward={props.onCloseDetail}
+      ></ExplorerHeader>
 
       <article className={classes["detail-content"]}>
         <section className={classes["detail-content-section"]}>

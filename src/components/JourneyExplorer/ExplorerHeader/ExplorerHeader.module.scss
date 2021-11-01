@@ -1,0 +1,45 @@
+@import "../../../assets/scss/variables.scss";
+
+.explorer-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+
+  padding: 12.5px 20px;
+
+  color: $base-color;
+
+  background-color: white;
+  border-radius: 20px 20px 0px 0px;
+  border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
+
+  .text-button,
+  .block-button {
+    all: unset;
+
+    height: 30px;
+    width: 40px;
+
+    margin: 0 5px;
+
+    cursor: pointer;
+  }
+
+  .block-button {
+    width: 100px;
+
+    color: white;
+    background-color: $base-color;
+    border-radius: 5px;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}

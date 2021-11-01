@@ -5,6 +5,7 @@ import classes from "./JourneyExplorer.module.scss";
 import { journeys } from "./constants/journey-data"; // Temporary
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
+import ExplorerHeader from "./ExplorerHeader/ExplorerHeader";
 
 type JourneyExplorerProps = {
   isActive: boolean;
@@ -37,20 +38,13 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         props.isActive ? classes.active : classes.deactive
       }`}
     >
-      <section className={classes["explorer-header"]}>
-        <button className={classes["create-button"]} onClick={openForm}>
-          기록 남기기
-        </button>
-
-        <div className={classes.spacer}></div>
-
-        <button
-          className={classes["close-button"]}
-          onClick={props.onCloseExplorer}
-        >
-          닫기
-        </button>
-      </section>
+      <ExplorerHeader
+        close
+        onClose={props.onCloseExplorer}
+        leftButtons={[
+          { type: "block", textContent: "기록 남기기", handler: openForm },
+        ]}
+      ></ExplorerHeader>
 
       <JourneyList
         journeys={journeys}
