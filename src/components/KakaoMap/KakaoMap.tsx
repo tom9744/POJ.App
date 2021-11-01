@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import "./KakaoMap.scss";
+import classes from "./KakaoMap.module.scss";
 
 declare global {
   interface Window {
@@ -23,7 +23,7 @@ function KakaoMap() {
     return () => {};
   }, []);
 
-  return <div className="map" ref={mapContainer}></div>;
+  return <div className={classes.map} ref={mapContainer}></div>;
 }
 
 export default KakaoMap;

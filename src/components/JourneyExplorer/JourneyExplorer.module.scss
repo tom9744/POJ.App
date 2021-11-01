@@ -1,18 +1,4 @@
-@font-face {
-  font-family: "ONE-Mobile-POP";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-POP.woff")
-    format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "GmarketSansMedium";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff")
-    format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
+@import "../../assets/scss/variables.scss";
 
 .explorer-wrapper {
   position: absolute;
@@ -27,9 +13,7 @@
     rgba(255, 255, 255, 0.2) 0px 0px 0px;
   border-radius: 20px;
 
-  z-index: 5;
-
-  box-sizing: border-box;
+  z-index: $medium-priority;
 
   overflow: hidden;
 
@@ -62,15 +46,11 @@
 
     padding: 12.5px 20px;
 
-    color: rgb(155, 150, 255);
-    font-size: 15px;
-    font-family: "GmarketSansMedium";
+    color: $base-color;
 
     background-color: white;
     border-radius: 20px 20px 0px 0px;
     border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
-
-    box-sizing: border-box;
 
     .create-button {
       all: unset;
@@ -82,7 +62,7 @@
       padding: 0 5px;
 
       color: white;
-      background-color: rgb(155, 150, 255);
+      background-color: $base-color;
       border-radius: 5px;
 
       cursor: pointer;

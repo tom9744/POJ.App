@@ -1,3 +1,5 @@
+@import "../../../assets/scss/variables.scss";
+
 .detail-wrapper {
   position: absolute;
   inset: 0px;
@@ -8,9 +10,8 @@
   background-color: white;
   border-radius: 20px;
 
-  z-index: 5;
+  z-index: $medium-priority;
 
-  box-sizing: border-box;
   overflow: hidden;
 
   &::-webkit-scrollbar {
@@ -43,15 +44,11 @@
 
     padding: 12.5px 20px;
 
-    color: rgb(155, 150, 255);
-    font-size: 15px;
-    font-family: "GmarketSansMedium";
+    color: $base-color;
 
     background-color: white;
     border-radius: 20px 20px 0px 0px;
     border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
-
-    box-sizing: border-box;
 
     .back-button {
       all: unset;
@@ -71,9 +68,6 @@
 
     padding: 55px 0px 25px 0px;
 
-    font-family: "GmarketSansMedium";
-
-    box-sizing: border-box;
     overflow: hidden;
     overflow-y: scroll;
 
@@ -93,7 +87,7 @@
       .description {
         display: block;
 
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: rgb(125, 125, 125);
       }
 
@@ -114,8 +108,8 @@
           margin: 0px 5px;
 
           color: white;
-          font-size: 14px;
-          background-color: rgb(155, 150, 255);
+          font-size: 0.95rem;
+          background-color: $base-color;
           border-radius: 10px;
 
           cursor: pointer;

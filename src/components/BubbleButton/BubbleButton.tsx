@@ -1,5 +1,5 @@
 import React from "react";
-import "./BubbleButton.scss";
+import classes from "./BubbleButton.module.scss";
 
 type BubbleButtonProps = {
   isActive: boolean;
@@ -9,7 +9,9 @@ type BubbleButtonProps = {
 function BubbleButton(props: BubbleButtonProps) {
   return (
     <div
-      className={`bubble ${props.isActive ? "active" : "deactive"}`}
+      className={`${classes.bubble} ${
+        props.isActive ? classes.active : classes.deactive
+      }`}
       onClick={props.onBubbleClick}
     ></div>
   );

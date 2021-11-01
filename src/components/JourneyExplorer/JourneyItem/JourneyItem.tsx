@@ -1,5 +1,5 @@
 import React from "react";
-import "./JourneyItem.scss";
+import classes from "./JourneyItem.module.scss";
 
 type JourneyProps = {
   path: string;
@@ -8,7 +8,7 @@ type JourneyProps = {
 
 function JourneyItem(props: JourneyProps) {
   return (
-    <div className="journey" onClick={props.onClick}>
+    <div className={classes.journey} onClick={props.onClick}>
       {/* 대표 사진 */}
       <img src={props.path || "/images/dummy.jpg"} alt="" />
 

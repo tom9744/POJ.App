@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import JourneyForm from "./JourneyForm/JourneyForm";
-import "./JourneyExplorer.scss";
+import classes from "./JourneyExplorer.module.scss";
 
 import { journeys } from "./constants/journey-data"; // Temporary
 import JourneyList from "./JourneyList/JourneyList";
@@ -33,16 +33,21 @@ function JourneyExplorer(props: JourneyExplorerProps) {
 
   return (
     <div
-      className={`explorer-wrapper ${props.isActive ? "active" : "deactive"}`}
+      className={`${classes["explorer-wrapper"]} ${
+        props.isActive ? classes.active : classes.deactive
+      }`}
     >
-      <section className="explorer-header">
-        <button className="create-button" onClick={openForm}>
+      <section className={classes["explorer-header"]}>
+        <button className={classes["create-button"]} onClick={openForm}>
           기록 남기기
         </button>
 
-        <div className="spacer"></div>
+        <div className={classes.spacer}></div>
 
-        <button className="close-button" onClick={props.onCloseExplorer}>
+        <button
+          className={classes["close-button"]}
+          onClick={props.onCloseExplorer}
+        >
           닫기
         </button>
       </section>
@@ -52,7 +57,7 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         onSelectJourney={openDetail}
       ></JourneyList>
 
-      <div className="component-slot">
+      <div className={classes["component-slot"]}>
         <JourneyDetail
           isActive={isDetailActive}
           journey={journeys[0]}
