@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
@@ -30,14 +30,26 @@ const reducer = (state: UIState, action: UIAction): UIState => {
   }
 };
 
+const arrayGenerator = (): any[] => {
+  const randomLength = Math.floor(Math.random() * 10);
+
+  return Array(randomLength).fill(null);
+};
+
 function App() {
   const [state, dispatch] = useReducer(reducer, {
     isExplorerActive: false,
     isButtonActive: false,
   });
+  const [locations, setLocations] = useState<number[]>([]);
 
   useEffect(() => {
     dispatch({ type: "ACTIVATE_BUBBLE_BUTTON" });
+
+    setInterval(() => {
+      const filledArray = arrayGenerator().map((_, index) => index);
+      setLocations(filledArray);
+    }, 500);
   }, []);
 
   const openExplorer = (_event: React.MouseEvent) => {
@@ -50,7 +62,7 @@ function App() {
 
   return (
     <div className="app">
-      <KakaoMap />
+      <KakaoMap locations={locations} />
 
       <BubbleButton
         isActive={state.isButtonActive}
