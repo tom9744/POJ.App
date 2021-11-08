@@ -1,53 +1,54 @@
 import React, { useEffect, useState } from "react";
+import { Coordinate, generateMarker, generateOverlay } from "./KakaoMapService";
 import "./CustomOverlay.scss";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
 function KakaoMapContainer(props: { kakaoMap: any; locations: any[] }) {
+  const [markers, setMarkers] = useState<any[]>([]);
   const [overlays, setOverlays] = useState<any[]>([]);
 
-  const generateOverlay = (position: any) => {
-    const content = document.createElement("div");
-    content.innerHTML = `<div class ="custom-overlay">
-        <span class="left"></span>
-        <span class="center">카카오!</span>
-        <span class="right"></span>
-      </div>`;
-
-    const customOverlay = new kakao.maps.CustomOverlay({
-      position: position,
-      content: content,
-    });
-
-    return customOverlay;
-  };
+  let selectedOverlay: any = null;
 
   useEffect(() => {
-    const positions = props.locations.map((delta) => {
-      return new kakao.maps.LatLng(
-        37.424245 + delta / 500,
-        126.992091 + delta / 500
-      );
-    });
-    const overlays = positions.map((position) => {
-      return generateOverlay(position);
+    const positions: Coordinate[] = props.locations.map((delta) => {
+      return {
+        latitude: 37.424245 + delta / 500,
+        longitude: 126.992091 + delta / 500,
+      };
     });
 
-    setOverlays(overlays);
+    const newOverlays = positions.map((position) => generateOverlay(position));
+    const newMarkers = positions.map((position, index) => {
+      const newMarker = generateMarker(position);
+
+      kakao.maps.event.addListener(newMarker, "click", () => {
+        const targetOverlay = newOverlays[index];
+
+        // TODO: Fix the timing issue when using 'useState'
+        if (!!selectedOverlay) {
+          selectedOverlay.setMap(null);
+          selectedOverlay = null;
+        }
+        targetOverlay.setMap(props.kakaoMap);
+        selectedOverlay = targetOverlay;
+      });
+
+      return newMarker;
+    });
+
+    setOverlays(newOverlays);
+    setMarkers(newMarkers);
   }, [props.locations]);
 
   useEffect(() => {
-    overlays.forEach((marker) => {
-      marker.setMap(props.kakaoMap);
-    });
+    markers.forEach((marker) => marker.setMap(props.kakaoMap));
 
     return () => {
-      overlays.forEach((marker) => {
-        marker.setMap(null);
-      });
+      [...markers, ...overlays].forEach((elem) => elem.setMap(null)); // Clear all elements
     };
-  }, [overlays]);
+  }, [markers]);
 
   return <React.Fragment></React.Fragment>;
 }

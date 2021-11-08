@@ -49,7 +49,7 @@ function App() {
     setInterval(() => {
       const filledArray = arrayGenerator().map((_, index) => index);
       setLocations(filledArray);
-    }, 500);
+    }, 5000);
   }, []);
 
   const openExplorer = (_event: React.MouseEvent) => {

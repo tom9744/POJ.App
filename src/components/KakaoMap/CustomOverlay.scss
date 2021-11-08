@@ -1,9 +1,32 @@
 .custom-overlay {
+  position: absolute;
+  left: -50px;
+  bottom: 55px;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
   height: 100px;
   width: 100px;
-  background-color: wheat;
+
+  border-radius: 20px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px,
+    rgba(255, 255, 255, 0.2) 0px 0px 0px;
+  background-color: white;
+
+  cursor: pointer;
+
+  &::after {
+    content: "";
+    height: 15px;
+    width: 15px;
+
+    position: absolute;
+    bottom: -7.5px;
+
+    background-color: white;
+
+    transform: rotate(45deg);
+  }
 }
