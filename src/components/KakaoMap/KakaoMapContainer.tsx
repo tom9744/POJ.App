@@ -48,7 +48,7 @@ function KakaoMapContainer(props: { kakaoMap: any; locations: any[] }) {
     return () => {
       [...markers, ...overlays].forEach((elem) => elem.setMap(null)); // Clear all elements
     };
-  }, [markers]);
+  }, [markers, overlays]);
 
   return <React.Fragment></React.Fragment>;
 }

@@ -1,19 +1,18 @@
 import React from "react";
+import { ProcessedJourney } from "../constants/journey-data";
 import classes from "./JourneyItem.module.scss";
 
 type JourneyProps = {
-  path: string;
+  journey: ProcessedJourney;
   onClick: (event: React.MouseEvent) => void;
 };
 
 function JourneyItem(props: JourneyProps) {
   return (
     <div className={classes.journey} onClick={props.onClick}>
-      {/* 대표 사진 */}
-      <img src={props.path || "/images/dummy.jpg"} alt="" />
+      <img src={props.journey.thumbNailPath || "/images/dummy.jpg"} alt="" />
 
-      {/* 여행 이름 */}
-      <span>부산 해운대</span>
+      <span>{props.journey.title}</span>
     </div>
   );
 }

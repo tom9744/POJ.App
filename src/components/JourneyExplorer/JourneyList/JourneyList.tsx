@@ -1,20 +1,23 @@
 import React from "react";
 import classes from "./JourneyList.module.scss";
 
-import { Journey } from "../constants/journey-data"; // Temporary
+import { ProcessedJourney } from "../constants/journey-data"; // Temporary
 import JourneyItem from "../JourneyItem/JourneyItem";
 
 type JourneyListProps = {
-  // isActive: boolean;
-  journeys: Journey[];
-  onSelectJourney: (event: React.MouseEvent) => void;
+  journeys: ProcessedJourney[];
+  onSelectJourney: (index: number) => void;
 };
 
 function JourneyList(props: JourneyListProps) {
-  const journeyItems = props.journeys.map((journey) => (
+  const selectJourney = (index: number) => {
+    props.onSelectJourney(index);
+  };
+
+  const journeyItems = props.journeys.map((journey, index) => (
     <JourneyItem
-      path={journey.path}
-      onClick={props.onSelectJourney}
+      journey={journey}
+      onClick={() => selectJourney(index)}
     ></JourneyItem>
   ));
 

@@ -1,16 +1,17 @@
 import React from "react";
 import classes from "./JourneyDetail.module.scss";
 
-import { Journey, photos } from "../constants/journey-data"; // Temporary
+import { photos, ProcessedJourney } from "../constants/journey-data"; // Temporary
 import ExplorerHeader from "../ExplorerHeader/ExplorerHeader";
 
 type JourneyDetailProps = {
   isActive: boolean;
-  journey: Journey;
+  journey?: ProcessedJourney;
   onCloseDetail: (event: React.MouseEvent) => void;
 };
 
 function JourneyDetail(props: JourneyDetailProps) {
+  // Temporary
   const photoGrid = (
     <div className={classes["photo-grid"]}>
       {photos.map((photo) => (
@@ -30,30 +31,32 @@ function JourneyDetail(props: JourneyDetailProps) {
       }`}
     >
       <ExplorerHeader
-        backward={true}
+        backward
         onBackward={props.onCloseDetail}
       ></ExplorerHeader>
 
-      <article className={classes["detail-content"]}>
-        <section className={classes["detail-content-section"]}>
-          <h3 className={classes.title}>부산 해운대에서의 기록</h3>
-          <span className={classes.description}>2021.10.08 - 2021.10.10</span>
-          <span className={classes.description}>
-            총 {photos.length} 장의 사진
-          </span>
+      {!!props.journey && (
+        <article className={classes["detail-content"]}>
+          <section className={classes["detail-content-section"]}>
+            <h3 className={classes.title}>{props.journey.title}</h3>
+            <span className={classes.description}>2021.10.08 - 2021.10.10</span>
+            <span className={classes.description}>
+              총 {photos.length} 장의 사진
+            </span>
 
-          <div className={classes["button-container"]}>
-            <button>편집</button>
-            <button>삭제</button>
-          </div>
-        </section>
+            <div className={classes["button-container"]}>
+              <button>편집</button>
+              <button>삭제</button>
+            </div>
+          </section>
 
-        <div className={classes.divider}></div>
+          <div className={classes.divider}></div>
 
-        <section className={classes["detail-content-section"]}>
-          {photoGrid}
-        </section>
-      </article>
+          <section className={classes["detail-content-section"]}>
+            {photoGrid}
+          </section>
+        </article>
+      )}
     </div>
   );
 }
