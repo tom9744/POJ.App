@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import classes from "./JourneyDetail.module.scss";
 
 import { ProcessedJourney } from "../Journey.interface"; // Temporary
@@ -12,9 +12,20 @@ type JourneyDetailProps = {
   onDeleteJourney: (targetJourney: ProcessedJourney) => void;
 };
 
+const formatDate = (startDate: string, endDate: string): string => {
+  const formattedStartDate = startDate.substring(0, 10).replace("-", ".");
+  const formattedEndDate = endDate.substring(0, 10).replace("-", ".");
+
+  return `${formattedStartDate} - ${formattedEndDate}`;
+};
+
 function JourneyDetail(props: JourneyDetailProps) {
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [isPhotoFormActive, setPhotoFormActive] = useState(false);
+
   const { isActive, journey, onCloseDetail, onDeleteJourney } = props;
 
+  // [TODO] Implement Journey Edit Logic
   const editJourney = () => {};
 
   const deleteJourney = () => {
@@ -22,7 +33,7 @@ function JourneyDetail(props: JourneyDetailProps) {
       return;
     }
 
-    // [TODO] Add Confrim Logic
+    // [TODO] Implement Confrimation Logic
     fetch(`http://localhost:3030/journeys/${journey.id}`, {
       method: "DELETE",
     });
@@ -31,11 +42,47 @@ function JourneyDetail(props: JourneyDetailProps) {
     onCloseDetail();
   };
 
-  const formatDate = (startDate: string, endDate: string): string => {
-    const formattedStartDate = startDate.substring(0, 10).replace("-", ".");
-    const formattedEndDate = endDate.substring(0, 10).replace("-", ".");
+  const openPhotoForm = () => {};
 
-    return `${formattedStartDate} - ${formattedEndDate}`;
+  const fileInputHandler = (event: React.ChangeEvent) => {
+    const fileList = (event.target as HTMLInputElement).files;
+
+    if (!fileList) {
+      return;
+    }
+
+    const files = Array(fileList.length)
+      .fill(null)
+      .map((_, index) => fileList[index]);
+
+    setPhotoFiles(files);
+  };
+
+  const uploadPhotos = (event: React.MouseEvent) => {
+    if (!journey || photoFiles.length <= 0) {
+      return;
+    }
+
+    console.log(journey.title);
+
+    const formData = new FormData();
+    formData.append("journeyTitle", journey.title);
+    photoFiles.forEach((file) => {
+      formData.append(`images`, file);
+    });
+
+    // [TODO] Implement Confrimation Logic
+    fetch("http://localhost:3030/photos", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -48,7 +95,7 @@ function JourneyDetail(props: JourneyDetailProps) {
         backward
         onBackward={onCloseDetail}
         rightButtons={[
-          { type: "text", textContent: "편집", handler: () => {} },
+          { type: "text", textContent: "편집", handler: editJourney },
           { type: "text", textContent: "삭제", handler: deleteJourney },
         ]}
       ></ExplorerHeader>
@@ -65,11 +112,23 @@ function JourneyDetail(props: JourneyDetailProps) {
             </span>
 
             <div className={classes["button-container"]}>
-              <button>사진 추가</button>
+              <button onClick={openPhotoForm}>사진 추가</button>
             </div>
           </section>
 
-          <div className={classes.divider}></div>
+          <div className={classes.divider}>
+            <label htmlFor="newPhotos">사진</label>
+            <input
+              type="file"
+              id="newPhotos"
+              accept=".jpg"
+              onChange={fileInputHandler}
+              multiple
+            />
+            <button onClick={uploadPhotos}>추가</button>
+          </div>
+
+          <section className={classes["detail-content-section"]}></section>
 
           <section className={classes["detail-content-section"]}>
             <PhotoGrid photos={journey.photos}></PhotoGrid>
