@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { JourneyDTO, RawJourney } from "../constants/journey-data";
-import ExplorerHeader from "../ExplorerHeader/ExplorerHeader";
+import { JourneyDTO, RawJourney } from "../Journey.interface";
+import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./JourneyForm.module.scss";
 
 type JourneyFormProps = {
@@ -91,7 +91,7 @@ function JourneyForm({
 
       createJourney(newJourney)
         .then((journey) => {
-          onContentAdded(journey);
+          onContentAdded({ ...journey, photos: [] });
         })
         .catch((error) => {
           console.log(error);

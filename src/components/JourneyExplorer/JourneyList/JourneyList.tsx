@@ -1,7 +1,7 @@
 import React from "react";
 import classes from "./JourneyList.module.scss";
 
-import { ProcessedJourney } from "../constants/journey-data"; // Temporary
+import { ProcessedJourney } from "../Journey.interface"; // Temporary
 import JourneyItem from "../JourneyItem/JourneyItem";
 
 type JourneyListProps = {

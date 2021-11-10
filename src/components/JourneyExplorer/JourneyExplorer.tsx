@@ -4,8 +4,8 @@ import classes from "./JourneyExplorer.module.scss";
 
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
-import ExplorerHeader from "./ExplorerHeader/ExplorerHeader";
-import { RawJourney, ProcessedJourney } from "./constants/journey-data";
+import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
+import { RawJourney, ProcessedJourney } from "./Journey.interface";
 
 type JourneyExplorerProps = {
   isActive: boolean;
@@ -26,30 +26,28 @@ const requestJourneys = async (): Promise<RawJourney[]> => {
 };
 
 const processJourneyData = (rawJourney: RawJourney): ProcessedJourney => {
+  if (rawJourney.photos) {
+    rawJourney.photos = rawJourney.photos.map((photo) => {
+      return {
+        ...photo,
+        path: `http://localhost:3030/${photo.path.substring(6)}`,
+      };
+    });
+  }
+
   return {
     ...rawJourney,
     thumbNailPath:
-      rawJourney.photos?.length > 0
-        ? `http://localhost:3030/${rawJourney.photos[0].path.substring(6)}`
-        : ``,
+      rawJourney.photos?.length > 0 ? rawJourney.photos[0].path : ``,
   };
-};
-
-const defaultJourney: ProcessedJourney = {
-  thumbNailPath: "",
-  id: 0,
-  title: "",
-  description: "",
-  startDate: "",
-  endDate: "",
-  photos: [],
 };
 
 function JourneyExplorer(props: JourneyExplorerProps) {
   const [isFormActive, setFormActive] = useState<boolean>(false);
   const [isDetailActive, setDetailActive] = useState<boolean>(false);
   const [journeys, setJourneys] = useState<ProcessedJourney[]>([]);
-  const [selectedJourney, setSelectedJourney] = useState<ProcessedJourney>();
+  const [selectedJourney, setSelectedJourney] =
+    useState<ProcessedJourney | null>(null);
 
   useEffect(() => {
     requestJourneys().then((journeys) => {
@@ -75,13 +73,21 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const closeDetail = () => {
+    setSelectedJourney(null);
     setDetailActive(false);
   };
 
-  const addContent = (journey: RawJourney) => {
-    const temporaryJourney = processJourneyData(journey);
+  const addJourney = (journey: RawJourney) => {
+    setJourneys((currentState) => [
+      processJourneyData(journey),
+      ...currentState,
+    ]);
+  };
 
-    setJourneys((currentState) => [temporaryJourney, ...currentState]);
+  const removeJourney = (targetJourney: ProcessedJourney) => {
+    setJourneys((currentState) =>
+      currentState.filter((journey) => journey.id !== targetJourney.id)
+    );
   };
 
   return (
@@ -108,12 +114,13 @@ function JourneyExplorer(props: JourneyExplorerProps) {
           isActive={isDetailActive}
           journey={selectedJourney}
           onCloseDetail={closeDetail}
+          onDeleteJourney={removeJourney}
         ></JourneyDetail>
 
         <JourneyForm
           isActive={isFormActive}
           onCloseForm={closeForm}
-          onContentAdded={addContent}
+          onContentAdded={addJourney}
         ></JourneyForm>
       </div>
     </div>

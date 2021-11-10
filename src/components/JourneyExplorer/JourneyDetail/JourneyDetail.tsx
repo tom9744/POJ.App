@@ -1,59 +1,78 @@
 import React from "react";
 import classes from "./JourneyDetail.module.scss";
 
-import { photos, ProcessedJourney } from "../constants/journey-data"; // Temporary
-import ExplorerHeader from "../ExplorerHeader/ExplorerHeader";
+import { ProcessedJourney } from "../Journey.interface"; // Temporary
+import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
+import PhotoGrid from "../Layouts/PhotoGrid/PhotoGrid";
 
 type JourneyDetailProps = {
   isActive: boolean;
-  journey?: ProcessedJourney;
-  onCloseDetail: (event: React.MouseEvent) => void;
+  journey: ProcessedJourney | null;
+  onCloseDetail: () => void;
+  onDeleteJourney: (targetJourney: ProcessedJourney) => void;
 };
 
 function JourneyDetail(props: JourneyDetailProps) {
-  // Temporary
-  const photoGrid = (
-    <div className={classes["photo-grid"]}>
-      {photos.map((photo) => (
-        <img
-          src={photo.path || "/images/dummy.jpg"}
-          alt="Temporary Dummy"
-          className={classes.image}
-        />
-      ))}
-    </div>
-  );
+  const { isActive, journey, onCloseDetail, onDeleteJourney } = props;
+
+  const editJourney = () => {};
+
+  const deleteJourney = () => {
+    if (!journey) {
+      return;
+    }
+
+    // [TODO] Add Confrim Logic
+    fetch(`http://localhost:3030/journeys/${journey.id}`, {
+      method: "DELETE",
+    });
+
+    onDeleteJourney(journey);
+    onCloseDetail();
+  };
+
+  const formatDate = (startDate: string, endDate: string): string => {
+    const formattedStartDate = startDate.substring(0, 10).replace("-", ".");
+    const formattedEndDate = endDate.substring(0, 10).replace("-", ".");
+
+    return `${formattedStartDate} - ${formattedEndDate}`;
+  };
 
   return (
     <div
       className={`${classes["detail-wrapper"]} ${
-        props.isActive ? classes.open : classes.close
+        isActive ? classes.open : classes.close
       }`}
     >
       <ExplorerHeader
         backward
-        onBackward={props.onCloseDetail}
+        onBackward={onCloseDetail}
+        rightButtons={[
+          { type: "text", textContent: "편집", handler: () => {} },
+          { type: "text", textContent: "삭제", handler: deleteJourney },
+        ]}
       ></ExplorerHeader>
 
-      {!!props.journey && (
+      {!!journey && (
         <article className={classes["detail-content"]}>
           <section className={classes["detail-content-section"]}>
-            <h3 className={classes.title}>{props.journey.title}</h3>
-            <span className={classes.description}>2021.10.08 - 2021.10.10</span>
+            <h3 className={classes.title}>{journey.title}</h3>
             <span className={classes.description}>
-              총 {photos.length} 장의 사진
+              {formatDate(journey.startDate, journey.endDate)}
+            </span>
+            <span className={classes.description}>
+              총 {journey.photos.length} 장의 사진
             </span>
 
             <div className={classes["button-container"]}>
-              <button>편집</button>
-              <button>삭제</button>
+              <button>사진 추가</button>
             </div>
           </section>
 
           <div className={classes.divider}></div>
 
           <section className={classes["detail-content-section"]}>
-            {photoGrid}
+            <PhotoGrid photos={journey.photos}></PhotoGrid>
           </section>
         </article>
       )}

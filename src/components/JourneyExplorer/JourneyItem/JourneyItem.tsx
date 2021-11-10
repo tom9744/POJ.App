@@ -1,5 +1,5 @@
 import React from "react";
-import { ProcessedJourney } from "../constants/journey-data";
+import { ProcessedJourney } from "../Journey.interface";
 import classes from "./JourneyItem.module.scss";
 
 type JourneyProps = {
