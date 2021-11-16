@@ -4,6 +4,7 @@ import classes from "./JourneyDetail.module.scss";
 import { ProcessedJourney } from "../Journey.interface"; // Temporary
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import PhotoGrid from "../Layouts/PhotoGrid/PhotoGrid";
+import PhotoForm from "../PhotoForm/PhotoForm";
 
 type JourneyDetailProps = {
   isActive: boolean;
@@ -13,17 +14,19 @@ type JourneyDetailProps = {
 };
 
 const formatDate = (startDate: string, endDate: string): string => {
-  const formattedStartDate = startDate.substring(0, 10).replace("-", ".");
-  const formattedEndDate = endDate.substring(0, 10).replace("-", ".");
+  const formattedStartDate = startDate.substring(0, 10).replace(/-/g, ".");
+  const formattedEndDate = endDate.substring(0, 10).replace(/-/g, ".");
 
   return `${formattedStartDate} - ${formattedEndDate}`;
 };
 
-function JourneyDetail(props: JourneyDetailProps) {
-  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
-  const [isPhotoFormActive, setPhotoFormActive] = useState(false);
-
-  const { isActive, journey, onCloseDetail, onDeleteJourney } = props;
+function JourneyDetail({
+  isActive,
+  journey,
+  onCloseDetail,
+  onDeleteJourney,
+}: JourneyDetailProps) {
+  const [isUploadFormActive, setUploadFormActive] = useState(false);
 
   // [TODO] Implement Journey Edit Logic
   const editJourney = () => {};
@@ -42,47 +45,8 @@ function JourneyDetail(props: JourneyDetailProps) {
     onCloseDetail();
   };
 
-  const openPhotoForm = () => {};
-
-  const fileInputHandler = (event: React.ChangeEvent) => {
-    const fileList = (event.target as HTMLInputElement).files;
-
-    if (!fileList) {
-      return;
-    }
-
-    const files = Array(fileList.length)
-      .fill(null)
-      .map((_, index) => fileList[index]);
-
-    setPhotoFiles(files);
-  };
-
-  const uploadPhotos = (event: React.MouseEvent) => {
-    if (!journey || photoFiles.length <= 0) {
-      return;
-    }
-
-    console.log(journey.title);
-
-    const formData = new FormData();
-    formData.append("journeyTitle", journey.title);
-    photoFiles.forEach((file) => {
-      formData.append(`images`, file);
-    });
-
-    // [TODO] Implement Confrimation Logic
-    fetch("http://localhost:3030/photos", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const togglePhotoForm = () => {
+    setUploadFormActive((isUploadFormActive) => !isUploadFormActive);
   };
 
   return (
@@ -101,39 +65,38 @@ function JourneyDetail(props: JourneyDetailProps) {
       ></ExplorerHeader>
 
       {!!journey && (
-        <article className={classes["detail-content"]}>
-          <section className={classes["detail-content-section"]}>
-            <h3 className={classes.title}>{journey.title}</h3>
-            <span className={classes.description}>
-              {formatDate(journey.startDate, journey.endDate)}
-            </span>
-            <span className={classes.description}>
-              총 {journey.photos.length} 장의 사진
-            </span>
+        <React.Fragment>
+          <article className={classes["detail-content"]}>
+            <section className={classes["detail-content-section"]}>
+              <h3 className={classes.title}>{journey.title}</h3>
+              <span className={classes.description}>
+                {formatDate(journey.startDate, journey.endDate)}
+              </span>
+              <span className={classes.description}>
+                총 {journey.photos.length} 장의 사진
+              </span>
 
-            <div className={classes["button-container"]}>
-              <button onClick={openPhotoForm}>사진 추가</button>
-            </div>
-          </section>
+              <div className={classes["button-container"]}>
+                <button onClick={togglePhotoForm}>
+                  {!isUploadFormActive ? "사진 추가" : "돌아가기"}
+                </button>
+              </div>
+            </section>
 
-          <div className={classes.divider}>
-            <label htmlFor="newPhotos">사진</label>
-            <input
-              type="file"
-              id="newPhotos"
-              accept=".jpg"
-              onChange={fileInputHandler}
-              multiple
-            />
-            <button onClick={uploadPhotos}>추가</button>
-          </div>
+            <div className={classes.divider}></div>
 
-          <section className={classes["detail-content-section"]}></section>
+            <section className={classes["detail-content-section"]}>
+              <PhotoGrid photos={journey.photos}></PhotoGrid>
+            </section>
+          </article>
 
-          <section className={classes["detail-content-section"]}>
-            <PhotoGrid photos={journey.photos}></PhotoGrid>
-          </section>
-        </article>
+          <PhotoForm
+            isActive={isUploadFormActive}
+            journeyTitle={journey.title}
+            onConfirm={() => {}}
+            onCloseForm={togglePhotoForm}
+          ></PhotoForm>
+        </React.Fragment>
       )}
     </div>
   );
