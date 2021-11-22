@@ -77,9 +77,7 @@ function JourneyDetail({
               </span>
 
               <div className={classes["button-container"]}>
-                <button onClick={togglePhotoForm}>
-                  {!isUploadFormActive ? "사진 추가" : "돌아가기"}
-                </button>
+                <button onClick={togglePhotoForm}>사진 추가</button>
               </div>
             </section>
 
