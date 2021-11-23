@@ -9,18 +9,47 @@ type PhotoFormProps = {
   onCloseForm: () => void;
 };
 
+/**
+ * FileReader를 이용해 <input> 태그를 통해 전달받은 이미지 파일을 URL 형태로 변환합니다.
+ * @param files 이미지 파일로 구성된 배열
+ * @returns 모든 FileReader의 작업이 완료되면 귀결 상태로 전이하는 프로미스
+ */
+function readFilesAsDataURL(files: File[]): Promise<string[]> {
+  return Promise.all(
+    files.map((file): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const fileReader = new FileReader();
+
+        fileReader.onload = () => {
+          const dataUrl = fileReader.result as string;
+          resolve(dataUrl);
+        };
+
+        fileReader.onerror = () => {
+          const error = new Error(`Failed to read the file`);
+          fileReader.abort();
+          reject(error);
+        };
+
+        fileReader.readAsDataURL(file);
+      });
+    })
+  );
+}
+
 function PhotoForm({
   isActive,
   journeyTitle,
   onConfirm,
   onCloseForm,
 }: PhotoFormProps) {
+  const [previewList, setPreviewList] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
-  const fileInputHandler = (event: React.ChangeEvent) => {
+  const fileInputHandler = async (event: React.ChangeEvent) => {
     const fileList = (event.target as HTMLInputElement).files;
 
-    if (!fileList) {
+    if (!fileList || fileList.length > 20) {
       return;
     }
 
@@ -28,13 +57,16 @@ function PhotoForm({
       .fill(null)
       .map((_, index) => fileList[index]);
 
-    setPhotoFiles(files);
+    const imageUrls = await readFilesAsDataURL(files);
+
+    setPreviewList(imageUrls);
   };
 
   const uploadPhotos = (event: React.MouseEvent) => {
     event.preventDefault();
 
     if (!journeyTitle || photoFiles.length <= 0) {
+      // [TODO] Notify that an error has occured.
       return;
     }
 
@@ -78,6 +110,12 @@ function PhotoForm({
             { type: "text", textContent: "닫기", handler: onCloseForm },
           ]}
         ></ExplorerHeader>
+
+        <div className={classes.preview}>
+          {previewList.map((previewURL) => {
+            return <img src={previewURL} alt="" />;
+          })}
+        </div>
 
         <form className={classes.form}>
           <label htmlFor="newPhotos">사진</label>

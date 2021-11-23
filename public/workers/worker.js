@@ -1,11 +1,4 @@
 /* eslint-disable */
-const loop = (burgerCount) => {
-  let burger = burgerCount;
-  for (let i = 0; i <= 999999999; i++) {}
-  burger += 1;
-  return burger;
-};
-
 self.onmessage = async (event) => {
   const { data } = event;
 
