@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
 
@@ -46,10 +46,20 @@ function PhotoForm({
   const [previewList, setPreviewList] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
-  const fileInputHandler = async (event: React.ChangeEvent) => {
-    const fileList = (event.target as HTMLInputElement).files;
+  const photoInput = useRef<HTMLInputElement>(null);
+  const previewContainer = useRef<HTMLDivElement>(null);
+  const scrollPosition = useRef<number>(0);
+  const throttleScroll = useRef<boolean>(false);
+
+  const fileInputHandler = useCallback(async (event: React.ChangeEvent) => {
+    const inputElem = event.target as HTMLInputElement;
+    const fileList = inputElem.files;
 
     if (!fileList || fileList.length > 20) {
+      alert("한 번에 20장 미만의 사진만 업로드 할 수 있습니다.");
+      setPhotoFiles([]);
+      setPreviewList([]);
+      inputElem.value = "";
       return;
     }
 
@@ -59,8 +69,9 @@ function PhotoForm({
 
     const imageUrls = await readFilesAsDataURL(files);
 
+    setPhotoFiles(files);
     setPreviewList(imageUrls);
-  };
+  }, []);
 
   const uploadPhotos = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -92,6 +103,49 @@ function PhotoForm({
       });
   };
 
+  const openPhotoInput = (event: React.MouseEvent): void => {
+    event.preventDefault();
+
+    photoInput.current?.click();
+  };
+
+  const moveToNextPhoto = useCallback((event: React.WheelEvent) => {
+    if (!previewContainer.current || throttleScroll.current) {
+      return;
+    }
+
+    const { currentTarget, deltaY } = event;
+    const currScrollPosition = scrollPosition.current;
+    const currPreviewConatiner = previewContainer.current;
+    const maxWidth = currentTarget.scrollWidth; // Element's width (w/ invisible content)
+    const unitWidth = currentTarget.clientWidth; // Element's width (w/o invisible content)
+
+    let nextScrollPosition =
+      deltaY > 0
+        ? currScrollPosition + unitWidth
+        : currScrollPosition - unitWidth;
+
+    if (nextScrollPosition < 0) {
+      nextScrollPosition = 0;
+    }
+
+    if (nextScrollPosition > maxWidth) {
+      nextScrollPosition = maxWidth;
+    }
+
+    setTimeout(() => {
+      currPreviewConatiner.scroll({
+        left: nextScrollPosition,
+        behavior: "smooth",
+      });
+
+      scrollPosition.current = nextScrollPosition; // Update useRef's value
+      throttleScroll.current = false;
+    }, 200);
+
+    throttleScroll.current = true;
+  }, []);
+
   return (
     <React.Fragment>
       <div
@@ -111,22 +165,37 @@ function PhotoForm({
           ]}
         ></ExplorerHeader>
 
-        <div className={classes.preview}>
-          {previewList.map((previewURL) => {
-            return <img src={previewURL} alt="" />;
-          })}
+        <div
+          className={classes.preview}
+          onWheel={(event) => moveToNextPhoto(event)}
+          ref={previewContainer}
+        >
+          {previewList.length > 0 ? (
+            previewList.map((previewURL, index) => {
+              return (
+                <img src={previewURL} alt="" key={index} data-index={index} />
+              );
+            })
+          ) : (
+            <div className={classes["preview-placeholder"]}></div>
+          )}
         </div>
 
         <form className={classes.form}>
-          <label htmlFor="newPhotos">사진</label>
+          <label htmlFor="newPhotos"></label>
           <input
             type="file"
             id="newPhotos"
             accept=".jpg"
             onChange={fileInputHandler}
             multiple
+            ref={photoInput}
           />
-          <button onClick={uploadPhotos}>추가</button>
+
+          <div className={classes["button-wrapper"]}>
+            <button onClick={openPhotoInput}>사진 추가</button>
+            <button onClick={uploadPhotos}>업로드</button>
+          </div>
         </form>
       </div>
     </React.Fragment>
