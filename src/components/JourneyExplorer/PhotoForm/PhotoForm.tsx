@@ -64,8 +64,17 @@ function PhotoForm({
   useEffect(() => {
     worker.onmessage = (event: MessageEvent) => setPreviewList(event.data);
 
-    return () => worker.terminate(); // To avoid memory leak error.
+    return () => worker.terminate(); // NOTE: To avoid memory leak error.
   }, [worker]);
+
+  useEffect(() => {
+    if (!previewContainer.current) {
+      return;
+    }
+    // NOTE: Move to the initial scroll position when preview items are changed.
+    previewContainer.current.scroll(0, 0);
+    scrollPosition.current = 0;
+  }, [previewList]);
 
   const resizeImages = useCallback(
     async (imageUrls: string[]): Promise<void> => {
@@ -93,19 +102,18 @@ function PhotoForm({
   const openPhotoInput = useCallback((event: React.MouseEvent): void => {
     event.preventDefault();
 
-    photoInput.current?.click();
+    if (photoInput.current) {
+      photoInput.current.click();
+    }
   }, []);
 
   const fileInputHandler = useCallback(
-    async (event: React.ChangeEvent) => {
+    async (event: React.ChangeEvent): Promise<void> => {
       const inputElem = event.target as HTMLInputElement;
       const fileList = inputElem.files;
 
       if (!fileList || fileList.length > 10) {
         alert("한 번에 10장 이하의 사진만 업로드 할 수 있습니다.");
-        setPhotoFiles([]);
-        setPreviewList([]);
-        inputElem.value = "";
         return;
       }
 
@@ -113,11 +121,11 @@ function PhotoForm({
         .fill(null)
         .map((_, index) => fileList[index]);
 
+      setPhotoFiles(files); // NOTE: Files to be uploaded to the server.
+
       const imageUrls = await readFilesAsDataURL(files);
 
       resizeImages(imageUrls);
-
-      setPhotoFiles(files);
     },
     [resizeImages]
   );
@@ -179,13 +187,15 @@ function PhotoForm({
       nextScrollPosition = maxWidth;
     }
 
+    // NOTE: Throttling a scroll event
     setTimeout(() => {
       currPreviewConatiner.scroll({
         left: nextScrollPosition,
         behavior: "smooth",
       });
 
-      scrollPosition.current = nextScrollPosition; // Update useRef's value
+      // Update uesRef() variables' value
+      scrollPosition.current = nextScrollPosition;
       throttleScroll.current = false;
     }, 200);
 
