@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import classes from "./JourneyDetail.module.scss";
 
-import { ProcessedJourney } from "../Journey.interface"; // Temporary
+import { ProcessedJourney, RawPhoto } from "../Journey.interface"; // Temporary
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import PhotoGrid from "../Layouts/PhotoGrid/PhotoGrid";
 import PhotoForm from "../PhotoForm/PhotoForm";
@@ -45,9 +45,27 @@ function JourneyDetail({
     onCloseDetail();
   };
 
-  const togglePhotoForm = () => {
+  const toggleForm = () => {
     setUploadFormActive((isUploadFormActive) => !isUploadFormActive);
   };
+
+  const appendToPhotoList = useCallback(
+    (uploadedPhotos: RawPhoto[]) => {
+      if (!journey) {
+        return;
+      }
+
+      const processedPhotos = uploadedPhotos.map((photo) => {
+        return {
+          ...photo,
+          path: `http://localhost:3030/${photo.path.substring(6)}`,
+        };
+      });
+
+      journey.photos = [...journey.photos, ...processedPhotos];
+    },
+    [journey]
+  );
 
   return (
     <div
@@ -77,7 +95,7 @@ function JourneyDetail({
               </span>
 
               <div className={classes["button-container"]}>
-                <button onClick={togglePhotoForm}>사진 추가</button>
+                <button onClick={toggleForm}>사진 추가</button>
               </div>
             </section>
 
@@ -91,8 +109,8 @@ function JourneyDetail({
           <PhotoForm
             isActive={isUploadFormActive}
             journeyTitle={journey.title}
-            onConfirm={() => {}}
-            onCloseForm={togglePhotoForm}
+            onUpload={appendToPhotoList}
+            onCloseForm={toggleForm}
           ></PhotoForm>
         </React.Fragment>
       )}

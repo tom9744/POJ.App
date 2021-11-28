@@ -9,7 +9,8 @@ type PhotoGridProps = {
 function PhotoGrid({ photos }: PhotoGridProps) {
   const [imageBlobs, setImageBlobs] = useState<string[]>([]);
 
-  const worker = useMemo(() => new Worker("./workers/worker.js"), []);
+  // TODO: Worker gets terminated during the component re-evaluation, and never gets instanciated.
+  const worker = useMemo(() => new Worker("./workers/worker.js"), [photos]);
 
   useEffect(() => {
     const pathUrls = photos.map((photo) => photo.path);

@@ -5,13 +5,14 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { RawPhoto } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
 
 type PhotoFormProps = {
   isActive: boolean;
   journeyTitle: string;
-  onConfirm: () => void;
+  onUpload: (uploadedPhotos: RawPhoto[]) => void;
   onCloseForm: () => void;
 };
 
@@ -48,10 +49,10 @@ async function readFilesAsDataURL(files: File[]): Promise<string[]> {
 function PhotoForm({
   isActive,
   journeyTitle,
-  onConfirm,
+  onUpload,
   onCloseForm,
 }: PhotoFormProps) {
-  const [previewList, setPreviewList] = useState<string[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   const photoInput = useRef<HTMLInputElement>(null);
@@ -62,7 +63,7 @@ function PhotoForm({
   const worker = useMemo(() => new Worker("./workers/resize-image.js"), []);
 
   useEffect(() => {
-    worker.onmessage = (event: MessageEvent) => setPreviewList(event.data);
+    worker.onmessage = (event: MessageEvent) => setPhotoPreviews(event.data);
 
     return () => worker.terminate(); // NOTE: To avoid memory leak error.
   }, [worker]);
@@ -74,7 +75,7 @@ function PhotoForm({
     // NOTE: Move to the initial scroll position when preview items are changed.
     previewContainer.current.scroll(0, 0);
     scrollPosition.current = 0;
-  }, [previewList]);
+  }, [photoPreviews]);
 
   const resizeImages = useCallback(
     async (imageUrls: string[]): Promise<void> => {
@@ -91,7 +92,9 @@ function PhotoForm({
 
       // NOTE: Web Worker can't process HTMLImageElemnet Type. So, convert to ImageBitmap
       const bitmaps = await Promise.all(
-        imageElems.map((imageElem) => createImageBitmap(imageElem))
+        imageElems.map((imageElem) =>
+          createImageBitmap(imageElem, 0, 0, imageElem.width, imageElem.height)
+        )
       );
 
       worker.postMessage(bitmaps);
@@ -131,11 +134,11 @@ function PhotoForm({
   );
 
   const uploadPhotos = useCallback(
-    (event: React.MouseEvent) => {
+    async (event: React.MouseEvent) => {
       event.preventDefault();
 
       if (!journeyTitle || photoFiles.length <= 0) {
-        // [TODO] Notify that an error has occured.
+        alert("업로드 할 사진이 없습니다. 먼저 사진을 추가해주세요.");
         return;
       }
 
@@ -145,22 +148,22 @@ function PhotoForm({
         formData.append(`images`, file);
       });
 
-      // [TODO] Implement Confrimation Logic
-      fetch("http://localhost:3030/photos", {
+      const response = await fetch("http://localhost:3030/photos", {
         method: "POST",
         body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
+      });
 
-          onCloseForm();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      if (!response.ok) {
+        alert("업로드 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+
+      const uploadedPhotos: RawPhoto[] = await response.json();
+
+      onUpload(uploadedPhotos);
+      onCloseForm();
     },
-    [journeyTitle, onCloseForm, photoFiles]
+    [photoFiles, journeyTitle, onUpload, onCloseForm]
   );
 
   const moveToNextPhoto = useCallback((event: React.WheelEvent) => {
@@ -226,8 +229,8 @@ function PhotoForm({
           onWheel={(event) => moveToNextPhoto(event)}
           ref={previewContainer}
         >
-          {previewList.length > 0 ? (
-            previewList.map((previewURL, index) => {
+          {photoPreviews.length > 0 ? (
+            photoPreviews.map((previewURL, index) => {
               return (
                 <img src={previewURL} alt="" key={index} data-index={index} />
               );
