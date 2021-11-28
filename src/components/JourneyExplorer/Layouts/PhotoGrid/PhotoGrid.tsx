@@ -17,11 +17,19 @@ function PhotoGrid({ photos }: PhotoGridProps) {
     setImageBlobs(new Array(pathUrls.length).fill(null));
 
     worker.postMessage(pathUrls);
+
+    return () => {
+      worker.terminate(); // Avoid memory leak error.
+    };
   }, [worker, photos]);
 
   useEffect(() => {
     worker.onmessage = (event: MessageEvent) => {
       setImageBlobs(event.data);
+    };
+
+    return () => {
+      worker.terminate(); // Avoid memory leak error.
     };
   }, [worker]);
 
