@@ -1,4 +1,10 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
 
@@ -14,8 +20,8 @@ type PhotoFormProps = {
  * @param files 이미지 파일로 구성된 배열
  * @returns 모든 FileReader의 작업이 완료되면 귀결 상태로 전이하는 프로미스
  */
-function readFilesAsDataURL(files: File[]): Promise<string[]> {
-  return Promise.all(
+async function readFilesAsDataURL(files: File[]): Promise<string[]> {
+  const imageSrcList = await Promise.all(
     files.map((file): Promise<string> => {
       return new Promise((resolve, reject) => {
         const fileReader = new FileReader();
@@ -35,6 +41,8 @@ function readFilesAsDataURL(files: File[]): Promise<string[]> {
       });
     })
   );
+
+  return imageSrcList;
 }
 
 function PhotoForm({
@@ -51,33 +59,68 @@ function PhotoForm({
   const scrollPosition = useRef<number>(0);
   const throttleScroll = useRef<boolean>(false);
 
+  const worker = useMemo(() => new Worker("./workers/resize-image.js"), []);
+
+  useEffect(() => {
+    worker.onmessage = (event: MessageEvent) => setPreviewList(event.data);
+
+    return () => worker.terminate(); // To avoid memory leak error.
+  }, [worker]);
+
+  const resizeImages = useCallback(
+    async (imageUrls: string[]): Promise<void> => {
+      const imageElems = await Promise.all(
+        imageUrls.map(async (url) => {
+          const imageElem = new Image();
+          imageElem.src = url;
+
+          await imageElem.decode(); // Wait for the image to be loaded
+
+          return imageElem;
+        })
+      );
+
+      // NOTE: Web Worker can't process HTMLImageElemnet Type. So, convert to ImageBitmap
+      const bitmaps = await Promise.all(
+        imageElems.map((imageElem) => createImageBitmap(imageElem))
+      );
+
+      worker.postMessage(bitmaps);
+    },
+    [worker]
+  );
+
   const openPhotoInput = useCallback((event: React.MouseEvent): void => {
     event.preventDefault();
 
     photoInput.current?.click();
   }, []);
 
-  const fileInputHandler = useCallback(async (event: React.ChangeEvent) => {
-    const inputElem = event.target as HTMLInputElement;
-    const fileList = inputElem.files;
+  const fileInputHandler = useCallback(
+    async (event: React.ChangeEvent) => {
+      const inputElem = event.target as HTMLInputElement;
+      const fileList = inputElem.files;
 
-    if (!fileList || fileList.length > 20) {
-      alert("한 번에 20장 미만의 사진만 업로드 할 수 있습니다.");
-      setPhotoFiles([]);
-      setPreviewList([]);
-      inputElem.value = "";
-      return;
-    }
+      if (!fileList || fileList.length > 10) {
+        alert("한 번에 10장 이하의 사진만 업로드 할 수 있습니다.");
+        setPhotoFiles([]);
+        setPreviewList([]);
+        inputElem.value = "";
+        return;
+      }
 
-    const files = Array(fileList.length)
-      .fill(null)
-      .map((_, index) => fileList[index]);
+      const files = Array(fileList.length)
+        .fill(null)
+        .map((_, index) => fileList[index]);
 
-    const imageUrls = await readFilesAsDataURL(files);
+      const imageUrls = await readFilesAsDataURL(files);
 
-    setPhotoFiles(files);
-    setPreviewList(imageUrls);
-  }, []);
+      resizeImages(imageUrls);
+
+      setPhotoFiles(files);
+    },
+    [resizeImages]
+  );
 
   const uploadPhotos = useCallback(
     (event: React.MouseEvent) => {
