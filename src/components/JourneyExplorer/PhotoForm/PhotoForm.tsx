@@ -51,6 +51,12 @@ function PhotoForm({
   const scrollPosition = useRef<number>(0);
   const throttleScroll = useRef<boolean>(false);
 
+  const openPhotoInput = useCallback((event: React.MouseEvent): void => {
+    event.preventDefault();
+
+    photoInput.current?.click();
+  }, []);
+
   const fileInputHandler = useCallback(async (event: React.ChangeEvent) => {
     const inputElem = event.target as HTMLInputElement;
     const fileList = inputElem.files;
@@ -73,41 +79,38 @@ function PhotoForm({
     setPreviewList(imageUrls);
   }, []);
 
-  const uploadPhotos = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const uploadPhotos = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
 
-    if (!journeyTitle || photoFiles.length <= 0) {
-      // [TODO] Notify that an error has occured.
-      return;
-    }
+      if (!journeyTitle || photoFiles.length <= 0) {
+        // [TODO] Notify that an error has occured.
+        return;
+      }
 
-    const formData = new FormData();
-    formData.append("journeyTitle", journeyTitle);
-    photoFiles.forEach((file) => {
-      formData.append(`images`, file);
-    });
-
-    // [TODO] Implement Confrimation Logic
-    fetch("http://localhost:3030/photos", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-
-        onCloseForm();
-      })
-      .catch((error) => {
-        console.log(error);
+      const formData = new FormData();
+      formData.append("journeyTitle", journeyTitle);
+      photoFiles.forEach((file) => {
+        formData.append(`images`, file);
       });
-  };
 
-  const openPhotoInput = (event: React.MouseEvent): void => {
-    event.preventDefault();
+      // [TODO] Implement Confrimation Logic
+      fetch("http://localhost:3030/photos", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
 
-    photoInput.current?.click();
-  };
+          onCloseForm();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    [journeyTitle, onCloseForm, photoFiles]
+  );
 
   const moveToNextPhoto = useCallback((event: React.WheelEvent) => {
     if (!previewContainer.current || throttleScroll.current) {
@@ -180,6 +183,11 @@ function PhotoForm({
             <div className={classes["preview-placeholder"]}></div>
           )}
         </div>
+
+        <p className={classes.description}>
+          <span>사진을 추가한 뒤, 스크롤 하여</span>
+          <span>미리보기를 확인할 수 있습니다.</span>
+        </p>
 
         <form className={classes.form}>
           <label htmlFor="newPhotos"></label>
