@@ -19,7 +19,5 @@ self.onmessage = async (event) => {
     })
   );
 
-  setTimeout(() => {
-    self.postMessage(images);
-  }, 1000);
+  self.postMessage(images);
 };

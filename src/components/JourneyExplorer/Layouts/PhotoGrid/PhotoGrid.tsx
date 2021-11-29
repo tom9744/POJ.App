@@ -6,6 +6,15 @@ type PhotoGridProps = {
   photos: RawPhoto[];
 };
 
+function loadImage(imagePath: string): Promise<boolean> {
+  return new Promise((reslove, reject) => {
+    const image = new Image();
+    image.src = imagePath;
+    image.onload = () => reslove(true);
+    image.onerror = () => reject(false);
+  });
+}
+
 function PhotoGrid({ photos }: PhotoGridProps) {
   const [imageBlobs, setImageBlobs] = useState<string[]>([]);
 
@@ -20,17 +29,22 @@ function PhotoGrid({ photos }: PhotoGridProps) {
     worker.postMessage(pathUrls);
 
     return () => {
-      worker.terminate(); // Avoid memory leak error.
+      worker.terminate(); // NOTE: To avoid memory leak error.
     };
   }, [worker, photos]);
 
   useEffect(() => {
-    worker.onmessage = (event: MessageEvent) => {
+    worker.onmessage = async (event: MessageEvent) => {
+      const imageBlobPaths = event.data as string[];
+
+      // NOTE: Wait for all images to be pre-loaded.
+      await Promise.all(imageBlobPaths.map((path) => loadImage(path)));
+
       setImageBlobs(event.data);
     };
 
     return () => {
-      worker.terminate(); // Avoid memory leak error.
+      worker.terminate(); // NOTE: To avoid memory leak error.
     };
   }, [worker]);
 
@@ -42,6 +56,8 @@ function PhotoGrid({ photos }: PhotoGridProps) {
           src={imageBlob || "/images/dummy.jpg"}
           alt={photos[index].filename}
           className={classes.image}
+          height={250}
+          width={250}
         />
       ))}
     </div>
