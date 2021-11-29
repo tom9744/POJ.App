@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
+import { Coordinate, isValidCoordinate, MarkerData } from "./KakaoMapService";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
-function KakaoMap(props: { locations: any[] }) {
-  const [map, setMap] = useState(null);
+type KakaoMapProps = { markerDataList: MarkerData[] };
+
+function KakaoMap({ markerDataList }: KakaoMapProps) {
+  const [map, setMap] = useState<any>(null);
 
   // Reference of the DOM where the map will be displayed.
   const mapContainer = useRef(null);
@@ -23,15 +26,46 @@ function KakaoMap(props: { locations: any[] }) {
     setMap(mapInstance); // Save the map's instance into the reducer.
   }, []);
 
+  // Move the map to the average coordinate of the selected journey.
+  useEffect(() => {
+    if (!map || markerDataList.length <= 0) return;
+
+    const validCoordinates = markerDataList
+      .map(({ coordinate: { latitude, longitude } }): Coordinate => {
+        return {
+          latitude,
+          longitude,
+        };
+      })
+      .filter((coordinate) => isValidCoordinate(coordinate));
+
+    const totalValue = validCoordinates.reduce(
+      (coordinate, acc) => {
+        acc.latitude += coordinate.latitude;
+        acc.longitude += coordinate.longitude;
+
+        return acc;
+      },
+      { latitude: 0, longitude: 0 }
+    );
+
+    const kakaoCoordinate = new kakao.maps.LatLng(
+      totalValue.latitude / validCoordinates.length,
+      totalValue.longitude / validCoordinates.length
+    );
+
+    map.panTo(kakaoCoordinate);
+  }, [map, markerDataList]);
+
   return (
     <React.Fragment>
       <div id="kakao-map" className={classes.map} ref={mapContainer}></div>
       <KakaoMapContainer
         kakaoMap={map}
-        locations={props.locations}
+        markerDataList={markerDataList}
       ></KakaoMapContainer>
     </React.Fragment>
   );
 }
 
-export default KakaoMap;
+export default React.memo(KakaoMap);

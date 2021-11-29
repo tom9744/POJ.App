@@ -1,9 +1,20 @@
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
+const NORTHERNMOST_LATITUDE = 43;
+const SOUTHERNMOST_LATITUDE = 33;
+const WESTERNMOST_LONGITUDE = 124;
+const EASTERNMOST_LONGITUDE = 132;
+
 export interface Coordinate {
   latitude: number;
   longitude: number;
+}
+
+export interface MarkerData {
+  id: number;
+  path: string;
+  coordinate: Coordinate;
 }
 
 export const generateOverlay = ({ latitude, longitude }: Coordinate) => {
@@ -36,4 +47,16 @@ export const generateMarker = ({ latitude, longitude }: Coordinate) => {
   const newMarker = new kakao.maps.Marker({ position });
 
   return newMarker;
+};
+
+export const isValidCoordinate = ({
+  latitude,
+  longitude,
+}: Coordinate): boolean => {
+  return (
+    latitude > SOUTHERNMOST_LATITUDE &&
+    latitude < NORTHERNMOST_LATITUDE &&
+    longitude > WESTERNMOST_LONGITUDE &&
+    longitude < EASTERNMOST_LONGITUDE
+  );
 };

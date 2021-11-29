@@ -26,7 +26,7 @@ function PhotoGrid({ photos }: PhotoGridProps) {
 
     setImageBlobs(new Array(pathUrls.length).fill(null));
 
-    worker.postMessage(pathUrls);
+    setTimeout(() => worker.postMessage(pathUrls), 500);
 
     return () => {
       worker.terminate(); // NOTE: To avoid memory leak error.

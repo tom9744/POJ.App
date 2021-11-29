@@ -5,10 +5,11 @@ import classes from "./JourneyExplorer.module.scss";
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
 import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
-import { RawJourney, ProcessedJourney } from "./Journey.interface";
+import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 
 type JourneyExplorerProps = {
   isActive: boolean;
+  onSelectJourney: (photos: RawPhoto[]) => void;
   onCloseExplorer: (event: React.MouseEvent) => void;
 };
 
@@ -49,7 +50,8 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   const [selectedJourney, setSelectedJourney] =
     useState<ProcessedJourney | null>(null);
 
-  useEffect(() => {
+  // NOTE: Cannot use async/await in useEffect Hook.
+  useEffect((): void => {
     requestJourneys().then((journeys) => {
       const temporaryJourneys = journeys.map((journey) =>
         processJourneyData(journey)
@@ -59,25 +61,24 @@ function JourneyExplorer(props: JourneyExplorerProps) {
     });
   }, []);
 
-  const openForm = () => {
-    setFormActive(true);
+  const toggleJourneyForm = (): void => {
+    setFormActive((isFormActive) => !isFormActive);
   };
 
-  const closeForm = () => {
-    setFormActive(false);
-  };
+  const openDetail = (index: number): void => {
+    const selectedJourney = journeys[index];
 
-  const openDetail = (index: number) => {
-    setSelectedJourney(journeys[index]);
+    props.onSelectJourney(selectedJourney.photos);
+    setSelectedJourney(selectedJourney);
     setDetailActive(true);
   };
 
-  const closeDetail = () => {
+  const closeDetail = (): void => {
     setSelectedJourney(null);
     setDetailActive(false);
   };
 
-  const addJourney = (journey: RawJourney) => {
+  const appendJourney = (journey: RawJourney): void => {
     setJourneys((currentState) => [
       processJourneyData(journey),
       ...currentState,
@@ -100,7 +101,11 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         close
         onClose={props.onCloseExplorer}
         leftButtons={[
-          { type: "block", textContent: "기록 남기기", handler: openForm },
+          {
+            type: "block",
+            textContent: "기록 남기기",
+            handler: toggleJourneyForm,
+          },
         ]}
       ></ExplorerHeader>
 
@@ -119,8 +124,8 @@ function JourneyExplorer(props: JourneyExplorerProps) {
 
         <JourneyForm
           isActive={isFormActive}
-          onCloseForm={closeForm}
-          onContentAdded={addJourney}
+          onCloseForm={toggleJourneyForm}
+          onContentAdded={appendJourney}
         ></JourneyForm>
       </div>
     </div>

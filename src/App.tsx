@@ -1,8 +1,10 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
+import { RawPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
+import { Coordinate, MarkerData } from "./components/KakaoMap/KakaoMapService";
 
 interface UIAction {
   type: "ACTIVATE_BUBBLE_BUTTON" | "ACTIVATE_EXPLORER";
@@ -30,26 +32,15 @@ const reducer = (state: UIState, action: UIAction): UIState => {
   }
 };
 
-const arrayGenerator = (): any[] => {
-  const randomLength = Math.floor(Math.random() * 10);
-
-  return Array(randomLength).fill(null);
-};
-
 function App() {
   const [state, dispatch] = useReducer(reducer, {
     isExplorerActive: false,
     isButtonActive: false,
   });
-  const [locations, setLocations] = useState<number[]>([]);
+  const [markerDataList, setMarkerDataList] = useState<MarkerData[]>([]);
 
   useEffect(() => {
     dispatch({ type: "ACTIVATE_BUBBLE_BUTTON" });
-
-    setInterval(() => {
-      const filledArray = arrayGenerator().map((_, index) => index);
-      setLocations(filledArray);
-    }, 5000);
   }, []);
 
   const openExplorer = (_event: React.MouseEvent) => {
@@ -60,9 +51,23 @@ function App() {
     dispatch({ type: "ACTIVATE_BUBBLE_BUTTON" });
   };
 
+  const extractLoactions = useCallback((photos: RawPhoto[]) => {
+    const markerDataList: MarkerData[] = photos.map(
+      ({ id, latitude, longitude, path }) => {
+        return {
+          id,
+          coordinate: { longitude, latitude },
+          path,
+        };
+      }
+    );
+
+    setMarkerDataList(markerDataList);
+  }, []);
+
   return (
     <div className="app">
-      <KakaoMap locations={locations} />
+      <KakaoMap markerDataList={markerDataList} />
 
       <BubbleButton
         isActive={state.isButtonActive}
@@ -71,6 +76,7 @@ function App() {
 
       <JourneyExplorer
         isActive={state.isExplorerActive}
+        onSelectJourney={extractLoactions}
         onCloseExplorer={closeExplorer}
       />
     </div>

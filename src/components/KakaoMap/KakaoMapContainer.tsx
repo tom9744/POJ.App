@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Coordinate, generateMarker, generateOverlay } from "./KakaoMapService";
+import { generateMarker, generateOverlay, MarkerData } from "./KakaoMapService";
 import "./CustomOverlay.scss";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
-function KakaoMapContainer(props: { kakaoMap: any; locations: any[] }) {
+type KakaoMapContainerProps = { kakaoMap: any; markerDataList: MarkerData[] };
+
+function KakaoMapContainer({
+  kakaoMap,
+  markerDataList,
+}: KakaoMapContainerProps) {
   const [markers, setMarkers] = useState<any[]>([]);
   const [overlays, setOverlays] = useState<any[]>([]);
 
   let selectedOverlay: any = null;
 
   useEffect(() => {
-    const positions: Coordinate[] = props.locations.map((delta) => {
-      return {
-        latitude: 37.424245 + delta / 500,
-        longitude: 126.992091 + delta / 500,
-      };
-    });
+    const newOverlays = markerDataList.map(({ coordinate }) =>
+      generateOverlay(coordinate)
+    );
 
-    const newOverlays = positions.map((position) => generateOverlay(position));
-    const newMarkers = positions.map((position, index) => {
-      const newMarker = generateMarker(position);
+    const newMarkers = markerDataList.map(({ coordinate }, index) => {
+      const newMarker = generateMarker(coordinate);
 
       kakao.maps.event.addListener(newMarker, "click", () => {
         const targetOverlay = newOverlays[index];
@@ -31,7 +32,7 @@ function KakaoMapContainer(props: { kakaoMap: any; locations: any[] }) {
           selectedOverlay.setMap(null);
           selectedOverlay = null;
         }
-        targetOverlay.setMap(props.kakaoMap);
+        targetOverlay.setMap(kakaoMap);
         selectedOverlay = targetOverlay;
       });
 
@@ -40,15 +41,15 @@ function KakaoMapContainer(props: { kakaoMap: any; locations: any[] }) {
 
     setOverlays(newOverlays);
     setMarkers(newMarkers);
-  }, [props.locations]);
+  }, [markerDataList]);
 
   useEffect(() => {
-    markers.forEach((marker) => marker.setMap(props.kakaoMap));
+    markers.forEach((marker) => marker.setMap(kakaoMap));
 
     return () => {
       [...markers, ...overlays].forEach((elem) => elem.setMap(null)); // Clear all elements
     };
-  }, [markers, overlays]);
+  }, [kakaoMap, markers, overlays]);
 
   return <React.Fragment></React.Fragment>;
 }
