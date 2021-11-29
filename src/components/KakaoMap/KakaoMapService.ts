@@ -17,23 +17,19 @@ export interface MarkerData {
   coordinate: Coordinate;
 }
 
-export const generateOverlay = ({ latitude, longitude }: Coordinate) => {
+export const generateOverlay = ({ coordinate, path }: MarkerData): any => {
+  const { latitude, longitude } = coordinate;
   const position = new kakao.maps.LatLng(latitude, longitude);
   const customOverlay = new kakao.maps.CustomOverlay();
 
-  const closeOverlay = () => {
-    customOverlay.setMap(null);
-  };
-
   const content = document.createElement("div");
+  content.className = "custom-overlay-wrapper";
   content.innerHTML = `<div class="custom-overlay">
-      <span class="left"></span>
-      <span class="center">카카오!</span>
-      <span class="right"></span>
+      <img class="image" src="${path}"/>
     </div>`;
 
   content.addEventListener("click", () => {
-    closeOverlay();
+    customOverlay.setMap(null);
   });
 
   customOverlay.setContent(content);
@@ -42,7 +38,7 @@ export const generateOverlay = ({ latitude, longitude }: Coordinate) => {
   return customOverlay;
 };
 
-export const generateMarker = ({ latitude, longitude }: Coordinate) => {
+export const generateMarker = ({ latitude, longitude }: Coordinate): any => {
   const position = new kakao.maps.LatLng(latitude, longitude);
   const newMarker = new kakao.maps.Marker({ position });
 

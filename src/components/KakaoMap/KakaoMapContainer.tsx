@@ -17,8 +17,8 @@ function KakaoMapContainer({
   let selectedOverlay: any = null;
 
   useEffect(() => {
-    const newOverlays = markerDataList.map(({ coordinate }) =>
-      generateOverlay(coordinate)
+    const newOverlays = markerDataList.map((markerData) =>
+      generateOverlay(markerData)
     );
 
     const newMarkers = markerDataList.map(({ coordinate }, index) => {

@@ -1,32 +1,32 @@
-.custom-overlay {
+.custom-overlay-wrapper {
   position: absolute;
-  left: -50px;
-  bottom: 55px;
+  left: -100px;
+  bottom: 50px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  height: 100px;
-  width: 100px;
+  height: 200px;
+  width: 200px;
 
   border-radius: 20px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px,
     rgba(255, 255, 255, 0.2) 0px 0px 0px;
   background-color: white;
 
+  box-sizing: border-box;
+  overflow: hidden;
   cursor: pointer;
 
-  &::after {
-    content: "";
-    height: 15px;
-    width: 15px;
+  .custom-overlay {
+    display: flex;
+    flex-direction: column;
 
-    position: absolute;
-    bottom: -7.5px;
+    height: 100%;
+    width: 100%;
 
-    background-color: white;
+    .image {
+      height: 100%;
+      width: 100%;
 
-    transform: rotate(45deg);
+      object-fit: cover;
+    }
   }
 }
