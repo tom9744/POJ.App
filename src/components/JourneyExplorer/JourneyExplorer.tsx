@@ -5,42 +5,13 @@ import classes from "./JourneyExplorer.module.scss";
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
 import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
+import { fetchJourneys, HttpError, processJourneys } from "./JourneyService";
 import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 
 type JourneyExplorerProps = {
   isActive: boolean;
   onSelectJourney: (photos: RawPhoto[]) => void;
   onCloseExplorer: (event: React.MouseEvent) => void;
-};
-
-// Requests journey data to the server.
-const requestJourneys = async (): Promise<RawJourney[]> => {
-  const response = await fetch("http://localhost:3030/journeys");
-  const body: RawJourney[] = await response.json();
-
-  // [Note] Responses with a code either 40X or 50X is not an error.
-  if (!response.ok) {
-    throw body;
-  }
-
-  return body;
-};
-
-const processJourneyData = (rawJourney: RawJourney): ProcessedJourney => {
-  if (rawJourney.photos) {
-    rawJourney.photos = rawJourney.photos.map((photo) => {
-      return {
-        ...photo,
-        path: `http://localhost:3030/${photo.path.substring(6)}`,
-      };
-    });
-  }
-
-  return {
-    ...rawJourney,
-    thumbNailPath:
-      rawJourney.photos?.length > 0 ? rawJourney.photos[0].path : ``,
-  };
 };
 
 function JourneyExplorer(props: JourneyExplorerProps) {
@@ -52,13 +23,20 @@ function JourneyExplorer(props: JourneyExplorerProps) {
 
   // NOTE: Cannot use async/await in useEffect Hook.
   useEffect((): void => {
-    requestJourneys().then((journeys) => {
-      const temporaryJourneys = journeys.map((journey) =>
-        processJourneyData(journey)
-      );
+    fetchJourneys()
+      .then((journeys) => {
+        const processedJourney = processJourneys(journeys);
 
-      setJourneys(temporaryJourneys);
-    });
+        setJourneys(processedJourney);
+      })
+      .catch((error) => {
+        // TODO: Should improve the error handling logic to enhance UX.
+        if (error instanceof HttpError) {
+          alert("Could not fetch data from the server. Please try later.");
+        } else {
+          alert("Could not reach out to the server. Please try later.");
+        }
+      });
   }, []);
 
   const toggleJourneyForm = (): void => {
@@ -79,10 +57,9 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const appendJourney = (journey: RawJourney): void => {
-    setJourneys((currentState) => [
-      processJourneyData(journey),
-      ...currentState,
-    ]);
+    const newProcessedJourney = processJourneys([journey]);
+
+    setJourneys((currentState) => [...currentState, ...newProcessedJourney]);
   };
 
   const removeJourney = (targetJourney: ProcessedJourney) => {
