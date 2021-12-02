@@ -33,6 +33,9 @@
   }
 
   .form-content {
+    display: flex;
+    flex-direction: column;
+
     height: 100%;
     width: 100%;
 
@@ -46,7 +49,7 @@
     }
 
     .form-content-section {
-      margin: 20px auto;
+      margin: auto;
 
       .title {
         margin: 0;
