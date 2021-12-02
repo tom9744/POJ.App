@@ -4,6 +4,7 @@ import classes from "./ExplorerHeader.module.scss";
 export type HeaderButton = {
   type: "text" | "block";
   textContent: string;
+  isDisabled?: boolean;
   handler: (event: React.MouseEvent) => void;
 };
 
@@ -35,19 +36,31 @@ function ExplorerHeader(props: ExplorerHeaderProps) {
     <section className={classes["explorer-header"]}>
       {backwardButton}
 
-      {props.leftButtons?.map(({ type, textContent, handler }) => (
-        <button className={classes[`${type}-button`]} onClick={handler}>
-          {textContent}
-        </button>
-      ))}
+      {props.leftButtons?.map(
+        ({ type, textContent, handler, isDisabled = false }) => (
+          <button
+            className={classes[`${type}-button`]}
+            disabled={isDisabled}
+            onClick={handler}
+          >
+            {textContent}
+          </button>
+        )
+      )}
 
       <div className={classes.spacer}></div>
 
-      {props.rightButtons?.map(({ type, textContent, handler }) => (
-        <button className={classes[`${type}-button`]} onClick={handler}>
-          {textContent}
-        </button>
-      ))}
+      {props.rightButtons?.map(
+        ({ type, textContent, handler, isDisabled = false }) => (
+          <button
+            className={classes[`${type}-button`]}
+            disabled={isDisabled}
+            onClick={handler}
+          >
+            {textContent}
+          </button>
+        )
+      )}
 
       {closeButton}
     </section>
