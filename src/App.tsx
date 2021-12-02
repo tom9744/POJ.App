@@ -28,7 +28,7 @@ const reducer = (state: UIState, action: UIAction): UIState => {
         isButtonActive: false,
       };
     default:
-      throw new Error("Invalid action type has been dispatched.");
+      throw new Error("[App] Invalid action type has been dispatched.");
   }
 };
 
