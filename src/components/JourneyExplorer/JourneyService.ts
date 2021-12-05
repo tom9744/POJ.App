@@ -1,27 +1,5 @@
 import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 
-export class HttpError extends Error {
-  constructor(public statusCode: number, public message: string) {
-    super(message);
-  }
-}
-
-/**
- * Fetch journey data from the server.
- * @returns an entire list of journeys.
- */
-export const fetchJourneys = async (): Promise<RawJourney[]> => {
-  const response = await fetch("http://localhost:3030/journeys");
-
-  if (response.ok) {
-    const responseBody: RawJourney[] = await response.json();
-    return responseBody;
-  } else {
-    const errorData = new HttpError(response.status, response.statusText);
-    throw errorData;
-  }
-};
-
 export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
   if (!photos?.length) {
     return photos;
