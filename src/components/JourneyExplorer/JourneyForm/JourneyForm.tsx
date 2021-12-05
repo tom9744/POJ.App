@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import { JourneyDTO, RawJourney } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./JourneyForm.module.scss";
@@ -27,41 +27,72 @@ const createJourney = async (journey: JourneyDTO): Promise<RawJourney> => {
   return body;
 };
 
+type FormAction =
+  | { type: "CHANGE_TITLE"; title: string }
+  | { type: "CHANGE_DESC"; description: string }
+  | { type: "CHANGE_START_DATE"; startDate: string }
+  | { type: "CHANGE_END_DATE"; endDate: string }
+  | { type: "RESET_VALUES" };
+
+interface FormState {
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+}
+
+const formReducer = (state: FormState, action: FormAction): FormState => {
+  switch (action.type) {
+    case "CHANGE_TITLE":
+      return { ...state, title: action.title };
+    case "CHANGE_DESC":
+      return { ...state, title: action.description };
+    case "CHANGE_START_DATE":
+      return { ...state, title: action.startDate };
+    case "CHANGE_END_DATE":
+      return { ...state, title: action.endDate };
+    case "RESET_VALUES":
+      return { title: "", description: "", startDate: "", endDate: "" };
+    default:
+      throw new Error("[JourneyForm] Invalid action type has been dispatched.");
+  }
+};
+
 function JourneyForm({
   isActive,
   onCloseForm,
   onContentAdded,
 }: JourneyFormProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [formState, dispatch] = useReducer(formReducer, {
+    title: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+  });
 
-  const changeTitle = (event: React.ChangeEvent): void => {
-    const { value } = event.target as HTMLInputElement;
-
-    setTitle(value);
+  const changeTitle = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: "CHANGE_TITLE", title: target.value });
   };
 
-  const changeDescription = (event: React.ChangeEvent): void => {
-    const { value } = event.target as HTMLInputElement;
-
-    setDescription(value);
+  const changeDesc = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: "CHANGE_DESC", description: target.value });
   };
 
-  const changeStartDate = (event: React.ChangeEvent): void => {
-    const { value } = event.target as HTMLInputElement;
-
-    setStartDate(value);
+  const changeStartDate = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: "CHANGE_START_DATE", startDate: target.value });
   };
 
-  const changeEndDate = (event: React.ChangeEvent): void => {
-    const { value } = event.target as HTMLInputElement;
+  const changeEndDate = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({ type: "CHANGE_END_DATE", endDate: target.value });
+  };
 
-    setEndDate(value);
+  const resetValues = (): void => {
+    dispatch({ type: "RESET_VALUES" });
   };
 
   const validate = (): boolean => {
+    const { title, description, startDate, endDate } = formState;
+
     const isNotEmpty = [title, description, startDate, endDate]
       .map((value) => value.trim().length > 0)
       .every((result) => !!result);
@@ -71,17 +102,11 @@ function JourneyForm({
     return isNotEmpty && isValidDate;
   };
 
-  const resetValues = (): void => {
-    setTitle("");
-    setDescription("");
-    setStartDate("");
-    setEndDate("");
-  };
-
   const submitHandler = (event: React.FormEvent): void => {
     event.preventDefault();
 
     if (validate()) {
+      const { title, description, startDate, endDate } = formState;
       const newJourney: JourneyDTO = {
         title,
         description,
@@ -135,7 +160,7 @@ function JourneyForm({
             <input
               type="text"
               id="newTitle"
-              value={title}
+              value={formState.title}
               onChange={changeTitle}
             />
 
@@ -143,15 +168,15 @@ function JourneyForm({
             <input
               type="text"
               id="description"
-              value={description}
-              onChange={changeDescription}
+              value={formState.description}
+              onChange={changeDesc}
             />
 
             <label htmlFor="startDate">시작일</label>
             <input
               type="date"
               id="startDate"
-              value={startDate}
+              value={formState.startDate}
               onChange={changeStartDate}
             />
 
@@ -159,7 +184,7 @@ function JourneyForm({
             <input
               type="date"
               id="endDate"
-              value={endDate}
+              value={formState.endDate}
               onChange={changeEndDate}
             />
 
