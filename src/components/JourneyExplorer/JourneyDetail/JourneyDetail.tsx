@@ -5,6 +5,8 @@ import { ProcessedJourney, RawPhoto } from "../Journey.interface"; // Temporary
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import PhotoGrid from "../Layouts/PhotoGrid/PhotoGrid";
 import PhotoForm from "../PhotoForm/PhotoForm";
+import { modifyImagePath } from "../JourneyService";
+import useHttp from "../../../hooks/useHttp";
 
 type JourneyDetailProps = {
   isActive: boolean;
@@ -26,27 +28,33 @@ function JourneyDetail({
   onCloseDetail,
   onDeleteJourney,
 }: JourneyDetailProps) {
-  const [isUploadFormActive, setUploadFormActive] = useState(false);
+  const [showPhotoForm, setShowPhotoForm] = useState(false);
+  const { requestState, sendRequest } = useHttp<void>();
 
-  // [TODO] Implement Journey Edit Logic
+  const toggleForm = () => {
+    setShowPhotoForm((showPhotoForm) => !showPhotoForm);
+  };
+
+  // TODO: Implement Journey Edit Logic
   const editJourney = () => {};
 
-  const deleteJourney = () => {
-    if (!journey) {
+  // TODO: Implement Confrimation Modal
+  const deleteJourney = async () => {
+    if (!journey || !window.confirm("정말 삭제하시겠습니까?")) {
       return;
     }
 
-    // [TODO] Implement Confrimation Logic
-    fetch(`http://localhost:3030/journeys/${journey.id}`, {
-      method: "DELETE",
-    });
+    try {
+      await sendRequest({
+        url: `http://localhost:3030/journeys/${journey.id}`,
+        options: { method: "DELETE" },
+      });
 
-    onDeleteJourney(journey);
-    onCloseDetail();
-  };
-
-  const toggleForm = () => {
-    setUploadFormActive((isUploadFormActive) => !isUploadFormActive);
+      onDeleteJourney(journey);
+      onCloseDetail();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const appendToPhotoList = useCallback(
@@ -54,15 +62,7 @@ function JourneyDetail({
       if (!journey) {
         return;
       }
-
-      const processedPhotos = uploadedPhotos.map((photo) => {
-        return {
-          ...photo,
-          path: `http://localhost:3030/${photo.path.substring(6)}`,
-        };
-      });
-
-      journey.photos = [...journey.photos, ...processedPhotos];
+      journey.photos = [...journey.photos, ...modifyImagePath(uploadedPhotos)];
     },
     [journey]
   );
@@ -77,8 +77,18 @@ function JourneyDetail({
         backward
         onBackward={onCloseDetail}
         rightButtons={[
-          { type: "text", textContent: "편집", handler: editJourney },
-          { type: "text", textContent: "삭제", handler: deleteJourney },
+          {
+            type: "text",
+            textContent: "편집",
+            handler: editJourney,
+            isDisabled: requestState.showLoading,
+          },
+          {
+            type: "text",
+            textContent: "삭제",
+            handler: deleteJourney,
+            isDisabled: requestState.showLoading,
+          },
         ]}
       ></ExplorerHeader>
 
@@ -95,7 +105,12 @@ function JourneyDetail({
               </span>
 
               <div className={classes["button-container"]}>
-                <button onClick={toggleForm}>사진 추가</button>
+                <button
+                  onClick={toggleForm}
+                  disabled={requestState.showLoading}
+                >
+                  사진 추가
+                </button>
               </div>
             </section>
 
@@ -107,7 +122,7 @@ function JourneyDetail({
           </article>
 
           <PhotoForm
-            isActive={isUploadFormActive}
+            isActive={showPhotoForm}
             journeyTitle={journey.title}
             onUpload={appendToPhotoList}
             onCloseForm={toggleForm}
