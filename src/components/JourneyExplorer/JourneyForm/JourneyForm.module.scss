@@ -123,5 +123,12 @@
     &:hover {
       box-shadow: $base-color 0px 0px 0px 2px inset;
     }
+
+    &:disabled {
+      color: $disabled-color;
+      background-color: rgba($disabled-color, 0.5);
+      box-shadow: unset;
+      cursor: default;
+    }
   }
 }

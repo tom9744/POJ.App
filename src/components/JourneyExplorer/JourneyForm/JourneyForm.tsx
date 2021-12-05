@@ -1,4 +1,5 @@
 import React, { useReducer } from "react";
+import useHttp from "../../../hooks/useHttp";
 import { JourneyDTO, RawJourney } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./JourneyForm.module.scss";
@@ -7,24 +8,6 @@ type JourneyFormProps = {
   isActive: boolean;
   onCloseForm: () => void;
   onContentAdded: (journey: RawJourney) => void;
-};
-
-const createJourney = async (journey: JourneyDTO): Promise<RawJourney> => {
-  const response = await fetch("http://localhost:3030/journeys", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(journey),
-  });
-  const body: RawJourney = await response.json();
-
-  // [Note] Responses with a code either 40X or 50X is not an error.
-  if (!response.ok) {
-    throw body;
-  }
-
-  return body;
 };
 
 type FormAction =
@@ -46,11 +29,11 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case "CHANGE_TITLE":
       return { ...state, title: action.title };
     case "CHANGE_DESC":
-      return { ...state, title: action.description };
+      return { ...state, description: action.description };
     case "CHANGE_START_DATE":
-      return { ...state, title: action.startDate };
+      return { ...state, startDate: action.startDate };
     case "CHANGE_END_DATE":
-      return { ...state, title: action.endDate };
+      return { ...state, endDate: action.endDate };
     case "RESET_VALUES":
       return { title: "", description: "", startDate: "", endDate: "" };
     default:
@@ -69,6 +52,7 @@ function JourneyForm({
     startDate: "",
     endDate: "",
   });
+  const { requestState, sendRequest: createJourney } = useHttp<RawJourney>();
 
   const changeTitle = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({ type: "CHANGE_TITLE", title: target.value });
@@ -90,6 +74,11 @@ function JourneyForm({
     dispatch({ type: "RESET_VALUES" });
   };
 
+  const closeForm = (): void => {
+    resetValues();
+    onCloseForm();
+  };
+
   const validate = (): boolean => {
     const { title, description, startDate, endDate } = formState;
 
@@ -102,11 +91,12 @@ function JourneyForm({
     return isNotEmpty && isValidDate;
   };
 
-  const submitHandler = (event: React.FormEvent): void => {
+  const submitHandler = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
 
     if (validate()) {
       const { title, description, startDate, endDate } = formState;
+
       const newJourney: JourneyDTO = {
         title,
         description,
@@ -114,23 +104,24 @@ function JourneyForm({
         endDate: new Date(endDate),
       };
 
-      createJourney(newJourney)
-        .then((journey) => {
-          onContentAdded({ ...journey, photos: [] });
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          closeHandler();
+      try {
+        const createdJourney = await createJourney({
+          url: "http://localhost:3030/journeys",
+          options: {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newJourney),
+          },
         });
+
+        onContentAdded({ ...createdJourney, photos: [] });
+        closeForm();
+      } catch (error) {
+        console.error(error);
+      }
     }
-  };
-
-  const closeHandler = (): void => {
-    resetValues();
-
-    onCloseForm();
   };
 
   return (
@@ -139,10 +130,7 @@ function JourneyForm({
         isActive ? classes.open : classes.close
       }`}
     >
-      <ExplorerHeader
-        backward={true}
-        onBackward={closeHandler}
-      ></ExplorerHeader>
+      <ExplorerHeader backward={true} onBackward={closeForm}></ExplorerHeader>
 
       <article className={classes["form-content"]}>
         <section className={classes["form-content-section"]}>
@@ -188,7 +176,7 @@ function JourneyForm({
               onChange={changeEndDate}
             />
 
-            <button>기록 남기기</button>
+            <button disabled={requestState.showLoading}>기록 남기기</button>
           </form>
         </section>
       </article>
