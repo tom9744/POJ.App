@@ -53,11 +53,11 @@ const useHttp = <T>(): {
   });
 
   const sendRequest = useCallback(
-    async (config: FetchConfiguration): Promise<T> => {
+    async ({ url, options }: FetchConfiguration): Promise<T> => {
       dispatchRequestAction({ type: "LOADING" });
 
       try {
-        const response = await fetch(config.url, config.options);
+        const response = await fetch(url, options);
 
         if (!response.ok) {
           const errorData = new HttpError(response.status, response.statusText);
@@ -66,7 +66,9 @@ const useHttp = <T>(): {
 
         dispatchRequestAction({ type: "SUCCSESS" });
 
-        return await response.json();
+        return options?.method !== "DELETE" && options?.method !== "PATCH"
+          ? await response.json()
+          : null;
       } catch (error) {
         const errorMessage =
           error instanceof HttpError
