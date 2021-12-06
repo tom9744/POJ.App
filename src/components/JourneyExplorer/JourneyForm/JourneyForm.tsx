@@ -2,6 +2,7 @@ import React, { useReducer } from "react";
 import useHttp from "../../../hooks/useHttp";
 import { JourneyDTO, RawJourney } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
+import TextInput from "../Layouts/TextInput/TextInput";
 import classes from "./JourneyForm.module.scss";
 
 type JourneyFormProps = {
@@ -54,31 +55,6 @@ function JourneyForm({
   });
   const { requestState, sendRequest: createJourney } = useHttp<RawJourney>();
 
-  const changeTitle = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: "CHANGE_TITLE", title: target.value });
-  };
-
-  const changeDesc = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: "CHANGE_DESC", description: target.value });
-  };
-
-  const changeStartDate = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: "CHANGE_START_DATE", startDate: target.value });
-  };
-
-  const changeEndDate = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: "CHANGE_END_DATE", endDate: target.value });
-  };
-
-  const resetValues = (): void => {
-    dispatch({ type: "RESET_VALUES" });
-  };
-
-  const closeForm = (): void => {
-    resetValues();
-    onCloseForm();
-  };
-
   const validate = (): boolean => {
     const { title, description, startDate, endDate } = formState;
 
@@ -89,6 +65,31 @@ function JourneyForm({
       new Date(startDate).getTime() - new Date(endDate).getTime() <= 0;
 
     return isNotEmpty && isValidDate;
+  };
+
+  const changeTitle = (value: string) => {
+    dispatch({ type: "CHANGE_TITLE", title: value });
+  };
+
+  const changeDesc = (value: string) => {
+    dispatch({ type: "CHANGE_DESC", description: value });
+  };
+
+  const changeStartDate = (value: string) => {
+    dispatch({ type: "CHANGE_START_DATE", startDate: value });
+  };
+
+  const changeEndDate = (value: string) => {
+    dispatch({ type: "CHANGE_END_DATE", endDate: value });
+  };
+
+  const resetValues = (): void => {
+    dispatch({ type: "RESET_VALUES" });
+  };
+
+  const closeForm = (): void => {
+    resetValues();
+    onCloseForm();
   };
 
   const submitHandler = async (event: React.FormEvent): Promise<void> => {
@@ -124,6 +125,9 @@ function JourneyForm({
     }
   };
 
+  const shouldNotEmpty = (value: string) =>
+    value.trim().length > 0 || "값이 비었습니다.";
+
   return (
     <div
       className={`${classes["form-wrapper"]} ${
@@ -144,35 +148,31 @@ function JourneyForm({
 
         <section className={classes["form-content-section"]}>
           <form className={classes.form} onSubmit={submitHandler}>
-            <label htmlFor="newTitle">기록명</label>
-            <input
-              type="text"
-              id="newTitle"
-              value={formState.title}
+            <TextInput
+              id="journeyTitle"
+              label="기록명"
+              validators={[shouldNotEmpty]}
               onChange={changeTitle}
             />
 
-            <label htmlFor="description">간단한 설명을 남겨주세요.</label>
-            <input
-              type="text"
-              id="description"
-              value={formState.description}
+            <TextInput
+              id="journeyDescription"
+              label="간단한 설명을 남겨주세요."
+              validators={[shouldNotEmpty]}
               onChange={changeDesc}
             />
 
-            <label htmlFor="startDate">시작일</label>
-            <input
-              type="date"
-              id="startDate"
-              value={formState.startDate}
+            <TextInput
+              id="journeyStartDate"
+              label="시작일"
+              validators={[shouldNotEmpty]}
               onChange={changeStartDate}
             />
 
-            <label htmlFor="endDate">종료일</label>
-            <input
-              type="date"
-              id="endDate"
-              value={formState.endDate}
+            <TextInput
+              id="journeyEndDate"
+              label="종료일"
+              validators={[shouldNotEmpty]}
               onChange={changeEndDate}
             />
 
