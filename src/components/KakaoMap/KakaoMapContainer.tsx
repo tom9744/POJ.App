@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  generateKakaoLatLng,
   generateMarker,
   generateOverlay,
   generatePolyline,
@@ -17,20 +16,18 @@ function KakaoMapContainer({
   kakaoMap,
   markerDataList,
 }: KakaoMapContainerProps) {
-  const [kakaoCoordinates, setKakaoCoordinates] = useState<any[]>([]);
+  const [polylines, setPolylines] = useState<any[]>([]);
   const [markers, setMarkers] = useState<any[]>([]);
   const [overlays, setOverlays] = useState<any[]>([]);
 
   let selectedOverlay: any = null;
 
   useEffect(() => {
-    const kakaoCoordinates: any[] = [];
+    const polylines: any[] = [];
     const overlays: any[] = [];
     const markers: any[] = [];
 
-    markerDataList.forEach((markerData) => {
-      const { coordinate } = markerData;
-      const kakaoCoordinate = generateKakaoLatLng(coordinate);
+    markerDataList.forEach((markerData, index, origin) => {
       const overlay = generateOverlay(markerData);
       const marker = generateMarker(markerData);
 
@@ -44,25 +41,32 @@ function KakaoMapContainer({
         selectedOverlay = overlay;
       });
 
-      kakaoCoordinates.push(kakaoCoordinate);
       overlays.push(overlay);
       markers.push(marker);
+
+      if (index < origin.length - 1) {
+        const nextMarkerData = origin[index + 1];
+        const polyline = generatePolyline([markerData, nextMarkerData]);
+
+        polylines.push(polyline);
+      }
     });
 
-    setKakaoCoordinates(kakaoCoordinates);
+    setPolylines(polylines);
     setOverlays(overlays);
     setMarkers(markers);
   }, [markerDataList]);
 
   useEffect(() => {
-    const polyline = generatePolyline(kakaoCoordinates);
-
-    [...markers, polyline].forEach((marker) => marker.setMap(kakaoMap));
+    [...markers, ...polylines].forEach((marker) => marker.setMap(kakaoMap));
 
     return () => {
-      [...markers, ...overlays, polyline].forEach((elem) => elem.setMap(null)); // Clear all elements
+      // NOTE: Clear all elements
+      [...markers, ...overlays, ...polylines].forEach((elem) =>
+        elem.setMap(null)
+      );
     };
-  }, [kakaoMap, markers, overlays, kakaoCoordinates]);
+  }, [kakaoMap, markers, overlays, polylines]);
 
   return <React.Fragment></React.Fragment>;
 }

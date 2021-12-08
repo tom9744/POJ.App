@@ -50,9 +50,12 @@ export const generateMarker = ({ coordinate }: MarkerData): any => {
   return newMarker;
 };
 
-export const generatePolyline = (kakaoCoordinates: any[]): any => {
+export const generatePolyline = ([from, to]: [MarkerData, MarkerData]): any => {
+  const startPos = generateKakaoLatLng(from.coordinate);
+  const endPos = generateKakaoLatLng(to.coordinate);
+
   const polyline = new kakao.maps.Polyline({
-    path: kakaoCoordinates,
+    path: [startPos, endPos],
     strokeWeight: 3.5,
     strokeColor: "#FFAE00",
     strokeOpacity: 0.8,
