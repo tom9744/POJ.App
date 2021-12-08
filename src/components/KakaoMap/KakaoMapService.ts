@@ -54,27 +54,22 @@ const isValidCoordinate = ({ latitude, longitude }: Coordinate): boolean => {
   );
 };
 
-export const excludeOverseasCoordinates = (
-  markerDataList: MarkerData[]
-): Coordinate[] => {
-  return markerDataList
-    .map(({ coordinate: { latitude, longitude } }): Coordinate => {
-      return {
-        latitude,
-        longitude,
-      };
-    })
-    .filter((coordinate) => isValidCoordinate(coordinate));
+export const filterOverseasMarkers = (markers: MarkerData[]): MarkerData[] => {
+  return markers.filter(({ coordinate }) => isValidCoordinate(coordinate));
 };
 
-export const getAverageCoordinate = (coordinates: Coordinate[]): Coordinate => {
-  return coordinates.reduce(
-    (coordinate, acc) => {
-      acc.latitude += coordinate.latitude;
-      acc.longitude += coordinate.longitude;
+export const getAverageCoordinate = (markers: MarkerData[]): Coordinate => {
+  return markers
+    .map(({ coordinate }): Coordinate => {
+      return { ...coordinate };
+    })
+    .reduce(
+      ({ latitude, longitude }, acc) => {
+        acc.latitude += latitude;
+        acc.longitude += longitude;
 
-      return acc;
-    },
-    { latitude: 0, longitude: 0 }
-  );
+        return acc;
+      },
+      { latitude: 0, longitude: 0 }
+    );
 };

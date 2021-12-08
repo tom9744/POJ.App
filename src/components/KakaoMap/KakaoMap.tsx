@@ -3,7 +3,7 @@ import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
 import {
-  excludeOverseasCoordinates,
+  filterOverseasMarkers,
   getAverageCoordinate,
   MarkerData,
 } from "./KakaoMapService";
@@ -14,6 +14,7 @@ declare const kakao: any;
 type KakaoMapProps = { markerDataList: MarkerData[] };
 
 function KakaoMap({ markerDataList }: KakaoMapProps) {
+  const [validMarkers, setValidMarkers] = useState<MarkerData[]>([]);
   const [map, setMap] = useState<any>(null);
 
   // Reference of the DOM where the map will be displayed.
@@ -34,15 +35,17 @@ function KakaoMap({ markerDataList }: KakaoMapProps) {
   useEffect(() => {
     if (!map || markerDataList.length <= 0) return;
 
-    const validCoordinates = excludeOverseasCoordinates(markerDataList);
-    const totalValue = getAverageCoordinate(validCoordinates);
+    const validMarkers = filterOverseasMarkers(markerDataList);
+    const totalValue = getAverageCoordinate(validMarkers);
 
     const kakaoCoordinate = new kakao.maps.LatLng(
-      totalValue.latitude / validCoordinates.length,
-      totalValue.longitude / validCoordinates.length
+      totalValue.latitude / validMarkers.length,
+      totalValue.longitude / validMarkers.length
     );
 
     map.panTo(kakaoCoordinate);
+
+    setValidMarkers(validMarkers);
   }, [map, markerDataList]);
 
   return (
@@ -50,7 +53,7 @@ function KakaoMap({ markerDataList }: KakaoMapProps) {
       <div id="kakao-map" className={classes.map} ref={mapContainer}></div>
       <KakaoMapContainer
         kakaoMap={map}
-        markerDataList={markerDataList}
+        markerDataList={validMarkers}
       ></KakaoMapContainer>
     </React.Fragment>
   );
