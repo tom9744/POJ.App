@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
-import { Coordinate, isValidCoordinate, MarkerData } from "./KakaoMapService";
+import {
+  excludeOverseasCoordinates,
+  getAverageCoordinate,
+  MarkerData,
+} from "./KakaoMapService";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
@@ -30,24 +34,8 @@ function KakaoMap({ markerDataList }: KakaoMapProps) {
   useEffect(() => {
     if (!map || markerDataList.length <= 0) return;
 
-    const validCoordinates = markerDataList
-      .map(({ coordinate: { latitude, longitude } }): Coordinate => {
-        return {
-          latitude,
-          longitude,
-        };
-      })
-      .filter((coordinate) => isValidCoordinate(coordinate));
-
-    const totalValue = validCoordinates.reduce(
-      (coordinate, acc) => {
-        acc.latitude += coordinate.latitude;
-        acc.longitude += coordinate.longitude;
-
-        return acc;
-      },
-      { latitude: 0, longitude: 0 }
-    );
+    const validCoordinates = excludeOverseasCoordinates(markerDataList);
+    const totalValue = getAverageCoordinate(validCoordinates);
 
     const kakaoCoordinate = new kakao.maps.LatLng(
       totalValue.latitude / validCoordinates.length,

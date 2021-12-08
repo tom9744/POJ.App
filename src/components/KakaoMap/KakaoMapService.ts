@@ -45,14 +45,36 @@ export const generateMarker = ({ latitude, longitude }: Coordinate): any => {
   return newMarker;
 };
 
-export const isValidCoordinate = ({
-  latitude,
-  longitude,
-}: Coordinate): boolean => {
+const isValidCoordinate = ({ latitude, longitude }: Coordinate): boolean => {
   return (
     latitude > SOUTHERNMOST_LATITUDE &&
     latitude < NORTHERNMOST_LATITUDE &&
     longitude > WESTERNMOST_LONGITUDE &&
     longitude < EASTERNMOST_LONGITUDE
+  );
+};
+
+export const excludeOverseasCoordinates = (
+  markerDataList: MarkerData[]
+): Coordinate[] => {
+  return markerDataList
+    .map(({ coordinate: { latitude, longitude } }): Coordinate => {
+      return {
+        latitude,
+        longitude,
+      };
+    })
+    .filter((coordinate) => isValidCoordinate(coordinate));
+};
+
+export const getAverageCoordinate = (coordinates: Coordinate[]): Coordinate => {
+  return coordinates.reduce(
+    (coordinate, acc) => {
+      acc.latitude += coordinate.latitude;
+      acc.longitude += coordinate.longitude;
+
+      return acc;
+    },
+    { latitude: 0, longitude: 0 }
   );
 };

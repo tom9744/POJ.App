@@ -5,6 +5,7 @@ import { RawPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { Coordinate, MarkerData } from "./components/KakaoMap/KakaoMapService";
+import { MOCK_MARKERS } from "./assets/mock/mockMarker";
 
 interface UIAction {
   type: "ACTIVATE_BUBBLE_BUTTON" | "ACTIVATE_EXPLORER";
@@ -67,7 +68,7 @@ function App() {
 
   return (
     <div className="app">
-      <KakaoMap markerDataList={markerDataList} />
+      <KakaoMap markerDataList={MOCK_MARKERS} />
 
       <BubbleButton
         isActive={state.isButtonActive}
