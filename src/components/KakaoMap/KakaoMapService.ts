@@ -50,6 +50,18 @@ export const generateMarker = ({ coordinate }: MarkerData): any => {
   return newMarker;
 };
 
+export const generatePolyline = (kakaoCoordinates: any[]): any => {
+  const polyline = new kakao.maps.Polyline({
+    path: kakaoCoordinates,
+    strokeWeight: 3.5,
+    strokeColor: "#FFAE00",
+    strokeOpacity: 0.8,
+    strokeStyle: "solid",
+  });
+
+  return polyline;
+};
+
 const isValidCoordinate = (coordinate: Coordinate): boolean => {
   const { latitude, longitude } = coordinate;
 

@@ -3,6 +3,7 @@ import {
   generateKakaoLatLng,
   generateMarker,
   generateOverlay,
+  generatePolyline,
   MarkerData,
 } from "./KakaoMapService";
 import "./CustomOverlay.scss";
@@ -54,12 +55,14 @@ function KakaoMapContainer({
   }, [markerDataList]);
 
   useEffect(() => {
-    markers.forEach((marker) => marker.setMap(kakaoMap));
+    const polyline = generatePolyline(kakaoCoordinates);
+
+    [...markers, polyline].forEach((marker) => marker.setMap(kakaoMap));
 
     return () => {
-      [...markers, ...overlays].forEach((elem) => elem.setMap(null)); // Clear all elements
+      [...markers, ...overlays, polyline].forEach((elem) => elem.setMap(null)); // Clear all elements
     };
-  }, [kakaoMap, markers, overlays]);
+  }, [kakaoMap, markers, overlays, kakaoCoordinates]);
 
   return <React.Fragment></React.Fragment>;
 }
