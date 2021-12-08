@@ -17,9 +17,14 @@ export interface MarkerData {
   coordinate: Coordinate;
 }
 
-export const generateOverlay = ({ coordinate, path }: MarkerData): any => {
+export const generateKakaoLatLng = (coordinate: Coordinate): any => {
   const { latitude, longitude } = coordinate;
-  const position = new kakao.maps.LatLng(latitude, longitude);
+
+  return new kakao.maps.LatLng(latitude, longitude);
+};
+
+export const generateOverlay = ({ coordinate, path }: MarkerData): any => {
+  const position = generateKakaoLatLng(coordinate);
   const customOverlay = new kakao.maps.CustomOverlay();
 
   const content = document.createElement("div");
@@ -38,14 +43,16 @@ export const generateOverlay = ({ coordinate, path }: MarkerData): any => {
   return customOverlay;
 };
 
-export const generateMarker = ({ latitude, longitude }: Coordinate): any => {
-  const position = new kakao.maps.LatLng(latitude, longitude);
+export const generateMarker = ({ coordinate }: MarkerData): any => {
+  const position = generateKakaoLatLng(coordinate);
   const newMarker = new kakao.maps.Marker({ position });
 
   return newMarker;
 };
 
-const isValidCoordinate = ({ latitude, longitude }: Coordinate): boolean => {
+const isValidCoordinate = (coordinate: Coordinate): boolean => {
+  const { latitude, longitude } = coordinate;
+
   return (
     latitude > SOUTHERNMOST_LATITUDE &&
     latitude < NORTHERNMOST_LATITUDE &&
