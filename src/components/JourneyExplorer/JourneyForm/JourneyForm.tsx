@@ -2,7 +2,8 @@ import React, { useReducer } from "react";
 import useHttp from "../../../hooks/useHttp";
 import { JourneyDTO, RawJourney } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
-import TextInput from "../Layouts/TextInput/TextInput";
+import CustomInput from "../Layouts/CustomInput/CustomInput";
+import { isNotEmpty, isValidDate } from "../ValidationService";
 import classes from "./JourneyForm.module.scss";
 
 type JourneyFormProps = {
@@ -125,9 +126,6 @@ function JourneyForm({
     }
   };
 
-  const shouldNotEmpty = (value: string) =>
-    value.trim().length > 0 || "값이 비었습니다.";
-
   return (
     <div
       className={`${classes["form-wrapper"]} ${
@@ -148,31 +146,35 @@ function JourneyForm({
 
         <section className={classes["form-content-section"]}>
           <form className={classes.form} onSubmit={submitHandler}>
-            <TextInput
+            <CustomInput
               id="journeyTitle"
+              type="text"
               label="기록명"
-              validators={[shouldNotEmpty]}
+              validators={[isNotEmpty]}
               onChange={changeTitle}
             />
 
-            <TextInput
+            <CustomInput
               id="journeyDescription"
+              type="text"
               label="간단한 설명을 남겨주세요."
-              validators={[shouldNotEmpty]}
+              validators={[isNotEmpty]}
               onChange={changeDesc}
             />
 
-            <TextInput
+            <CustomInput
               id="journeyStartDate"
+              type="date"
               label="시작일"
-              validators={[shouldNotEmpty]}
+              validators={[isNotEmpty, isValidDate]}
               onChange={changeStartDate}
             />
 
-            <TextInput
+            <CustomInput
               id="journeyEndDate"
+              type="date"
               label="종료일"
-              validators={[shouldNotEmpty]}
+              validators={[isNotEmpty, isValidDate]}
               onChange={changeEndDate}
             />
 

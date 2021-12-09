@@ -1,22 +1,32 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { isString } from "../../../../typeGuards";
 
-import classes from "./TextInput.module.scss";
+import classes from "./CustomInput.module.scss";
 
-type TextInputProps = {
+type CustomInputProps = {
+  type: string;
   id: string;
   label: string;
   validators?: Array<(value: string) => boolean | string>;
   onChange: (value: string) => void;
 };
 
-function TextInput({ id, label, validators = [], onChange }: TextInputProps) {
+function CustomInput({
+  id,
+  type,
+  label,
+  validators = [],
+  onChange,
+}: CustomInputProps) {
   const [enteredValue, setEnteredValue] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const hasError = useMemo(() => !isValid && isTouched, [isValid, isTouched]);
+  useEffect(() => {
+    setHasError(!isValid && isTouched);
+  }, [isValid, isTouched]);
 
   useEffect(() => {
     const results = validators.map((validator) => validator(enteredValue));
@@ -50,7 +60,7 @@ function TextInput({ id, label, validators = [], onChange }: TextInputProps) {
     <div className={`text-input ${classes["text-input-wrapper"]}`}>
       <label htmlFor={id}>{label}</label>
       <input
-        type="text"
+        type={type}
         id={id}
         value={enteredValue}
         onChange={changeHandler}
@@ -61,4 +71,4 @@ function TextInput({ id, label, validators = [], onChange }: TextInputProps) {
   );
 }
 
-export default TextInput;
+export default CustomInput;
