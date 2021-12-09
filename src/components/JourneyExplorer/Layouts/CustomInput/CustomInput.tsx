@@ -8,7 +8,7 @@ type CustomInputProps = {
   id: string;
   label: string;
   validators?: Array<(value: string) => boolean | string>;
-  onChange: (value: string) => void;
+  onChange: (value: string, isValid: boolean) => void;
 };
 
 function CustomInput({
@@ -29,32 +29,27 @@ function CustomInput({
   }, [isValid, isTouched]);
 
   useEffect(() => {
-    const results = validators.map((validator) => validator(enteredValue));
-    const errorMessage = results.find(isString); // NOTE: Using User-Defined Type Guards for Type-Casting
+    if (validators.length > 0) {
+      const results = validators.map((validator) => validator(enteredValue));
+      const errorMessage = results.find(isString); // NOTE: Using User-Defined Type Guards for Type-Casting
 
-    if (errorMessage) {
-      setErrorMessage(errorMessage);
-      setIsValid(false);
+      setErrorMessage(errorMessage ?? "");
+      setIsValid(!!!errorMessage);
+
+      onChange(enteredValue, !!!errorMessage);
     } else {
-      setErrorMessage("");
-      setIsValid(true);
+      onChange(enteredValue, true);
     }
-  }, [enteredValue, validators]);
+  }, [enteredValue, validators, onChange]);
 
   const blurHandler = useCallback(() => {
     setIsTouched(true);
   }, []);
 
-  const changeHandler = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
-
-      setEnteredValue(value);
-
-      onChange(value);
-    },
-    [onChange]
-  );
+  const changeHandler = useCallback((event: React.ChangeEvent) => {
+    const { value } = event.target as HTMLInputElement;
+    setEnteredValue(value);
+  }, []);
 
   return (
     <div className={`text-input ${classes["text-input-wrapper"]}`}>
@@ -71,4 +66,4 @@ function CustomInput({
   );
 }
 
-export default CustomInput;
+export default React.memo(CustomInput);

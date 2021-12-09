@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useCallback, useMemo, useReducer } from "react";
 import useHttp from "../../../hooks/useHttp";
 import { JourneyDTO, RawJourney } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
@@ -13,31 +13,80 @@ type JourneyFormProps = {
 };
 
 type FormAction =
-  | { type: "CHANGE_TITLE"; title: string }
-  | { type: "CHANGE_DESC"; description: string }
-  | { type: "CHANGE_START_DATE"; startDate: string }
-  | { type: "CHANGE_END_DATE"; endDate: string }
+  | { type: "CHANGE_TITLE"; props: { value: string; isValid: boolean } }
+  | { type: "CHANGE_DESC"; props: { value: string; isValid: boolean } }
+  | { type: "CHANGE_START_DATE"; props: { value: string; isValid: boolean } }
+  | { type: "CHANGE_END_DATE"; props: { value: string; isValid: boolean } }
   | { type: "RESET_VALUES" };
 
 interface FormState {
+  isFormValid: boolean;
   title: string;
+  isTitleValid: boolean;
   description: string;
+  isDescriptionValid: boolean;
   startDate: string;
+  isStartDateValid: boolean;
   endDate: string;
+  isEndDateValid: boolean;
 }
 
+const INITIAL_STATE: FormState = {
+  isFormValid: false,
+  title: "",
+  isTitleValid: false,
+  description: "",
+  isDescriptionValid: false,
+  startDate: "",
+  isStartDateValid: false,
+  endDate: "",
+  isEndDateValid: false,
+};
+
+const checkFormValidity = (formState: FormState): boolean => {
+  return [
+    formState.isTitleValid,
+    formState.isDescriptionValid,
+    formState.isStartDateValid,
+    formState.isEndDateValid,
+  ].every((isValid) => !!isValid);
+};
+
 const formReducer = (state: FormState, action: FormAction): FormState => {
+  const nextState: FormState = { ...state };
+
   switch (action.type) {
-    case "CHANGE_TITLE":
-      return { ...state, title: action.title };
-    case "CHANGE_DESC":
-      return { ...state, description: action.description };
-    case "CHANGE_START_DATE":
-      return { ...state, startDate: action.startDate };
-    case "CHANGE_END_DATE":
-      return { ...state, endDate: action.endDate };
     case "RESET_VALUES":
-      return { title: "", description: "", startDate: "", endDate: "" };
+      return INITIAL_STATE;
+    case "CHANGE_TITLE":
+      nextState.title = action.props.value;
+      nextState.isTitleValid = action.props.isValid;
+      return {
+        ...nextState,
+        isFormValid: checkFormValidity(nextState),
+      };
+    case "CHANGE_DESC":
+      nextState.description = action.props.value;
+      nextState.isDescriptionValid = action.props.isValid;
+      return {
+        ...nextState,
+        isFormValid: checkFormValidity(nextState),
+      };
+    case "CHANGE_START_DATE":
+      nextState.startDate = action.props.value;
+      nextState.isStartDateValid = action.props.isValid;
+      return {
+        ...nextState,
+        isFormValid: checkFormValidity(nextState),
+      };
+    case "CHANGE_END_DATE":
+      nextState.endDate = action.props.value;
+      nextState.isEndDateValid = action.props.isValid;
+      return {
+        ...nextState,
+        isFormValid: checkFormValidity(nextState),
+      };
+
     default:
       throw new Error("[JourneyForm] Invalid action type has been dispatched.");
   }
@@ -48,83 +97,72 @@ function JourneyForm({
   onCloseForm,
   onContentAdded,
 }: JourneyFormProps) {
-  const [formState, dispatch] = useReducer(formReducer, {
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-  });
+  const [formState, dispatch] = useReducer(formReducer, INITIAL_STATE);
   const { requestState, sendRequest: createJourney } = useHttp<RawJourney>();
 
-  const validate = (): boolean => {
-    const { title, description, startDate, endDate } = formState;
+  const textValidator = useMemo(() => [isNotEmpty], []);
+  const dateValidator = useMemo(() => [isNotEmpty, isValidDate], []);
 
-    const isNotEmpty = [title, description, startDate, endDate]
-      .map((value) => value.trim().length > 0)
-      .every((result) => !!result);
-    const isValidDate =
-      new Date(startDate).getTime() - new Date(endDate).getTime() <= 0;
+  const changeTitle = useCallback((value: string, isValid: boolean) => {
+    dispatch({ type: "CHANGE_TITLE", props: { value, isValid } });
+  }, []);
 
-    return isNotEmpty && isValidDate;
-  };
+  const changeDesc = useCallback((value: string, isValid: boolean) => {
+    dispatch({ type: "CHANGE_DESC", props: { value, isValid } });
+  }, []);
 
-  const changeTitle = (value: string) => {
-    dispatch({ type: "CHANGE_TITLE", title: value });
-  };
+  const changeStartDate = useCallback((value: string, isValid: boolean) => {
+    dispatch({ type: "CHANGE_START_DATE", props: { value, isValid } });
+  }, []);
 
-  const changeDesc = (value: string) => {
-    dispatch({ type: "CHANGE_DESC", description: value });
-  };
+  const changeEndDate = useCallback((value: string, isValid: boolean) => {
+    dispatch({ type: "CHANGE_END_DATE", props: { value, isValid } });
+  }, []);
 
-  const changeStartDate = (value: string) => {
-    dispatch({ type: "CHANGE_START_DATE", startDate: value });
-  };
-
-  const changeEndDate = (value: string) => {
-    dispatch({ type: "CHANGE_END_DATE", endDate: value });
-  };
-
-  const resetValues = (): void => {
+  const resetValues = useCallback((): void => {
     dispatch({ type: "RESET_VALUES" });
-  };
+  }, []);
 
-  const closeForm = (): void => {
+  const closeForm = useCallback((): void => {
     resetValues();
     onCloseForm();
-  };
+  }, [resetValues, onCloseForm]);
 
-  const submitHandler = async (event: React.FormEvent): Promise<void> => {
-    event.preventDefault();
+  const submitHandler = useCallback(
+    async (event: React.FormEvent): Promise<void> => {
+      event.preventDefault();
 
-    if (validate()) {
-      const { title, description, startDate, endDate } = formState;
+      if (formState.isFormValid) {
+        const { title, description, startDate, endDate } = formState;
 
-      const newJourney: JourneyDTO = {
-        title,
-        description,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-      };
+        const newJourney: JourneyDTO = {
+          title,
+          description,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+        };
 
-      try {
-        const createdJourney = await createJourney({
-          url: "http://localhost:3030/journeys",
-          options: {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+        try {
+          const createdJourney = await createJourney({
+            url: "http://localhost:3030/journeys",
+            options: {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newJourney),
             },
-            body: JSON.stringify(newJourney),
-          },
-        });
+          });
 
-        onContentAdded({ ...createdJourney, photos: [] });
-        closeForm();
-      } catch (error) {
-        console.error(error);
+          onContentAdded({ ...createdJourney, photos: [] });
+          closeForm();
+        } catch (error) {
+          console.error(error);
+        }
       }
-    }
-  };
+    },
+    [formState, closeForm, createJourney, onContentAdded]
+  );
 
   return (
     <div
@@ -134,54 +172,60 @@ function JourneyForm({
     >
       <ExplorerHeader backward={true} onBackward={closeForm}></ExplorerHeader>
 
-      <article className={classes["form-content"]}>
-        <section className={classes["form-content-section"]}>
-          <h3 className={classes.title}>기록 남기기</h3>
-          <span className={classes.description}>
-            새로운 기록에 대한 정보를 입력해주세요
-          </span>
-        </section>
+      {isActive && (
+        <article className={classes["form-content"]}>
+          <section className={classes["form-content-section"]}>
+            <h3 className={classes.title}>기록 남기기</h3>
+            <span className={classes.description}>
+              새로운 기록에 대한 정보를 입력해주세요
+            </span>
+          </section>
 
-        <div className={classes.divider}></div>
+          <div className={classes.divider}></div>
 
-        <section className={classes["form-content-section"]}>
-          <form className={classes.form} onSubmit={submitHandler}>
-            <CustomInput
-              id="journeyTitle"
-              type="text"
-              label="기록명"
-              validators={[isNotEmpty]}
-              onChange={changeTitle}
-            />
+          <section className={classes["form-content-section"]}>
+            <form className={classes.form} onSubmit={submitHandler}>
+              <CustomInput
+                id="journeyTitle"
+                type="text"
+                label="기록명"
+                validators={textValidator}
+                onChange={changeTitle}
+              />
 
-            <CustomInput
-              id="journeyDescription"
-              type="text"
-              label="간단한 설명을 남겨주세요."
-              validators={[isNotEmpty]}
-              onChange={changeDesc}
-            />
+              <CustomInput
+                id="journeyDescription"
+                type="text"
+                label="간단한 설명을 남겨주세요."
+                validators={textValidator}
+                onChange={changeDesc}
+              />
 
-            <CustomInput
-              id="journeyStartDate"
-              type="date"
-              label="시작일"
-              validators={[isNotEmpty, isValidDate]}
-              onChange={changeStartDate}
-            />
+              <CustomInput
+                id="journeyStartDate"
+                type="date"
+                label="시작일"
+                validators={dateValidator}
+                onChange={changeStartDate}
+              />
 
-            <CustomInput
-              id="journeyEndDate"
-              type="date"
-              label="종료일"
-              validators={[isNotEmpty, isValidDate]}
-              onChange={changeEndDate}
-            />
+              <CustomInput
+                id="journeyEndDate"
+                type="date"
+                label="종료일"
+                validators={dateValidator}
+                onChange={changeEndDate}
+              />
 
-            <button disabled={requestState.showLoading}>기록 남기기</button>
-          </form>
-        </section>
-      </article>
+              <button
+                disabled={requestState.showLoading || !formState.isFormValid}
+              >
+                기록 남기기
+              </button>
+            </form>
+          </section>
+        </article>
+      )}
     </div>
   );
 }

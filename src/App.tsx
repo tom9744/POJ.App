@@ -68,7 +68,7 @@ function App() {
 
   return (
     <div className="app">
-      <KakaoMap markerDataList={MOCK_MARKERS} />
+      <KakaoMap markerDataList={markerDataList} />
 
       <BubbleButton
         isActive={state.isButtonActive}
