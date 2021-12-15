@@ -6,10 +6,10 @@
 
   label,
   small {
-    display: block;
+    display: flex;
+    align-items: center;
 
     height: 20px;
-    line-height: 20px;
     width: 100%;
 
     font-size: 0.8rem;
@@ -26,10 +26,10 @@
     display: block;
 
     height: 40px;
-    width: 250px;
+    width: 100%;
 
     padding: 10px;
-    margin: 5px 0px;
+    margin: 2.5px 0px;
 
     background-color: rgb(248, 248, 248);
     box-shadow: rgba(0, 0, 0, 0.03) 0px 1px 2px,

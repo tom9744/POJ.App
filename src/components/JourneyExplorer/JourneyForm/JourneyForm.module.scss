@@ -49,7 +49,21 @@
     }
 
     .form-content-section {
-      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 100%;
+
+      &:first-child {
+        flex-direction: column;
+        flex-basis: 100px;
+        flex-shrink: 0;
+      }
+
+      &:last-child {
+        flex: 1;
+      }
 
       .title {
         margin: 0;
@@ -61,46 +75,49 @@
         font-size: 0.9rem;
         color: rgb(125, 125, 125);
       }
+
+      .form {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        width: 55%;
+        min-width: 250px;
+        max-width: 300px;
+
+        button {
+          all: unset;
+
+          height: 40px;
+          width: 100%;
+
+          color: white;
+          background-color: $base-color;
+          border-radius: 10px;
+
+          cursor: pointer;
+
+          transition: box-shadow 0.25s;
+
+          &:hover {
+            box-shadow: $base-color 0px 0px 0px 2px inset;
+          }
+
+          &:disabled,
+          &:disabled:hover {
+            color: $disabled-color;
+            background-color: rgba($disabled-color, 0.5);
+            box-shadow: unset;
+            cursor: default;
+          }
+        }
+      }
     }
 
     .divider {
       width: calc(100% - 25px);
       margin: 10px;
       border-top: 1px solid rgb(239, 239, 240);
-    }
-  }
-}
-
-.form-content > .form-content-section > .form {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  button {
-    all: unset;
-
-    height: 40px;
-    width: 100%;
-
-    margin-top: 20px;
-
-    color: white;
-    background-color: $base-color;
-    border-radius: 10px;
-
-    cursor: pointer;
-
-    transition: box-shadow 0.25s;
-
-    &:hover {
-      box-shadow: $base-color 0px 0px 0px 2px inset;
-    }
-
-    &:disabled {
-      color: $disabled-color;
-      background-color: rgba($disabled-color, 0.5);
-      box-shadow: unset;
-      cursor: default;
     }
   }
 }

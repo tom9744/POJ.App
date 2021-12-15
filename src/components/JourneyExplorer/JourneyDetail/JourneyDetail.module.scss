@@ -72,13 +72,11 @@
           all: unset;
 
           height: 25px;
-          line-height: 27.5px;
           width: 100px;
 
           margin: 0px 5px;
 
           color: white;
-          font-size: 0.95rem;
           background-color: $base-color;
           border-radius: 25px;
 
@@ -90,7 +88,8 @@
             box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
           }
 
-          &:disabled {
+          &:disabled,
+          &:disabled:hover {
             color: $disabled-color;
             background-color: rgba($disabled-color, 0.5);
             box-shadow: unset;

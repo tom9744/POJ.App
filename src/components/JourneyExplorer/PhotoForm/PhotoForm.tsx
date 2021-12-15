@@ -224,43 +224,56 @@ function PhotoForm({
           ]}
         ></ExplorerHeader>
 
-        <div
-          className={classes.preview}
-          onWheel={(event) => moveToNextPhoto(event)}
-          ref={previewContainer}
-        >
-          {photoPreviews.length > 0 ? (
-            photoPreviews.map((previewURL, index) => {
-              return (
-                <img src={previewURL} alt="" key={index} data-index={index} />
-              );
-            })
-          ) : (
-            <div className={classes["preview-placeholder"]}></div>
-          )}
-        </div>
-
-        <p className={classes.description}>
-          <span>사진을 추가한 뒤, 스크롤 하여</span>
-          <span>미리보기를 확인할 수 있습니다.</span>
-        </p>
-
-        <form className={classes.form}>
-          <label htmlFor="newPhotos"></label>
-          <input
-            type="file"
-            id="newPhotos"
-            accept=".jpg"
-            onChange={fileInputHandler}
-            multiple
-            ref={photoInput}
-          />
-
-          <div className={classes["button-wrapper"]}>
-            <button onClick={openPhotoInput}>사진 추가</button>
-            <button onClick={uploadPhotos}>업로드</button>
+        <div className={classes["uploader-content"]}>
+          <div className={classes["uploader-content-section"]}>
+            <div
+              className={classes.preview}
+              onWheel={(event) => moveToNextPhoto(event)}
+              ref={previewContainer}
+            >
+              {photoPreviews.length > 0 ? (
+                photoPreviews.map((previewURL, index) => {
+                  return (
+                    <img
+                      src={previewURL}
+                      alt=""
+                      key={index}
+                      data-index={index}
+                    />
+                  );
+                })
+              ) : (
+                <div className={classes["preview-placeholder"]}></div>
+              )}
+            </div>
           </div>
-        </form>
+
+          <div className={classes["uploader-content-section"]}>
+            <p className={classes.description}>
+              <span>사진을 추가한 뒤, 스크롤 하여</span>
+              <span>미리보기를 확인할 수 있습니다.</span>
+            </p>
+          </div>
+
+          <div className={classes["uploader-content-section"]}>
+            <form className={classes.form}>
+              <label htmlFor="newPhotos"></label>
+              <input
+                type="file"
+                id="newPhotos"
+                accept=".jpg"
+                onChange={fileInputHandler}
+                multiple
+                ref={photoInput}
+              />
+
+              <div className={classes["button-wrapper"]}>
+                <button onClick={openPhotoInput}>사진 추가</button>
+                <button onClick={uploadPhotos}>업로드</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );
