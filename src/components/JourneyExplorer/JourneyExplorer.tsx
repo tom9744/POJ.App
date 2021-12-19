@@ -5,7 +5,7 @@ import classes from "./JourneyExplorer.module.scss";
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
 import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
-import { processJourneys } from "./JourneyService";
+import { modifyImagePath, processJourneys } from "./JourneyService";
 import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 import useHttp from "../../hooks/useHttp";
 
@@ -21,7 +21,11 @@ type ExplorerAction =
   | { type: "FETCH_JOURNEY"; props: ProcessedJourney[] }
   | { type: "APPEND_JOURNEY"; props: ProcessedJourney[] }
   | { type: "DELETE_JOURNEY"; props: ProcessedJourney }
-  | { type: "SELECT_JOURNEY"; props: ProcessedJourney | null };
+  | { type: "SELECT_JOURNEY"; props: ProcessedJourney | null }
+  | {
+      type: "UPDATE_PHOTO_LIST";
+      props: { journeyId: number; photos: RawPhoto[] };
+    };
 
 interface ExplorerState {
   showJourneyForm: boolean;
@@ -52,6 +56,18 @@ const reducer = (
       return { ...state, journeys: [...state.journeys, ...action.props] };
     case "SELECT_JOURNEY":
       return { ...state, selectedJourney: action.props };
+    case "UPDATE_PHOTO_LIST":
+      return {
+        ...state,
+        journeys: [
+          ...state.journeys.map((journey) => {
+            if (action.props.journeyId === journey.id) {
+              journey.photos = action.props.photos;
+            }
+            return journey;
+          }),
+        ],
+      };
     default:
       throw new Error(
         "[JourneyExplorer] Invalid action type has been dispatched."
@@ -102,8 +118,38 @@ function JourneyExplorer(props: JourneyExplorerProps) {
     dispatch({ type: "APPEND_JOURNEY", props: processJourneys([journey]) });
   };
 
-  const removeJourney = (targetJourney: ProcessedJourney) => {
+  const removeJourney = (targetJourney: ProcessedJourney): void => {
     dispatch({ type: "DELETE_JOURNEY", props: targetJourney });
+  };
+
+  const appendPhotos = (photos: RawPhoto[]): void => {
+    if (!state.selectedJourney) {
+      return;
+    }
+    const { id, photos: prevPhotos } = state.selectedJourney;
+
+    dispatch({
+      type: "UPDATE_PHOTO_LIST",
+      props: {
+        journeyId: id,
+        photos: [...prevPhotos, ...modifyImagePath(photos)],
+      },
+    });
+  };
+
+  const removePhoto = (photo: RawPhoto): void => {
+    if (!state?.selectedJourney) {
+      return;
+    }
+    const { id, photos: prevPhotos } = state.selectedJourney;
+
+    dispatch({
+      type: "UPDATE_PHOTO_LIST",
+      props: {
+        journeyId: id,
+        photos: prevPhotos.filter(({ id }) => id !== photo.id),
+      },
+    });
   };
 
   return (
@@ -146,6 +192,8 @@ function JourneyExplorer(props: JourneyExplorerProps) {
           journey={state.selectedJourney}
           onCloseDetail={closeDetail}
           onDeleteJourney={removeJourney}
+          onUploadPhotos={appendPhotos}
+          onDeletePhoto={removePhoto}
         ></JourneyDetail>
 
         <JourneyForm

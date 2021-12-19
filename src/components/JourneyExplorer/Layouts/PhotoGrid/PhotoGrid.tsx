@@ -3,7 +3,9 @@ import { RawPhoto } from "../../Journey.interface";
 import classes from "./PhotoGrid.module.scss";
 
 type PhotoGridProps = {
+  isEditing: boolean;
   photos: RawPhoto[];
+  onDeletePhoto: (photo: RawPhoto) => void;
 };
 
 function loadImage(imagePath: string): Promise<boolean> {
@@ -15,7 +17,7 @@ function loadImage(imagePath: string): Promise<boolean> {
   });
 }
 
-function PhotoGrid({ photos }: PhotoGridProps) {
+function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
   const [imageBlobs, setImageBlobs] = useState<string[]>([]);
 
   // TODO: Worker gets terminated during the component re-evaluation, and never gets instanciated.
@@ -40,7 +42,7 @@ function PhotoGrid({ photos }: PhotoGridProps) {
       // NOTE: Wait for all images to be pre-loaded.
       await Promise.all(imageBlobPaths.map((path) => loadImage(path)));
 
-      setImageBlobs(event.data);
+      setImageBlobs(imageBlobPaths);
     };
 
     return () => {
@@ -51,14 +53,29 @@ function PhotoGrid({ photos }: PhotoGridProps) {
   return (
     <div className={classes["photo-grid"]}>
       {imageBlobs.map((imageBlob, index) => (
-        <img
+        <div
           key={index}
-          src={imageBlob || "/images/dummy.jpg"}
-          alt={photos[index].filename}
-          className={classes.image}
-          height={250}
-          width={250}
-        />
+          className={`${classes["photo-cell"]} ${
+            isEditing ? classes.shake : ""
+          }`}
+        >
+          <img
+            className={classes.image}
+            src={imageBlob || "/images/dummy.jpg"}
+            alt={`${index + 1}번 이미지`}
+            height={250}
+            width={250}
+          />
+
+          {isEditing ? (
+            <button
+              className={classes["delete-button"]}
+              onClick={() => onDeletePhoto(photos[index])}
+            >
+              ×
+            </button>
+          ) : null}
+        </div>
       ))}
     </div>
   );

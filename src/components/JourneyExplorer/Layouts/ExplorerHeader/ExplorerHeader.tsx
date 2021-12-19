@@ -10,7 +10,9 @@ export type HeaderButton = {
 
 type ExplorerHeaderProps = {
   backward?: boolean;
+  isBackwardDisabled?: boolean;
   close?: boolean;
+  isCloseDisabled?: boolean;
   leftButtons?: HeaderButton[];
   rightButtons?: HeaderButton[];
   onBackward?: (event: React.MouseEvent) => void;
@@ -18,16 +20,29 @@ type ExplorerHeaderProps = {
 };
 
 function ExplorerHeader(props: ExplorerHeaderProps) {
-  const { backward = false, close = false } = props;
+  const {
+    backward = false,
+    close = false,
+    isBackwardDisabled = false,
+    isCloseDisabled = false,
+  } = props;
 
   const backwardButton = backward ? (
-    <button className={classes["text-button"]} onClick={props.onBackward}>
+    <button
+      className={classes["text-button"]}
+      disabled={isBackwardDisabled}
+      onClick={props.onBackward}
+    >
       <span>이전</span>
     </button>
   ) : null;
 
   const closeButton = close ? (
-    <button className={classes["text-button"]} onClick={props.onClose}>
+    <button
+      className={classes["text-button"]}
+      disabled={isCloseDisabled}
+      onClick={props.onClose}
+    >
       <span>닫기</span>
     </button>
   ) : null;
