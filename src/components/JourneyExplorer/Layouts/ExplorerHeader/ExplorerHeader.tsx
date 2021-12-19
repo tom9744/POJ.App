@@ -34,35 +34,39 @@ function ExplorerHeader(props: ExplorerHeaderProps) {
 
   return (
     <section className={classes["explorer-header"]}>
-      {backwardButton}
+      <div className={classes["left-buttons"]}>
+        {backwardButton}
 
-      {props.leftButtons?.map(
-        ({ type, textContent, handler, isDisabled = false }) => (
-          <button
-            className={classes[`${type}-button`]}
-            disabled={isDisabled}
-            onClick={handler}
-          >
-            {textContent}
-          </button>
-        )
-      )}
+        {props.leftButtons?.map(
+          ({ type, textContent, handler, isDisabled = false }) => (
+            <button
+              className={classes[`${type}-button`]}
+              disabled={isDisabled}
+              onClick={handler}
+            >
+              {textContent}
+            </button>
+          )
+        )}
+      </div>
 
       <div className={classes.spacer}></div>
 
-      {props.rightButtons?.map(
-        ({ type, textContent, handler, isDisabled = false }) => (
-          <button
-            className={classes[`${type}-button`]}
-            disabled={isDisabled}
-            onClick={handler}
-          >
-            {textContent}
-          </button>
-        )
-      )}
+      <div className={classes["right-buttons"]}>
+        {props.rightButtons?.map(
+          ({ type, textContent, handler, isDisabled = false }) => (
+            <button
+              className={classes[`${type}-button`]}
+              disabled={isDisabled}
+              onClick={handler}
+            >
+              {textContent}
+            </button>
+          )
+        )}
 
-      {closeButton}
+        {closeButton}
+      </div>
     </section>
   );
 }
