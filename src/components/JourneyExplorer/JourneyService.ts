@@ -1,8 +1,12 @@
 import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 
+const modifyDateString = (date: string): string => {
+  return date.substring(0, 10).replace(/-/g, ".");
+};
+
 export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
   if (!photos?.length) {
-    return photos;
+    return [];
   }
 
   const processedPhotos = photos.map((photo) => {
@@ -22,12 +26,12 @@ export const processJourneys = (journeys: RawJourney[]): ProcessedJourney[] => {
 
   const processedJourneys = journeys
     .map((journey): RawJourney => {
-      return journey.photos?.length > 0
-        ? {
-            ...journey,
-            photos: modifyImagePath(journey.photos),
-          }
-        : journey;
+      return {
+        ...journey,
+        photos: modifyImagePath(journey.photos),
+        startDate: modifyDateString(journey.startDate),
+        endDate: modifyDateString(journey.endDate),
+      };
     })
     .map((journey): ProcessedJourney => {
       return {

@@ -15,13 +15,6 @@ type JourneyDetailProps = {
   onDeleteJourney: (targetJourney: ProcessedJourney) => void;
 };
 
-const formatDate = (startDate: string, endDate: string): string => {
-  const formattedStartDate = startDate.substring(0, 10).replace(/-/g, ".");
-  const formattedEndDate = endDate.substring(0, 10).replace(/-/g, ".");
-
-  return `${formattedStartDate} - ${formattedEndDate}`;
-};
-
 function JourneyDetail({
   isActive,
   journey,
@@ -98,7 +91,7 @@ function JourneyDetail({
             <section className={classes["detail-content-section"]}>
               <h3 className={classes.title}>{journey.title}</h3>
               <span className={classes.description}>
-                {formatDate(journey.startDate, journey.endDate)}
+                {`${journey.startDate} - ${journey.endDate}`}
               </span>
               <span className={classes.description}>
                 총 {journey.photos.length} 장의 사진
