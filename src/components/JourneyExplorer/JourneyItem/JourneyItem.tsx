@@ -7,12 +7,20 @@ type JourneyProps = {
   onClick: (event: React.MouseEvent) => void;
 };
 
-function JourneyItem(props: JourneyProps) {
-  return (
-    <div className={classes.journey} onClick={props.onClick}>
-      <img src={props.journey.thumbNailPath || "/images/dummy.jpg"} alt="" />
+function JourneyItem({ journey, onClick }: JourneyProps) {
+  const { title, description, elapsedDate } = journey;
 
-      <span>{props.journey.title}</span>
+  return (
+    <div className={classes["journey-item"]} onClick={onClick}>
+      <div className={classes["title-wrapper"]}>
+        <span className={classes.title}>{title}</span>
+        <div className={classes.spacer}></div>
+        <span className={classes.elapsed}>{elapsedDate.generateText()}</span>
+      </div>
+
+      <div className={classes["desc-wrapper"]}>
+        <span className={classes.description}>{description}</span>
+      </div>
     </div>
   );
 }

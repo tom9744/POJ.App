@@ -16,6 +16,7 @@ function JourneyList(props: JourneyListProps) {
 
   const journeyItems = props.journeys.map((journey, index) => (
     <JourneyItem
+      key={journey.id}
       journey={journey}
       onClick={() => selectJourney(index)}
     ></JourneyItem>

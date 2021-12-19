@@ -133,10 +133,12 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         <div className={classes.error}>{requestState.errorMessage}</div>
       )}
 
-      <JourneyList
-        journeys={state.journeys}
-        onSelectJourney={openDetail}
-      ></JourneyList>
+      {!requestState.showLoading && !requestState.showError && (
+        <JourneyList
+          journeys={state.journeys}
+          onSelectJourney={openDetail}
+        ></JourneyList>
+      )}
 
       <div className={classes["component-slot"]}>
         <JourneyDetail

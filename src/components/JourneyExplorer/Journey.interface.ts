@@ -20,6 +20,7 @@ export interface RawJourney {
 
 export interface ProcessedJourney extends RawJourney {
   thumbNailPath: string;
+  elapsedDate: ElapsedDate;
 }
 
 export interface RawPhoto {
@@ -31,65 +32,22 @@ export interface RawPhoto {
   path: string;
 }
 
-export const photos = [
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-  { path: "/images/IMG_0050.JPG" },
-];
+export class ElapsedDate {
+  constructor(
+    public minutes: number,
+    public hours: number,
+    public days: number
+  ) {}
+
+  public generateText() {
+    if (this.days > 0) {
+      return `${this.days}일 전`;
+    } else if (this.hours > 0) {
+      return `${this.hours}시간 전`;
+    } else if (this.minutes > 0) {
+      return `${this.minutes}분 전`;
+    } else {
+      return "방금 전";
+    }
+  }
+}
