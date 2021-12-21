@@ -53,8 +53,9 @@ function ExplorerHeader(props: ExplorerHeaderProps) {
         {backwardButton}
 
         {props.leftButtons?.map(
-          ({ type, textContent, handler, isDisabled = false }) => (
+          ({ type, textContent, handler, isDisabled = false }, index) => (
             <button
+              id={textContent + index}
               className={classes[`${type}-button`]}
               disabled={isDisabled}
               onClick={handler}
@@ -69,8 +70,9 @@ function ExplorerHeader(props: ExplorerHeaderProps) {
 
       <div className={classes["right-buttons"]}>
         {props.rightButtons?.map(
-          ({ type, textContent, handler, isDisabled = false }) => (
+          ({ type, textContent, handler, isDisabled = false }, index) => (
             <button
+              id={textContent + index}
               className={classes[`${type}-button`]}
               disabled={isDisabled}
               onClick={handler}
