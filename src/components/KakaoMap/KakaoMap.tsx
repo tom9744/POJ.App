@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
+import { RawPhoto } from "../JourneyExplorer/Journey.interface";
 import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
 import {
   filterOverseasMarkers,
+  generateKakaoLatLng,
   getAverageCoordinate,
+  isValidCoordinate,
   MarkerData,
 } from "./KakaoMapService";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
-type KakaoMapProps = { markerDataList: MarkerData[] };
+type KakaoMapProps = {
+  markerDataList: MarkerData[];
+  selectedMarker: MarkerData | null;
+};
 
-function KakaoMap({ markerDataList }: KakaoMapProps) {
+function KakaoMap({ markerDataList, selectedMarker }: KakaoMapProps) {
   const [validMarkers, setValidMarkers] = useState<MarkerData[]>([]);
   const [map, setMap] = useState<any>(null);
 
@@ -30,6 +36,16 @@ function KakaoMap({ markerDataList }: KakaoMapProps) {
 
     setMap(mapInstance); // Save the map's instance into the reducer.
   }, []);
+
+  useEffect(() => {
+    if (!selectedMarker || !isValidCoordinate(selectedMarker.coordinate))
+      return;
+
+    const { coordinate } = selectedMarker;
+    const targetCoordinate = generateKakaoLatLng(coordinate);
+
+    map.panTo(targetCoordinate);
+  }, [map, selectedMarker]);
 
   // Move the map to the average coordinate of the selected journey.
   useEffect(() => {

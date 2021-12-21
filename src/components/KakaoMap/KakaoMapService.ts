@@ -65,7 +65,7 @@ export const generatePolyline = ([from, to]: [MarkerData, MarkerData]): any => {
   return polyline;
 };
 
-const isValidCoordinate = (coordinate: Coordinate): boolean => {
+export const isValidCoordinate = (coordinate: Coordinate): boolean => {
   const { latitude, longitude } = coordinate;
 
   return (

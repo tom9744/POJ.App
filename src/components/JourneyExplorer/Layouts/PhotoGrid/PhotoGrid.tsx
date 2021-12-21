@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { AppDispatchContext } from "../../../../App";
 import { RawPhoto } from "../../Journey.interface";
 import classes from "./PhotoGrid.module.scss";
 
@@ -18,6 +19,8 @@ function loadImage(imagePath: string): Promise<boolean> {
 }
 
 function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
+  const appDispatch = useContext(AppDispatchContext);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadedPhotos, setLoadedPhotos] = useState<RawPhoto[]>([]);
 
   // TODO: Find a better solution to improve speed.
@@ -35,15 +38,28 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
       await Promise.all(loadedPhotos.map(({ path }) => loadImage(path)));
 
       setLoadedPhotos(loadedPhotos);
+      setIsLoading(false);
     };
 
     setTimeout(() => worker.postMessage(photos), 500);
     setLoadedPhotos(dummyPhotos);
+    setIsLoading(true);
 
     return () => {
       worker.terminate(); // NOTE: To avoid memory leak error.
+
+      appDispatch({ type: "SET_SELECTED_PHOTO", photo: null });
     };
-  }, [photos]);
+  }, [photos, appDispatch]);
+
+  const selectPhoto = useCallback(
+    (photo: RawPhoto) => {
+      if (isLoading || isEditing) return;
+
+      appDispatch({ type: "SET_SELECTED_PHOTO", photo });
+    },
+    [isLoading, isEditing, appDispatch]
+  );
 
   return (
     <div className={classes["photo-grid"]}>
@@ -60,6 +76,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
             alt={`${index + 1}번 이미지`}
             height={250}
             width={250}
+            onClick={() => selectPhoto(photo)}
           />
 
           {isEditing ? (

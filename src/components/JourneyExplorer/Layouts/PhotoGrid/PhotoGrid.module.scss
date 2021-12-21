@@ -21,6 +21,10 @@
       animation-timing-function: ease;
       animation-iteration-count: infinite;
       animation-direction: alternate;
+
+      .image {
+        cursor: default;
+      }
     }
 
     .image {
@@ -28,6 +32,8 @@
       width: 100%;
 
       object-fit: cover;
+
+      cursor: pointer;
     }
 
     .delete-button {

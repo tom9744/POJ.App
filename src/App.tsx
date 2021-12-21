@@ -17,20 +17,26 @@ import { MarkerData } from "./components/KakaoMap/KakaoMapService";
 type AppAction =
   | { type: "ACTIVATE_BUBBLE_BUTTON" }
   | { type: "ACTIVATE_EXPLORER" }
-  | { type: "SET_SELECTED_PHOTO"; photo: RawPhoto };
+  | { type: "SET_MARKER_LIST"; markerDataList: MarkerData[] }
+  | { type: "SET_SELECTED_MARKER"; markerData: MarkerData | null }
+  | { type: "SET_SELECTED_PHOTO"; photo: RawPhoto | null };
 
 type AppDispatcher = Dispatch<AppAction>;
 
 interface AppState {
   isExplorerActive: boolean;
   isButtonActive: boolean;
+  markerDataList: MarkerData[];
+  selectedMarker: MarkerData | null;
   selectedPhoto: RawPhoto | null;
 }
 
 const INITIAL_APP_STATE = {
   isExplorerActive: false,
   isButtonActive: false,
+  markerDataList: [] as MarkerData[],
   selectedPhoto: null,
+  selectedMarker: null,
 };
 
 export const AppStateContext = createContext<AppState>(INITIAL_APP_STATE);
@@ -50,6 +56,16 @@ const reducer = (state: AppState, action: AppAction): AppState => {
         isExplorerActive: true,
         isButtonActive: false,
       };
+    case "SET_MARKER_LIST":
+      return {
+        ...state,
+        markerDataList: action.markerDataList,
+      };
+    case "SET_SELECTED_MARKER":
+      return {
+        ...state,
+        selectedMarker: action.markerData,
+      };
     case "SET_SELECTED_PHOTO":
       return {
         ...state,
@@ -62,11 +78,22 @@ const reducer = (state: AppState, action: AppAction): AppState => {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, INITIAL_APP_STATE);
-  const [markerDataList, setMarkerDataList] = useState<MarkerData[]>([]);
 
   useEffect(() => {
     dispatch({ type: "ACTIVATE_BUBBLE_BUTTON" });
   }, []);
+
+  useEffect(() => {
+    if (!state.selectedPhoto || !state.markerDataList) return;
+
+    const markerData = state.markerDataList.find(
+      ({ id }) => id === state.selectedPhoto?.id
+    );
+
+    if (markerData) {
+      dispatch({ type: "SET_SELECTED_MARKER", markerData });
+    }
+  }, [state.markerDataList, state.selectedPhoto]);
 
   const openExplorer = (_event: MouseEvent) => {
     dispatch({ type: "ACTIVATE_EXPLORER" });
@@ -87,14 +114,17 @@ function App() {
       }
     );
 
-    setMarkerDataList(markerDataList);
+    dispatch({ type: "SET_MARKER_LIST", markerDataList });
   }, []);
 
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
         <div className="app">
-          <KakaoMap markerDataList={markerDataList} />
+          <KakaoMap
+            markerDataList={state.markerDataList}
+            selectedMarker={state.selectedMarker}
+          />
 
           <BubbleButton
             isActive={state.isButtonActive}
