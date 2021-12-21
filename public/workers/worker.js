@@ -1,15 +1,20 @@
 /* eslint-disable */
 self.onmessage = async (event) => {
-  const { data } = event;
+  const { data: photos } = event;
 
   const images = await Promise.all(
-    data.map(async (url) => {
+    photos.map(async (photo) => {
+      const { path } = photo;
+
       try {
-        const response = await fetch(url);
+        const response = await fetch(path);
         const fileBlob = await response.blob();
 
         if (/image\/.+/.test(fileBlob.type)) {
-          return URL.createObjectURL(fileBlob);
+          return {
+            ...photo,
+            path: URL.createObjectURL(fileBlob),
+          };
         } else {
           throw new Error("Invalid Blob Type Error");
         }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RawPhoto } from "../../Journey.interface";
 import classes from "./PhotoGrid.module.scss";
 
@@ -18,50 +18,45 @@ function loadImage(imagePath: string): Promise<boolean> {
 }
 
 function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
-  const [imageBlobs, setImageBlobs] = useState<string[]>([]);
+  const [loadedPhotos, setLoadedPhotos] = useState<RawPhoto[]>([]);
 
-  // TODO: Worker gets terminated during the component re-evaluation, and never gets instanciated.
-  const worker = useMemo(() => new Worker("./workers/worker.js"), [photos]);
-
+  // TODO: Find a better solution to improve speed.
   useEffect(() => {
-    const pathUrls = photos.map((photo) => photo.path);
+    const worker = new Worker("./workers/worker.js");
+    const dummyPhotos = photos.map((photo) => ({
+      ...photo,
+      path: "/images/dummy.jpg",
+    }));
 
-    setImageBlobs(new Array(pathUrls.length).fill(null));
-
-    setTimeout(() => worker.postMessage(pathUrls), 500);
-
-    return () => {
-      worker.terminate(); // NOTE: To avoid memory leak error.
-    };
-  }, [worker, photos]);
-
-  useEffect(() => {
-    worker.onmessage = async (event: MessageEvent) => {
-      const imageBlobPaths = event.data as string[];
+    worker.onmessage = async (event: MessageEvent<RawPhoto[]>) => {
+      const { data: loadedPhotos } = event;
 
       // NOTE: Wait for all images to be pre-loaded.
-      await Promise.all(imageBlobPaths.map((path) => loadImage(path)));
+      await Promise.all(loadedPhotos.map(({ path }) => loadImage(path)));
 
-      setImageBlobs(imageBlobPaths);
+      setLoadedPhotos(loadedPhotos);
     };
+
+    setTimeout(() => worker.postMessage(photos), 500);
+    setLoadedPhotos(dummyPhotos);
 
     return () => {
       worker.terminate(); // NOTE: To avoid memory leak error.
     };
-  }, [worker]);
+  }, [photos]);
 
   return (
     <div className={classes["photo-grid"]}>
-      {imageBlobs.map((imageBlob, index) => (
+      {loadedPhotos.map((photo, index) => (
         <div
-          key={index}
+          key={photo.id}
           className={`${classes["photo-cell"]} ${
             isEditing ? classes.shake : ""
           }`}
         >
           <img
             className={classes.image}
-            src={imageBlob || "/images/dummy.jpg"}
+            src={photo.path}
             alt={`${index + 1}번 이미지`}
             height={250}
             width={250}
@@ -70,7 +65,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
           {isEditing ? (
             <button
               className={classes["delete-button"]}
-              onClick={() => onDeletePhoto(photos[index])}
+              onClick={() => onDeletePhoto(photo)}
             >
               ×
             </button>
