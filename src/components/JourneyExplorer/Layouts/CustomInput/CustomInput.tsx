@@ -7,6 +7,7 @@ type CustomInputProps = {
   type: string;
   id: string;
   label: string;
+  autoComplete?: boolean;
   validators?: Array<(value: string) => boolean | string>;
   onChange: (value: string, isValid: boolean) => void;
 };
@@ -15,6 +16,7 @@ function CustomInput({
   id,
   type,
   label,
+  autoComplete = false,
   validators = [],
   onChange,
 }: CustomInputProps) {
@@ -60,6 +62,7 @@ function CustomInput({
         value={enteredValue}
         onChange={changeHandler}
         onBlur={blurHandler}
+        autoComplete={autoComplete ? "on" : "off"}
       />
       <small>{hasError && errorMessage}</small>
     </div>
