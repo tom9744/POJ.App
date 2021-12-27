@@ -158,17 +158,13 @@ function App() {
     }
   }, [state.selectedJourney]);
 
-  const openExplorer = (_event: MouseEvent) => {
-    dispatch({ type: "ACTIVATE_EXPLORER" });
-  };
-
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
         <div className="app">
-          <KakaoMap markerDataList={state.markerDataList} selectedMarker={state.selectedMarker} />
+          <KakaoMap />
 
-          <BubbleButton isActive={state.isButtonActive} onBubbleClick={openExplorer} />
+          <BubbleButton />
 
           <JourneyExplorer />
         </div>

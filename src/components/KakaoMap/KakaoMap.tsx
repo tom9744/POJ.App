@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { RawPhoto } from "../JourneyExplorer/Journey.interface";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { AppStateContext } from "../../App";
 import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
 import {
-  Coordinate,
   filterOverseasMarkers,
   generateKakaoLatLng,
   getAverageCoordinate,
@@ -15,12 +14,8 @@ import {
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
-type KakaoMapProps = {
-  markerDataList: MarkerData[];
-  selectedMarker: MarkerData | null;
-};
-
-function KakaoMap({ markerDataList, selectedMarker }: KakaoMapProps) {
+function KakaoMap() {
+  const { selectedMarker, markerDataList } = useContext(AppStateContext);
   const [validMarkers, setValidMarkers] = useState<MarkerData[]>([]);
   const [map, setMap] = useState<any>(null);
 

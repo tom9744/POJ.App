@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useCallback, useContext } from "react";
+import { AppDispatchContext, AppStateContext } from "../../App";
 import classes from "./BubbleButton.module.scss";
 
-type BubbleButtonProps = {
-  isActive: boolean;
-  onBubbleClick: (event: React.MouseEvent) => void;
-};
+function BubbleButton() {
+  const appState = useContext(AppStateContext);
+  const appDispatch = useContext(AppDispatchContext);
 
-function BubbleButton(props: BubbleButtonProps) {
+  const toggleButton = useCallback(() => {
+    appDispatch({ type: "ACTIVATE_EXPLORER" });
+  }, [appDispatch]);
+
   return (
     <div
-      className={`${classes.bubble} ${
-        props.isActive ? classes.active : classes.deactive
-      }`}
-      onClick={props.onBubbleClick}
+      className={`${classes.bubble} ${appState.isButtonActive ? classes.active : classes.deactive}`}
+      onClick={toggleButton}
     ></div>
   );
 }
