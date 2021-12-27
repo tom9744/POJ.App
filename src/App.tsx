@@ -1,7 +1,7 @@
 import React, { Dispatch, MouseEvent, createContext, useCallback, useEffect, useReducer, useState } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
-import { RawPhoto } from "./components/JourneyExplorer/Journey.interface";
+import { ProcessedJourney, RawPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { MarkerData } from "./components/KakaoMap/KakaoMapService";
@@ -10,6 +10,7 @@ type AppAction =
   | { type: "ACTIVATE_BUBBLE_BUTTON" }
   | { type: "ACTIVATE_EXPLORER" }
   | { type: "SET_MARKER_LIST"; markerDataList: MarkerData[] }
+  | { type: "SET_SELECTED_JOURNEY"; joureny: ProcessedJourney | null }
   | { type: "SET_SELECTED_MARKER"; markerData: MarkerData | null }
   | { type: "SET_SELECTED_PHOTO"; photo: RawPhoto | null };
 
@@ -19,6 +20,7 @@ interface AppState {
   isExplorerActive: boolean;
   isButtonActive: boolean;
   markerDataList: MarkerData[];
+  selectedJourney: ProcessedJourney | null;
   selectedMarker: MarkerData | null;
   selectedPhoto: RawPhoto | null;
 }
@@ -27,6 +29,7 @@ const INITIAL_APP_STATE = {
   isExplorerActive: false,
   isButtonActive: false,
   markerDataList: [] as MarkerData[],
+  selectedJourney: null,
   selectedPhoto: null,
   selectedMarker: null,
 };
@@ -52,6 +55,11 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         markerDataList: action.markerDataList,
+      };
+    case "SET_SELECTED_JOURNEY":
+      return {
+        ...state,
+        selectedJourney: action.joureny,
       };
     case "SET_SELECTED_MARKER":
       return {
@@ -85,6 +93,18 @@ function App() {
     }
   }, [state.markerDataList, state.selectedPhoto]);
 
+  useEffect(() => {
+    if (state.selectedJourney) {
+      const markerDataList = state.selectedJourney.photos.map(({ id, latitude, longitude, path }) => {
+        return { id, coordinate: { longitude, latitude }, path };
+      });
+
+      dispatch({ type: "SET_MARKER_LIST", markerDataList });
+    } else {
+      dispatch({ type: "SET_MARKER_LIST", markerDataList: [] });
+    }
+  }, [state.selectedJourney]);
+
   const openExplorer = (_event: MouseEvent) => {
     dispatch({ type: "ACTIVATE_EXPLORER" });
   };
@@ -92,18 +112,6 @@ function App() {
   const closeExplorer = (_event: MouseEvent) => {
     dispatch({ type: "ACTIVATE_BUBBLE_BUTTON" });
   };
-
-  const extractLoactions = useCallback((photos: RawPhoto[]) => {
-    const markerDataList: MarkerData[] = photos.map(({ id, latitude, longitude, path }) => {
-      return {
-        id,
-        coordinate: { longitude, latitude },
-        path,
-      };
-    });
-
-    dispatch({ type: "SET_MARKER_LIST", markerDataList });
-  }, []);
 
   return (
     <AppStateContext.Provider value={state}>
@@ -113,11 +121,7 @@ function App() {
 
           <BubbleButton isActive={state.isButtonActive} onBubbleClick={openExplorer} />
 
-          <JourneyExplorer
-            isActive={state.isExplorerActive}
-            onSelectJourney={extractLoactions}
-            onCloseExplorer={closeExplorer}
-          />
+          <JourneyExplorer isActive={state.isExplorerActive} onCloseExplorer={closeExplorer} />
         </div>
       </AppDispatchContext.Provider>
     </AppStateContext.Provider>

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useContext, useEffect, useReducer } from "react";
 import JourneyForm from "./JourneyForm/JourneyForm";
 import classes from "./JourneyExplorer.module.scss";
 
@@ -8,10 +8,10 @@ import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
 import { modifyImagePath, processJourneys } from "./JourneyService";
 import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
 import useHttp from "../../hooks/useHttp";
+import { AppDispatchContext, AppStateContext } from "../../App";
 
 type JourneyExplorerProps = {
   isActive: boolean;
-  onSelectJourney: (photos: RawPhoto[]) => void;
   onCloseExplorer: (event: React.MouseEvent) => void;
 };
 
@@ -21,7 +21,6 @@ type ExplorerAction =
   | { type: "FETCH_JOURNEY"; props: ProcessedJourney[] }
   | { type: "APPEND_JOURNEY"; props: ProcessedJourney[] }
   | { type: "DELETE_JOURNEY"; props: ProcessedJourney }
-  | { type: "SELECT_JOURNEY"; props: ProcessedJourney | null }
   | {
       type: "UPDATE_PHOTO_LIST";
       props: { journeyId: number; photos: RawPhoto[] };
@@ -31,7 +30,6 @@ interface ExplorerState {
   showJourneyForm: boolean;
   showJourneyDatail: boolean;
   journeys: ProcessedJourney[];
-  selectedJourney: ProcessedJourney | null;
 }
 
 const reducer = (state: ExplorerState, action: ExplorerAction): ExplorerState => {
@@ -49,8 +47,6 @@ const reducer = (state: ExplorerState, action: ExplorerAction): ExplorerState =>
       };
     case "APPEND_JOURNEY":
       return { ...state, journeys: [...state.journeys, ...action.props] };
-    case "SELECT_JOURNEY":
-      return { ...state, selectedJourney: action.props };
     case "UPDATE_PHOTO_LIST":
       return {
         ...state,
@@ -69,11 +65,12 @@ const reducer = (state: ExplorerState, action: ExplorerAction): ExplorerState =>
 };
 
 function JourneyExplorer(props: JourneyExplorerProps) {
+  const appState = useContext(AppStateContext);
+  const appDispatch = useContext(AppDispatchContext);
   const [state, dispatch] = useReducer(reducer, {
     showJourneyForm: false,
     showJourneyDatail: false,
     journeys: [],
-    selectedJourney: null,
   });
   const { requestState, sendRequest: fetchJourneys } = useHttp<RawJourney[]>();
 
@@ -95,15 +92,13 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const openDetail = (index: number): void => {
-    props.onSelectJourney(state.journeys[index].photos);
-    dispatch({ type: "SELECT_JOURNEY", props: state.journeys[index] });
     dispatch({ type: "SET_SHOW_JOURNEY_DETAIL", props: true });
+    appDispatch({ type: "SET_SELECTED_JOURNEY", joureny: state.journeys[index] });
   };
 
   const closeDetail = (): void => {
-    props.onSelectJourney([]);
-    dispatch({ type: "SELECT_JOURNEY", props: null });
     dispatch({ type: "SET_SHOW_JOURNEY_DETAIL", props: false });
+    appDispatch({ type: "SET_SELECTED_JOURNEY", joureny: null });
   };
 
   const appendJourney = (journey: RawJourney): void => {
@@ -115,10 +110,10 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const appendPhotos = (photos: RawPhoto[]): void => {
-    if (!state.selectedJourney) {
+    if (!appState.selectedJourney) {
       return;
     }
-    const { id, photos: prevPhotos } = state.selectedJourney;
+    const { id, photos: prevPhotos } = appState.selectedJourney;
 
     dispatch({
       type: "UPDATE_PHOTO_LIST",
@@ -130,10 +125,10 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const removePhoto = (photo: RawPhoto): void => {
-    if (!state?.selectedJourney) {
+    if (!appState.selectedJourney) {
       return;
     }
-    const { id, photos: prevPhotos } = state.selectedJourney;
+    const { id, photos: prevPhotos } = appState.selectedJourney;
 
     dispatch({
       type: "UPDATE_PHOTO_LIST",
@@ -170,7 +165,7 @@ function JourneyExplorer(props: JourneyExplorerProps) {
       <div className={classes["component-slot"]}>
         <JourneyDetail
           isActive={state.showJourneyDatail}
-          journey={state.selectedJourney}
+          journey={appState.selectedJourney}
           onCloseDetail={closeDetail}
           onDeleteJourney={removeJourney}
           onUploadPhotos={appendPhotos}
