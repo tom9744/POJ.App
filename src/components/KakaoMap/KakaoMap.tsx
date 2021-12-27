@@ -4,6 +4,7 @@ import { INITIAL_LATLANG, INITIAL_LEVEL } from "./KakaoMap.constant";
 import classes from "./KakaoMap.module.scss";
 import KakaoMapContainer from "./KakaoMapContainer";
 import {
+  Coordinate,
   filterOverseasMarkers,
   generateKakaoLatLng,
   getAverageCoordinate,
@@ -55,11 +56,13 @@ function KakaoMap({ markerDataList, selectedMarker }: KakaoMapProps) {
   useEffect(() => {
     if (map && markerDataList.length > 0) {
       const validMarkers = filterOverseasMarkers(markerDataList);
-      const totalValue = getAverageCoordinate(validMarkers);
+      const averageLatitude = getAverageCoordinate(validMarkers).latitude / validMarkers.length;
+      const averageLongitude = getAverageCoordinate(validMarkers).longitude / validMarkers.length;
+      const averageCoordinate = { latitude: averageLatitude, longitude: averageLongitude };
 
-      map.panTo(
-        new kakao.maps.LatLng(totalValue.latitude / validMarkers.length, totalValue.longitude / validMarkers.length)
-      );
+      if (isValidCoordinate(averageCoordinate)) {
+        map.panTo(new kakao.maps.LatLng(averageLatitude, averageLongitude));
+      }
 
       setValidMarkers(validMarkers);
     }
