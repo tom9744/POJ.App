@@ -38,39 +38,37 @@ function KakaoMap({ markerDataList, selectedMarker }: KakaoMapProps) {
   }, []);
 
   useEffect(() => {
-    if (!selectedMarker || !isValidCoordinate(selectedMarker.coordinate))
-      return;
+    if (selectedMarker && isValidCoordinate(selectedMarker.coordinate)) {
+      const { coordinate } = selectedMarker;
 
-    const { coordinate } = selectedMarker;
-    const targetCoordinate = generateKakaoLatLng(coordinate);
-
-    map.panTo(targetCoordinate);
+      map.panTo(generateKakaoLatLng(coordinate));
+    }
   }, [map, selectedMarker]);
+
+  useEffect(() => {
+    if (map && markerDataList.length === 0) {
+      setValidMarkers([]);
+    }
+  }, [map, markerDataList]);
 
   // Move the map to the average coordinate of the selected journey.
   useEffect(() => {
-    if (!map || markerDataList.length <= 0) return;
+    if (map && markerDataList.length > 0) {
+      const validMarkers = filterOverseasMarkers(markerDataList);
+      const totalValue = getAverageCoordinate(validMarkers);
 
-    const validMarkers = filterOverseasMarkers(markerDataList);
-    const totalValue = getAverageCoordinate(validMarkers);
+      map.panTo(
+        new kakao.maps.LatLng(totalValue.latitude / validMarkers.length, totalValue.longitude / validMarkers.length)
+      );
 
-    const kakaoCoordinate = new kakao.maps.LatLng(
-      totalValue.latitude / validMarkers.length,
-      totalValue.longitude / validMarkers.length
-    );
-
-    map.panTo(kakaoCoordinate);
-
-    setValidMarkers(validMarkers);
+      setValidMarkers(validMarkers);
+    }
   }, [map, markerDataList]);
 
   return (
     <React.Fragment>
       <div id="kakao-map" className={classes.map} ref={mapContainer}></div>
-      <KakaoMapContainer
-        kakaoMap={map}
-        markerDataList={validMarkers}
-      ></KakaoMapContainer>
+      <KakaoMapContainer kakaoMap={map} markerDataList={validMarkers}></KakaoMapContainer>
     </React.Fragment>
   );
 }

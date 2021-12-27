@@ -1,12 +1,4 @@
-import React, {
-  Dispatch,
-  MouseEvent,
-  createContext,
-  useCallback,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import React, { Dispatch, MouseEvent, createContext, useCallback, useEffect, useReducer, useState } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import { RawPhoto } from "./components/JourneyExplorer/Journey.interface";
@@ -86,9 +78,7 @@ function App() {
   useEffect(() => {
     if (!state.selectedPhoto || !state.markerDataList) return;
 
-    const markerData = state.markerDataList.find(
-      ({ id }) => id === state.selectedPhoto?.id
-    );
+    const markerData = state.markerDataList.find(({ id }) => id === state.selectedPhoto?.id);
 
     if (markerData) {
       dispatch({ type: "SET_SELECTED_MARKER", markerData });
@@ -104,15 +94,13 @@ function App() {
   };
 
   const extractLoactions = useCallback((photos: RawPhoto[]) => {
-    const markerDataList: MarkerData[] = photos.map(
-      ({ id, latitude, longitude, path }) => {
-        return {
-          id,
-          coordinate: { longitude, latitude },
-          path,
-        };
-      }
-    );
+    const markerDataList: MarkerData[] = photos.map(({ id, latitude, longitude, path }) => {
+      return {
+        id,
+        coordinate: { longitude, latitude },
+        path,
+      };
+    });
 
     dispatch({ type: "SET_MARKER_LIST", markerDataList });
   }, []);
@@ -121,15 +109,9 @@ function App() {
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
         <div className="app">
-          <KakaoMap
-            markerDataList={state.markerDataList}
-            selectedMarker={state.selectedMarker}
-          />
+          <KakaoMap markerDataList={state.markerDataList} selectedMarker={state.selectedMarker} />
 
-          <BubbleButton
-            isActive={state.isButtonActive}
-            onBubbleClick={openExplorer}
-          />
+          <BubbleButton isActive={state.isButtonActive} onBubbleClick={openExplorer} />
 
           <JourneyExplorer
             isActive={state.isExplorerActive}

@@ -40,7 +40,6 @@ function JourneyDetail({
     setShowPhotoForm((showPhotoForm) => !showPhotoForm);
   };
 
-  // TODO: Implement Journey Edit Logic
   const editJourney = () => {
     switch (currentMode) {
       case Mode.NORMAL:
@@ -73,11 +72,7 @@ function JourneyDetail({
 
   // TODO: Implement Confrimation Modal
   const deletePhoto = async (photo: RawPhoto) => {
-    if (
-      !journey ||
-      !photo ||
-      !window.confirm("정말 사진을 삭제하시겠습니까?")
-    ) {
+    if (!journey || !photo || !window.confirm("정말 사진을 삭제하시겠습니까?")) {
       return;
     }
 
@@ -93,23 +88,8 @@ function JourneyDetail({
     }
   };
 
-  const appendToPhotoList = useCallback(
-    (uploadedPhotos: RawPhoto[]) => {
-      if (!journey) {
-        return;
-      }
-
-      journey.photos = [...journey.photos, ...modifyImagePath(uploadedPhotos)];
-    },
-    [journey]
-  );
-
   return (
-    <div
-      className={`${classes["detail-wrapper"]} ${
-        isActive ? classes.open : classes.close
-      }`}
-    >
+    <div className={`${classes["detail-wrapper"]} ${isActive ? classes.open : classes.close}`}>
       <ExplorerHeader
         backward
         onBackward={onCloseDetail}
@@ -135,18 +115,11 @@ function JourneyDetail({
           <article className={classes["detail-content"]}>
             <section className={classes["detail-content-section"]}>
               <h3 className={classes.title}>{journey.title}</h3>
-              <span className={classes.description}>
-                {`${journey.startDate} - ${journey.endDate}`}
-              </span>
-              <span className={classes.description}>
-                총 {journey.photos.length} 장의 사진
-              </span>
+              <span className={classes.description}>{`${journey.startDate} - ${journey.endDate}`}</span>
+              <span className={classes.description}>총 {journey.photos.length} 장의 사진</span>
 
               <div className={classes["button-container"]}>
-                <button
-                  onClick={toggleForm}
-                  disabled={isInEditMode || requestState.showLoading}
-                >
+                <button onClick={toggleForm} disabled={isInEditMode || requestState.showLoading}>
                   사진 추가
                 </button>
               </div>
@@ -155,11 +128,7 @@ function JourneyDetail({
             <div className={classes.divider}></div>
 
             <section className={classes["detail-content-section"]}>
-              <PhotoGrid
-                isEditing={isInEditMode}
-                photos={journey.photos}
-                onDeletePhoto={deletePhoto}
-              ></PhotoGrid>
+              <PhotoGrid isEditing={isInEditMode} photos={journey.photos} onDeletePhoto={deletePhoto}></PhotoGrid>
             </section>
           </article>
 

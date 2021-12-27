@@ -34,10 +34,7 @@ interface ExplorerState {
   selectedJourney: ProcessedJourney | null;
 }
 
-const reducer = (
-  state: ExplorerState,
-  action: ExplorerAction
-): ExplorerState => {
+const reducer = (state: ExplorerState, action: ExplorerAction): ExplorerState => {
   switch (action.type) {
     case "TOGGLE_JOURNEY_FORM":
       return { ...state, showJourneyForm: !state.showJourneyForm };
@@ -48,9 +45,7 @@ const reducer = (
     case "DELETE_JOURNEY":
       return {
         ...state,
-        journeys: state.journeys.filter(
-          (journey) => journey.id !== action.props.id
-        ),
+        journeys: state.journeys.filter((journey) => journey.id !== action.props.id),
       };
     case "APPEND_JOURNEY":
       return { ...state, journeys: [...state.journeys, ...action.props] };
@@ -69,9 +64,7 @@ const reducer = (
         ],
       };
     default:
-      throw new Error(
-        "[JourneyExplorer] Invalid action type has been dispatched."
-      );
+      throw new Error("[JourneyExplorer] Invalid action type has been dispatched.");
   }
 };
 
@@ -102,14 +95,13 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   const openDetail = (index: number): void => {
-    const selectedJourney = state.journeys[index];
-
-    props.onSelectJourney(selectedJourney.photos);
-    dispatch({ type: "SELECT_JOURNEY", props: selectedJourney });
+    props.onSelectJourney(state.journeys[index].photos);
+    dispatch({ type: "SELECT_JOURNEY", props: state.journeys[index] });
     dispatch({ type: "SET_SHOW_JOURNEY_DETAIL", props: true });
   };
 
   const closeDetail = (): void => {
+    props.onSelectJourney([]);
     dispatch({ type: "SELECT_JOURNEY", props: null });
     dispatch({ type: "SET_SHOW_JOURNEY_DETAIL", props: false });
   };
@@ -153,11 +145,7 @@ function JourneyExplorer(props: JourneyExplorerProps) {
   };
 
   return (
-    <div
-      className={`${classes["explorer-wrapper"]} ${
-        props.isActive ? classes.active : classes.deactive
-      }`}
-    >
+    <div className={`${classes["explorer-wrapper"]} ${props.isActive ? classes.active : classes.deactive}`}>
       <ExplorerHeader
         close
         onClose={props.onCloseExplorer}
@@ -171,19 +159,12 @@ function JourneyExplorer(props: JourneyExplorerProps) {
         ]}
       ></ExplorerHeader>
 
-      {requestState.showLoading && (
-        <div className={classes.loading}>불러오는 중...</div>
-      )}
+      {requestState.showLoading && <div className={classes.loading}>불러오는 중...</div>}
 
-      {requestState.showError && (
-        <div className={classes.error}>{requestState.errorMessage}</div>
-      )}
+      {requestState.showError && <div className={classes.error}>{requestState.errorMessage}</div>}
 
       {!requestState.showLoading && !requestState.showError && (
-        <JourneyList
-          journeys={state.journeys}
-          onSelectJourney={openDetail}
-        ></JourneyList>
+        <JourneyList journeys={state.journeys} onSelectJourney={openDetail}></JourneyList>
       )}
 
       <div className={classes["component-slot"]}>
