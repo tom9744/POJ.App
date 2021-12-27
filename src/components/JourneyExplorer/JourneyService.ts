@@ -1,9 +1,4 @@
-import {
-  RawJourney,
-  ProcessedJourney,
-  RawPhoto,
-  ElapsedDate,
-} from "./Journey.interface";
+import { RawJourney, ProcessedJourney, RawPhoto, ElapsedDate } from "./Journey.interface";
 
 const calculateElapsedDate = (originDate: string): ElapsedDate => {
   const originTime = new Date(originDate).getTime();
@@ -14,11 +9,7 @@ const calculateElapsedDate = (originDate: string): ElapsedDate => {
   const elapsedHours = elapsedMinutes / 60;
   const elapsedDays = elapsedHours / 24;
 
-  return new ElapsedDate(
-    Math.floor(elapsedMinutes),
-    Math.floor(elapsedHours),
-    Math.floor(elapsedDays)
-  );
+  return new ElapsedDate(Math.floor(elapsedMinutes), Math.floor(elapsedHours), Math.floor(elapsedDays));
 };
 
 const modifyDateString = (date: string): string => {
@@ -40,26 +31,27 @@ export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
   return processedPhotos;
 };
 
+export const processJourney = (journey: RawJourney): ProcessedJourney => {
+  if (!journey) {
+    throw new Error("[JourneyService] Something went wrong while processing joureny data");
+  }
+
+  const modifiedPhotos = modifyImagePath(journey.photos);
+
+  return {
+    ...journey,
+    photos: modifiedPhotos,
+    startDate: modifyDateString(journey.startDate),
+    endDate: modifyDateString(journey.endDate),
+    elapsedDate: calculateElapsedDate(journey.startDate),
+    thumbNailPath: modifiedPhotos.length > 0 ? modifiedPhotos[0].path : ``,
+  };
+};
+
 export const processJourneys = (journeys: RawJourney[]): ProcessedJourney[] => {
   if (!journeys?.length) {
     return [];
   }
 
-  const processedJourneys = journeys.map((journey): ProcessedJourney => {
-    const modifiedPhotos = modifyImagePath(journey.photos);
-    const modifiedStartDate = modifyDateString(journey.startDate);
-    const modifiedEndDate = modifyDateString(journey.endDate);
-    const elapsedDate = calculateElapsedDate(journey.startDate);
-
-    return {
-      ...journey,
-      photos: modifyImagePath(journey.photos),
-      startDate: modifiedStartDate,
-      endDate: modifiedEndDate,
-      elapsedDate,
-      thumbNailPath: modifiedPhotos.length > 0 ? modifiedPhotos[0].path : ``,
-    };
-  });
-
-  return processedJourneys;
+  return journeys.map((journey) => processJourney(journey));
 };
