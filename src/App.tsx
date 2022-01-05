@@ -3,6 +3,7 @@ import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import { ProcessedJourney, ProcessedPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
+import { sortPhotosByElapsedTime } from "./components/JourneyExplorer/JourneyService";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { MarkerData } from "./components/KakaoMap/KakaoMapService";
 
@@ -92,10 +93,13 @@ const reducer = (state: AppState, action: AppAction): AppState => {
         ...state,
         journeyList: state.journeyList.map((journey) => {
           return state.selectedJourney?.id === journey.id
-            ? { ...journey, photos: [...journey.photos, ...action.photos] }
+            ? { ...journey, photos: sortPhotosByElapsedTime([...journey.photos, ...action.photos]) }
             : journey;
         }),
-        selectedJourney: { ...state.selectedJourney, photos: [...state.selectedJourney.photos, ...action.photos] },
+        selectedJourney: {
+          ...state.selectedJourney,
+          photos: sortPhotosByElapsedTime([...state.selectedJourney.photos, ...action.photos]),
+        },
       };
     case "DELETE_PHOTO_FROM_SELECTED_JOURNEY":
       if (!state.selectedJourney) {

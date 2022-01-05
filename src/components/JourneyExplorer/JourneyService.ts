@@ -41,6 +41,10 @@ export const processPhotos = (photos: RawPhoto[]): ProcessedPhoto[] => {
   return photos.map((photo) => processPhoto(photo));
 };
 
+export const sortPhotosByElapsedTime = (processedPhotos: ProcessedPhoto[]): ProcessedPhoto[] => {
+  return processedPhotos.sort((photoA, photoB) => photoB.elapsedDate.elapsedTime - photoA.elapsedDate.elapsedTime);
+};
+
 const processJourney = (journey: RawJourney): ProcessedJourney => {
   if (!journey) {
     throw new Error("[JourneyService] Something went wrong while processing joureny data");
@@ -48,7 +52,7 @@ const processJourney = (journey: RawJourney): ProcessedJourney => {
 
   return {
     ...journey,
-    photos: processPhotos(journey.photos),
+    photos: sortPhotosByElapsedTime(processPhotos(journey.photos)),
     startDate: modifyDateString(journey.startDate),
     endDate: modifyDateString(journey.endDate),
     elapsedDate: calculateElapsedDate(journey.startDate),
