@@ -9,7 +9,7 @@ const calculateElapsedDate = (originDate: string): ElapsedDate => {
   const elapsedHours = elapsedMinutes / 60;
   const elapsedDays = elapsedHours / 24;
 
-  return new ElapsedDate(Math.floor(elapsedMinutes), Math.floor(elapsedHours), Math.floor(elapsedDays));
+  return new ElapsedDate(elapsedTime, Math.floor(elapsedMinutes), Math.floor(elapsedHours), Math.floor(elapsedDays));
 };
 
 const modifyDateString = (date: string): string => {
@@ -31,7 +31,7 @@ export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
   return processedPhotos;
 };
 
-export const processJourney = (journey: RawJourney): ProcessedJourney => {
+const processJourney = (journey: RawJourney): ProcessedJourney => {
   if (!journey) {
     throw new Error("[JourneyService] Something went wrong while processing joureny data");
   }
@@ -53,5 +53,7 @@ export const processJourneys = (journeys: RawJourney[]): ProcessedJourney[] => {
     return [];
   }
 
-  return journeys.map((journey) => processJourney(journey));
+  return journeys
+    .map((journey) => processJourney(journey))
+    .sort((journeyA, journeyB) => journeyA.elapsedDate.elapsedTime - journeyB.elapsedDate.elapsedTime);
 };
