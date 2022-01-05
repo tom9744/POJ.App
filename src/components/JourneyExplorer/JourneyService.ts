@@ -44,7 +44,6 @@ const processJourney = (journey: RawJourney): ProcessedJourney => {
     startDate: modifyDateString(journey.startDate),
     endDate: modifyDateString(journey.endDate),
     elapsedDate: calculateElapsedDate(journey.startDate),
-    thumbNailPath: modifiedPhotos.length > 0 ? modifiedPhotos[0].path : ``,
   };
 };
 

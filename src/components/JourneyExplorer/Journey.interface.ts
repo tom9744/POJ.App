@@ -19,7 +19,6 @@ export interface RawJourney {
 }
 
 export interface ProcessedJourney extends RawJourney {
-  thumbNailPath: string;
   elapsedDate: ElapsedDate;
 }
 
