@@ -1,7 +1,7 @@
 import React, { Dispatch, MouseEvent, createContext, useEffect, useReducer } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
-import { ProcessedJourney, RawPhoto } from "./components/JourneyExplorer/Journey.interface";
+import { ProcessedJourney, ProcessedPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { MarkerData } from "./components/KakaoMap/KakaoMapService";
@@ -14,10 +14,10 @@ type AppAction =
   | { type: "SET_JOURNEY_LIST"; journeyList: ProcessedJourney[] }
   | { type: "APPEND_JOURNEY"; journey: ProcessedJourney }
   | { type: "DELETE_JOURNEY"; journey: ProcessedJourney }
-  | { type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY"; photos: RawPhoto[] }
-  | { type: "DELETE_PHOTO_FROM_SELECTED_JOURNEY"; photo: RawPhoto }
+  | { type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY"; photos: ProcessedPhoto[] }
+  | { type: "DELETE_PHOTO_FROM_SELECTED_JOURNEY"; photo: ProcessedPhoto }
   | { type: "SET_SELECTED_JOURNEY"; joureny: ProcessedJourney | null }
-  | { type: "SET_SELECTED_PHOTO"; photo: RawPhoto | null };
+  | { type: "SET_SELECTED_PHOTO"; photo: ProcessedPhoto | null };
 
 type AppDispatcher = Dispatch<AppAction>;
 
@@ -28,7 +28,7 @@ interface AppState {
   selectedMarker: MarkerData | null;
   journeyList: ProcessedJourney[];
   selectedJourney: ProcessedJourney | null;
-  selectedPhoto: RawPhoto | null;
+  selectedPhoto: ProcessedPhoto | null;
 }
 
 const INITIAL_APP_STATE = {

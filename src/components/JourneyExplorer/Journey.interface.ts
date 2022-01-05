@@ -19,6 +19,7 @@ export interface RawJourney {
 }
 
 export interface ProcessedJourney extends RawJourney {
+  photos: ProcessedPhoto[];
   elapsedDate: ElapsedDate;
 }
 
@@ -29,6 +30,10 @@ export interface RawPhoto {
   longitude: number;
   modifyDate: string;
   path: string;
+}
+
+export interface ProcessedPhoto extends RawPhoto {
+  elapsedDate: ElapsedDate;
 }
 
 export class ElapsedDate {

@@ -1,11 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
 import classes from "./JourneyDetail.module.scss";
 
-import { ProcessedJourney, RawPhoto } from "../Journey.interface"; // Temporary
+import { ProcessedJourney, ProcessedPhoto, RawPhoto } from "../Journey.interface"; // Temporary
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import PhotoGrid from "../Layouts/PhotoGrid/PhotoGrid";
 import PhotoForm from "../PhotoForm/PhotoForm";
-import { modifyImagePath } from "../JourneyService";
 import useHttp from "../../../hooks/useHttp";
 
 type JourneyDetailProps = {
@@ -13,7 +12,7 @@ type JourneyDetailProps = {
   journey: ProcessedJourney | null;
   onCloseDetail: () => void;
   onUploadPhotos: (uploadedPhotos: RawPhoto[]) => void;
-  onDeletePhoto: (targetPhoto: RawPhoto) => void;
+  onDeletePhoto: (targetPhoto: ProcessedPhoto) => void;
   onDeleteJourney: (targetJourney: ProcessedJourney) => void;
 };
 
@@ -71,7 +70,7 @@ function JourneyDetail({
   };
 
   // TODO: Implement Confrimation Modal
-  const deletePhoto = async (photo: RawPhoto) => {
+  const deletePhoto = async (photo: ProcessedPhoto) => {
     if (!journey || !photo || !window.confirm("정말 사진을 삭제하시겠습니까?")) {
       return;
     }

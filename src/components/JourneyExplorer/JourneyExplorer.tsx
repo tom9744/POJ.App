@@ -5,8 +5,8 @@ import classes from "./JourneyExplorer.module.scss";
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
 import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
-import { modifyImagePath, processJourneys } from "./JourneyService";
-import { RawJourney, ProcessedJourney, RawPhoto } from "./Journey.interface";
+import { processPhotos, processJourneys } from "./JourneyService";
+import { RawJourney, ProcessedJourney, RawPhoto, ProcessedPhoto } from "./Journey.interface";
 import useHttp from "../../hooks/useHttp";
 import { AppDispatchContext, AppStateContext } from "../../App";
 
@@ -79,10 +79,10 @@ function JourneyExplorer() {
   const appendPhotos = (photos: RawPhoto[]): void => {
     if (!appState.selectedJourney) return;
 
-    appDispatch({ type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY", photos: modifyImagePath(photos) });
+    appDispatch({ type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY", photos: processPhotos(photos) });
   };
 
-  const removePhoto = (photo: RawPhoto): void => {
+  const removePhoto = (photo: ProcessedPhoto): void => {
     if (!appState.selectedJourney) return;
 
     appDispatch({ type: "DELETE_PHOTO_FROM_SELECTED_JOURNEY", photo });
