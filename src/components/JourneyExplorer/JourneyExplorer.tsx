@@ -5,7 +5,7 @@ import classes from "./JourneyExplorer.module.scss";
 import JourneyList from "./JourneyList/JourneyList";
 import JourneyDetail from "./JourneyDetail/JourneyDetail";
 import ExplorerHeader from "./Layouts/ExplorerHeader/ExplorerHeader";
-import { processPhotos, processJourneys } from "./JourneyService";
+import { processPhotos, processJourneys, processJourney } from "./JourneyService";
 import { RawJourney, ProcessedJourney, RawPhoto, ProcessedPhoto } from "./Journey.interface";
 import useHttp from "../../hooks/useHttp";
 import { AppDispatchContext, AppStateContext } from "../../App";
@@ -69,7 +69,7 @@ function JourneyExplorer() {
   };
 
   const appendJourney = (journey: RawJourney): void => {
-    appDispatch({ type: "SET_JOURNEY_LIST", journeyList: processJourneys([...appState.journeyList, journey]) });
+    appDispatch({ type: "APPEND_JOURNEY", journey: processJourney(journey) });
   };
 
   const removeJourney = (journey: ProcessedJourney): void => {

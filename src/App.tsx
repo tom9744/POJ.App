@@ -3,7 +3,7 @@ import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import { ProcessedJourney, ProcessedPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
-import { sortPhotosByElapsedTime } from "./components/JourneyExplorer/JourneyService";
+import { sortJourneysByElapsedTime, sortPhotosByElapsedTime } from "./components/JourneyExplorer/JourneyService";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { MarkerData } from "./components/KakaoMap/KakaoMapService";
 
@@ -72,12 +72,12 @@ const reducer = (state: AppState, action: AppAction): AppState => {
     case "SET_JOURNEY_LIST":
       return {
         ...state,
-        journeyList: action.journeyList,
+        journeyList: sortJourneysByElapsedTime(action.journeyList),
       };
     case "APPEND_JOURNEY":
       return {
         ...state,
-        journeyList: [...state.journeyList, action.journey],
+        journeyList: sortJourneysByElapsedTime([...state.journeyList, action.journey]),
       };
     case "DELETE_JOURNEY":
       return {
