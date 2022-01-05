@@ -31,7 +31,7 @@ export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
   return processedPhotos;
 };
 
-export const processJourney = (journey: RawJourney): ProcessedJourney => {
+const processJourney = (journey: RawJourney): ProcessedJourney => {
   if (!journey) {
     throw new Error("[JourneyService] Something went wrong while processing joureny data");
   }
