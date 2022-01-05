@@ -53,5 +53,7 @@ export const processJourneys = (journeys: RawJourney[]): ProcessedJourney[] => {
     return [];
   }
 
-  return journeys.map((journey) => processJourney(journey));
+  return journeys
+    .map((journey) => processJourney(journey))
+    .sort((journeyA, journeyB) => journeyA.elapsedDate.elapsedTime - journeyB.elapsedDate.elapsedTime);
 };
