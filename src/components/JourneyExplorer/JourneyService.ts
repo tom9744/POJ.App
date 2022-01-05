@@ -9,7 +9,7 @@ const calculateElapsedDate = (originDate: string): ElapsedDate => {
   const elapsedHours = elapsedMinutes / 60;
   const elapsedDays = elapsedHours / 24;
 
-  return new ElapsedDate(Math.floor(elapsedMinutes), Math.floor(elapsedHours), Math.floor(elapsedDays));
+  return new ElapsedDate(elapsedTime, Math.floor(elapsedMinutes), Math.floor(elapsedHours), Math.floor(elapsedDays));
 };
 
 const modifyDateString = (date: string): string => {

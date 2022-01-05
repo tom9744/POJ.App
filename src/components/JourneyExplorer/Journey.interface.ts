@@ -33,11 +33,11 @@ export interface RawPhoto {
 }
 
 export class ElapsedDate {
-  constructor(
-    public minutes: number,
-    public hours: number,
-    public days: number
-  ) {}
+  constructor(private rawTime: number, public minutes: number, public hours: number, public days: number) {}
+
+  public get elapsedTime(): number {
+    return this.rawTime;
+  }
 
   public generateText() {
     if (this.days > 0) {
