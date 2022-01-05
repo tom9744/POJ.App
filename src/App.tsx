@@ -1,8 +1,9 @@
 import React, { Dispatch, MouseEvent, createContext, useEffect, useReducer } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
-import { ProcessedJourney, RawPhoto } from "./components/JourneyExplorer/Journey.interface";
+import { ProcessedJourney, ProcessedPhoto } from "./components/JourneyExplorer/Journey.interface";
 import JourneyExplorer from "./components/JourneyExplorer/JourneyExplorer";
+import { sortPhotosByElapsedTime } from "./components/JourneyExplorer/JourneyService";
 import KakaoMap from "./components/KakaoMap/KakaoMap";
 import { MarkerData } from "./components/KakaoMap/KakaoMapService";
 
@@ -14,10 +15,10 @@ type AppAction =
   | { type: "SET_JOURNEY_LIST"; journeyList: ProcessedJourney[] }
   | { type: "APPEND_JOURNEY"; journey: ProcessedJourney }
   | { type: "DELETE_JOURNEY"; journey: ProcessedJourney }
-  | { type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY"; photos: RawPhoto[] }
-  | { type: "DELETE_PHOTO_FROM_SELECTED_JOURNEY"; photo: RawPhoto }
+  | { type: "APPEND_PHOTOS_TO_SELECTED_JOURNEY"; photos: ProcessedPhoto[] }
+  | { type: "DELETE_PHOTO_FROM_SELECTED_JOURNEY"; photo: ProcessedPhoto }
   | { type: "SET_SELECTED_JOURNEY"; joureny: ProcessedJourney | null }
-  | { type: "SET_SELECTED_PHOTO"; photo: RawPhoto | null };
+  | { type: "SET_SELECTED_PHOTO"; photo: ProcessedPhoto | null };
 
 type AppDispatcher = Dispatch<AppAction>;
 
@@ -28,7 +29,7 @@ interface AppState {
   selectedMarker: MarkerData | null;
   journeyList: ProcessedJourney[];
   selectedJourney: ProcessedJourney | null;
-  selectedPhoto: RawPhoto | null;
+  selectedPhoto: ProcessedPhoto | null;
 }
 
 const INITIAL_APP_STATE = {
@@ -92,10 +93,13 @@ const reducer = (state: AppState, action: AppAction): AppState => {
         ...state,
         journeyList: state.journeyList.map((journey) => {
           return state.selectedJourney?.id === journey.id
-            ? { ...journey, photos: [...journey.photos, ...action.photos] }
+            ? { ...journey, photos: sortPhotosByElapsedTime([...journey.photos, ...action.photos]) }
             : journey;
         }),
-        selectedJourney: { ...state.selectedJourney, photos: [...state.selectedJourney.photos, ...action.photos] },
+        selectedJourney: {
+          ...state.selectedJourney,
+          photos: sortPhotosByElapsedTime([...state.selectedJourney.photos, ...action.photos]),
+        },
       };
     case "DELETE_PHOTO_FROM_SELECTED_JOURNEY":
       if (!state.selectedJourney) {

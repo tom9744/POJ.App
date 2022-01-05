@@ -1,4 +1,4 @@
-import { RawJourney, ProcessedJourney, RawPhoto, ElapsedDate } from "./Journey.interface";
+import { RawJourney, ProcessedJourney, RawPhoto, ElapsedDate, ProcessedPhoto } from "./Journey.interface";
 
 const calculateElapsedDate = (originDate: string): ElapsedDate => {
   const originTime = new Date(originDate).getTime();
@@ -16,19 +16,33 @@ const modifyDateString = (date: string): string => {
   return date.substring(0, 10).replace(/-/g, ".");
 };
 
-export const modifyImagePath = (photos: RawPhoto[]): RawPhoto[] => {
+const modifyImagePath = (path: string): string => {
+  return `http://localhost:3030/${path.substring(6)}`;
+};
+
+const processPhoto = (photo: RawPhoto): ProcessedPhoto => {
+  if (!photo) {
+    throw new Error("[JourneyService] Something went wrong while processing photo data");
+  }
+
+  return {
+    ...photo,
+    path: modifyImagePath(photo.path),
+    modifyDate: modifyDateString(photo.modifyDate),
+    elapsedDate: calculateElapsedDate(photo.modifyDate),
+  };
+};
+
+export const processPhotos = (photos: RawPhoto[]): ProcessedPhoto[] => {
   if (!photos?.length) {
     return [];
   }
 
-  const processedPhotos = photos.map((photo) => {
-    return {
-      ...photo,
-      path: `http://localhost:3030/${photo.path.substring(6)}`,
-    };
-  });
+  return photos.map((photo) => processPhoto(photo));
+};
 
-  return processedPhotos;
+export const sortPhotosByElapsedTime = (processedPhotos: ProcessedPhoto[]): ProcessedPhoto[] => {
+  return processedPhotos.sort((photoA, photoB) => photoB.elapsedDate.elapsedTime - photoA.elapsedDate.elapsedTime);
 };
 
 const processJourney = (journey: RawJourney): ProcessedJourney => {
@@ -36,11 +50,9 @@ const processJourney = (journey: RawJourney): ProcessedJourney => {
     throw new Error("[JourneyService] Something went wrong while processing joureny data");
   }
 
-  const modifiedPhotos = modifyImagePath(journey.photos);
-
   return {
     ...journey,
-    photos: modifiedPhotos,
+    photos: sortPhotosByElapsedTime(processPhotos(journey.photos)),
     startDate: modifyDateString(journey.startDate),
     endDate: modifyDateString(journey.endDate),
     elapsedDate: calculateElapsedDate(journey.startDate),

@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AppDispatchContext } from "../../../../App";
-import { RawPhoto } from "../../Journey.interface";
+import { ProcessedPhoto } from "../../Journey.interface";
 import classes from "./PhotoGrid.module.scss";
 
 type PhotoGridProps = {
   isEditing: boolean;
-  photos: RawPhoto[];
-  onDeletePhoto: (photo: RawPhoto) => void;
+  photos: ProcessedPhoto[];
+  onDeletePhoto: (photo: ProcessedPhoto) => void;
 };
 
 function loadImage(imagePath: string): Promise<boolean> {
@@ -21,7 +21,7 @@ function loadImage(imagePath: string): Promise<boolean> {
 function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
   const appDispatch = useContext(AppDispatchContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadedPhotos, setLoadedPhotos] = useState<RawPhoto[]>([]);
+  const [loadedPhotos, setLoadedPhotos] = useState<ProcessedPhoto[]>([]);
 
   // TODO: Find a better solution to improve speed.
   useEffect(() => {
@@ -31,7 +31,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
       path: "/images/dummy.jpg",
     }));
 
-    worker.onmessage = async (event: MessageEvent<RawPhoto[]>) => {
+    worker.onmessage = async (event: MessageEvent<ProcessedPhoto[]>) => {
       const { data: loadedPhotos } = event;
 
       // NOTE: Wait for all images to be pre-loaded.
@@ -53,7 +53,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
   }, [photos, appDispatch]);
 
   const selectPhoto = useCallback(
-    (photo: RawPhoto) => {
+    (photo: ProcessedPhoto) => {
       if (isLoading || isEditing) return;
 
       appDispatch({ type: "SET_SELECTED_PHOTO", photo });
@@ -64,12 +64,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
   return (
     <div className={classes["photo-grid"]}>
       {loadedPhotos.map((photo, index) => (
-        <div
-          key={photo.id}
-          className={`${classes["photo-cell"]} ${
-            isEditing ? classes.shake : ""
-          }`}
-        >
+        <div key={photo.id} className={`${classes["photo-cell"]} ${isEditing ? classes.shake : ""}`}>
           <img
             className={classes.image}
             src={photo.path}
@@ -80,10 +75,7 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
           />
 
           {isEditing ? (
-            <button
-              className={classes["delete-button"]}
-              onClick={() => onDeletePhoto(photo)}
-            >
+            <button className={classes["delete-button"]} onClick={() => onDeletePhoto(photo)}>
               ×
             </button>
           ) : null}
