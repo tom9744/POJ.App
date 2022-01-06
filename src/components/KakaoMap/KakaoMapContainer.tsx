@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { generateMarker, generateOverlay, generatePolyline, MarkerData } from "./KakaoMapService";
+import React, { useCallback, useEffect, useState } from "react";
+import { generateKakaoLatLng, generateMarker, generatePolyline, MarkerData } from "./KakaoMapService";
 import "./CustomOverlay.scss";
 import useCluster from "../../hooks/useCluster";
 
@@ -16,13 +16,34 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
 
   let selectedOverlay: any = null;
 
+  const generateOverlays = useCallback((markerDataList: MarkerData[]) => {
+    return markerDataList.map(({ coordinate, path }) => {
+      const customOverlay = new kakao.maps.CustomOverlay({
+        position: generateKakaoLatLng(coordinate),
+      });
+
+      const content = document.createElement("div");
+      content.className = "custom-overlay-wrapper";
+      content.innerHTML = `<div class="custom-overlay">
+          <img class="image" src="${path}"/>
+        </div>`;
+
+      content.addEventListener("click", () => {
+        customOverlay.setMap(null);
+      });
+
+      customOverlay.setContent(content);
+
+      return customOverlay;
+    });
+  }, []);
+
   useEffect(() => {
     const polylines: any[] = [];
-    const overlays: any[] = [];
+    const overlays = generateOverlays(markerDataList);
     const markers: any[] = [];
 
     markerDataList.forEach((markerData, index, origin) => {
-      const overlay = generateOverlay(markerData);
       const marker = generateMarker(markerData);
 
       kakao.maps.event.addListener(marker, "click", () => {
@@ -31,11 +52,10 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
           selectedOverlay.setMap(null);
           selectedOverlay = null;
         }
-        overlay.setMap(kakaoMap);
-        selectedOverlay = overlay;
+        overlays[index].setMap(kakaoMap);
+        selectedOverlay = overlays[index];
       });
 
-      overlays.push(overlay);
       markers.push(marker);
 
       if (index < origin.length - 1) {
