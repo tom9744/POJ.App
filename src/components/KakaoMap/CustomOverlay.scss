@@ -6,13 +6,7 @@
   height: 200px;
   width: 200px;
 
-  border-radius: 20px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px,
-    rgba(255, 255, 255, 0.2) 0px 0px 0px;
-  background-color: white;
-
   box-sizing: border-box;
-  overflow: hidden;
   cursor: pointer;
 
   .custom-overlay {
@@ -22,11 +16,48 @@
     height: 100%;
     width: 100%;
 
+    border-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px, rgba(255, 255, 255, 0.2) 0px 0px 0px;
+
+    overflow: hidden;
+
     .image {
       height: 100%;
       width: 100%;
 
       object-fit: cover;
     }
+  }
+
+  .custom-overlay-left-arrow,
+  .custom-overlay-right-arrow {
+    position: absolute;
+    top: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100px;
+    width: 40px;
+
+    background-color: rgba(255, 255, 255, 0.6);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px, rgba(0, 0, 0, 0.15) 0px 8px 30px, rgba(255, 255, 255, 0.2) 0px 0px 0px;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    transform: translateY(-50%);
+  }
+
+  .custom-overlay-left-arrow {
+    left: -40px;
+
+    border-radius: 10px 0 0 10px;
+  }
+  .custom-overlay-right-arrow {
+    right: -40px;
+
+    border-radius: 0 10px 10px 0;
   }
 }

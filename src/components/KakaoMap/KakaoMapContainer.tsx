@@ -17,25 +17,39 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
   let selectedOverlay: any = null;
 
   const generateOverlays = useCallback((markerDataList: MarkerData[]) => {
-    return markerDataList.map(({ coordinate, path }) => {
-      const customOverlay = new kakao.maps.CustomOverlay({
+    // NOTE: 먼저 내용이 지정되지 않은 Overlay를 생성합니다.
+    const overlays = markerDataList.map(({ coordinate, path }, index, origin) => {
+      const overlay = new kakao.maps.CustomOverlay({
         position: generateKakaoLatLng(coordinate),
       });
 
       const content = document.createElement("div");
       content.className = "custom-overlay-wrapper";
-      content.innerHTML = `<div class="custom-overlay">
+      content.innerHTML = `
+        ${index === 0 ? "" : '<div class="custom-overlay-left-arrow">←</div>'}
+        <div class="custom-overlay">
           <img class="image" src="${path}"/>
-        </div>`;
+        </div>
+        ${index === origin.length - 1 ? "" : '<div class="custom-overlay-right-arrow">→</div>'}`;
 
-      content.addEventListener("click", () => {
-        customOverlay.setMap(null);
-      });
-
-      customOverlay.setContent(content);
-
-      return customOverlay;
+      overlay.setContent(content);
+      return overlay;
     });
+
+    overlays.forEach((overlay) => {
+      if (!overlay.getContent()) {
+        return;
+      }
+
+      overlay
+        .getContent()
+        .querySelector(".custom-overlay")
+        .addEventListener("click", () => {
+          overlay.setMap(null);
+        });
+    });
+
+    return overlays;
   }, []);
 
   useEffect(() => {
