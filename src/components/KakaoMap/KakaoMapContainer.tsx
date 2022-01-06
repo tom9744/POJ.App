@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { generateMarker, generateOverlay, generatePolyline, MarkerData } from "./KakaoMapService";
 import "./CustomOverlay.scss";
+import useCluster from "../../hooks/useCluster";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
@@ -11,16 +12,7 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
   const [polylines, setPolylines] = useState<any[]>([]);
   const [markers, setMarkers] = useState<any[]>([]);
   const [overlays, setOverlays] = useState<any[]>([]);
-
-  const clusterer = useMemo(
-    () =>
-      new kakao.maps.MarkerClusterer({
-        map: kakaoMap, // 마커들을 클러스터로 관리하고 표시할 지도 객체
-        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정
-        minLevel: 5, // 클러스터 할 최소 지도 레벨
-      }),
-    [kakaoMap]
-  );
+  const clusterer = useCluster(kakaoMap);
 
   let selectedOverlay: any = null;
 
