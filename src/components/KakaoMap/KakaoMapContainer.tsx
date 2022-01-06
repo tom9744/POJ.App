@@ -16,41 +16,65 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
 
   let selectedOverlay: any = null;
 
-  const generateOverlays = useCallback((markerDataList: MarkerData[]) => {
-    // NOTE: 먼저 내용이 지정되지 않은 Overlay를 생성합니다.
-    const overlays = markerDataList.map(({ coordinate, path }, index, origin) => {
-      const overlay = new kakao.maps.CustomOverlay({
-        position: generateKakaoLatLng(coordinate),
-      });
+  const generateOverlays = useCallback(
+    (markerDataList: MarkerData[]) => {
+      // NOTE: 먼저 내용이 지정되지 않은 Overlay를 생성합니다.
+      const overlays = markerDataList.map(({ coordinate, path }, index, origin) => {
+        const overlay = new kakao.maps.CustomOverlay({
+          position: generateKakaoLatLng(coordinate),
+        });
 
-      const content = document.createElement("div");
-      content.className = "custom-overlay-wrapper";
-      content.innerHTML = `
+        const content = document.createElement("div");
+        content.className = "custom-overlay-wrapper";
+        content.innerHTML = `
         ${index === 0 ? "" : '<div class="custom-overlay-left-arrow">←</div>'}
         <div class="custom-overlay">
           <img class="image" src="${path}"/>
         </div>
         ${index === origin.length - 1 ? "" : '<div class="custom-overlay-right-arrow">→</div>'}`;
 
-      overlay.setContent(content);
-      return overlay;
-    });
+        overlay.setContent(content);
+        return overlay;
+      });
 
-    overlays.forEach((overlay) => {
-      if (!overlay.getContent()) {
-        return;
-      }
+      overlays.forEach((overlay, index, origin) => {
+        if (!overlay.getContent()) {
+          return;
+        }
 
-      overlay
-        .getContent()
-        .querySelector(".custom-overlay")
-        .addEventListener("click", () => {
-          overlay.setMap(null);
-        });
-    });
+        const prevOverlay = origin[index - 1];
+        const nextOverlay = origin[index + 1];
 
-    return overlays;
-  }, []);
+        overlay
+          .getContent()
+          .querySelector(".custom-overlay-left-arrow")
+          ?.addEventListener("click", () => {
+            overlay.setMap(null);
+            prevOverlay.setMap(kakaoMap);
+            kakaoMap.panTo(prevOverlay.getPosition());
+          });
+
+        overlay
+          .getContent()
+          .querySelector(".custom-overlay-right-arrow")
+          ?.addEventListener("click", () => {
+            overlay.setMap(null);
+            nextOverlay.setMap(kakaoMap);
+            kakaoMap.panTo(nextOverlay.getPosition());
+          });
+
+        overlay
+          .getContent()
+          .querySelector(".custom-overlay")
+          .addEventListener("click", () => {
+            overlay.setMap(null);
+          });
+      });
+
+      return overlays;
+    },
+    [kakaoMap]
+  );
 
   useEffect(() => {
     const polylines: any[] = [];
