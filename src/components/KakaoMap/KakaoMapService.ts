@@ -23,26 +23,6 @@ export const generateKakaoLatLng = (coordinate: Coordinate): any => {
   return new kakao.maps.LatLng(latitude, longitude);
 };
 
-export const generateOverlay = ({ coordinate, path }: MarkerData): any => {
-  const position = generateKakaoLatLng(coordinate);
-  const customOverlay = new kakao.maps.CustomOverlay();
-
-  const content = document.createElement("div");
-  content.className = "custom-overlay-wrapper";
-  content.innerHTML = `<div class="custom-overlay">
-      <img class="image" src="${path}"/>
-    </div>`;
-
-  content.addEventListener("click", () => {
-    customOverlay.setMap(null);
-  });
-
-  customOverlay.setContent(content);
-  customOverlay.setPosition(position);
-
-  return customOverlay;
-};
-
 export const generateMarker = ({ coordinate }: MarkerData): any => {
   const position = generateKakaoLatLng(coordinate);
   const newMarker = new kakao.maps.Marker({ position });
