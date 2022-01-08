@@ -48,8 +48,7 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
           .getContent()
           .querySelector(".custom-overlay-left-arrow")
           ?.addEventListener("click", () => {
-            overlay.setMap(null);
-            prevOverlay.setMap(kakaoMap);
+            setSelectedOverlay(prevOverlay);
             kakaoMap.panTo(prevOverlay.getPosition());
           });
 
@@ -57,16 +56,15 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
           .getContent()
           .querySelector(".custom-overlay-right-arrow")
           ?.addEventListener("click", () => {
-            overlay.setMap(null);
-            nextOverlay.setMap(kakaoMap);
+            setSelectedOverlay(nextOverlay);
             kakaoMap.panTo(nextOverlay.getPosition());
           });
 
         overlay
           .getContent()
           .querySelector(".custom-overlay")
-          .addEventListener("click", () => {
-            overlay.setMap(null);
+          ?.addEventListener("click", () => {
+            setSelectedOverlay(null);
           });
       });
 
@@ -85,13 +83,7 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
 
       kakao.maps.event.addListener(marker, "click", () => {
         // TODO: Fix the timing issue when using 'useState'
-        if (!!selectedOverlay) {
-          selectedOverlay.setMap(null);
-          setSelectedOverlay(null);
-          return;
-        }
-        overlays[index].setMap(kakaoMap);
-        setSelectedOverlay(overlays[index]);
+        setSelectedOverlay(!!selectedOverlay ? null : overlays[index]);
       });
 
       markers.push(marker);
@@ -107,27 +99,26 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
     setPolylines(polylines);
     setOverlays(overlays);
     setMarkers(markers);
-  }, [kakaoMap, markerDataList, selectedOverlay, generateOverlays]);
+  }, [markerDataList, selectedOverlay, generateOverlays]);
 
   useEffect(() => {
-    if (selectedOverlay) {
-      selectedOverlay.setMap(kakaoMap);
-    }
-
     [...markers, ...polylines].forEach((marker) => marker.setMap(kakaoMap));
     clusterer.addMarkers(markers);
     return () => {
       // NOTE: Clear all elements
-      if (selectedOverlay) {
-        selectedOverlay.setMap(null);
-      }
-
-      [...markers, ...overlays, ...polylines].forEach((elem) => elem.setMap(null));
+      [...markers, ...polylines].forEach((elem) => elem.setMap(null));
       clusterer.removeMarkers(markers);
     };
-  }, [kakaoMap, clusterer, markers, overlays, polylines, selectedOverlay]);
+  }, [kakaoMap, clusterer, markers, polylines]);
+
+  useEffect(() => {
+    selectedOverlay?.setMap(kakaoMap);
+    return () => {
+      selectedOverlay?.setMap(null);
+    };
+  }, [kakaoMap, selectedOverlay]);
 
   return <React.Fragment></React.Fragment>;
 }
 
-export default KakaoMapContainer;
+export default React.memo(KakaoMapContainer);
