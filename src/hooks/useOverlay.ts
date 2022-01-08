@@ -12,32 +12,34 @@ const useOverlay = (
 } => {
   const [selectedOverlay, setSelectedOverlay] = useState<any>(null);
 
+  const createBaseOverlay = useCallback((markerDataList: MarkerData[]) => {
+    const createInnerHTML = (index: number): string => {
+      return `
+        ${index === 0 ? "" : '<div class="custom-overlay-left-arrow">←</div>'}
+        <div class="custom-overlay">
+          <img class="image" src="${markerDataList[index].path}"/>
+        </div>
+        ${index === markerDataList.length - 1 ? "" : '<div class="custom-overlay-right-arrow">→</div>'}`;
+    };
+
+    return markerDataList.map(({ coordinate }, index, origin) => {
+      const overlay = new kakao.maps.CustomOverlay({
+        position: generateKakaoLatLng(coordinate),
+      });
+
+      const content = document.createElement("div");
+      content.className = "custom-overlay-wrapper";
+      content.innerHTML = createInnerHTML(index);
+
+      overlay.setContent(content);
+      return overlay;
+    });
+  }, []);
+
   const generateOverlays = useCallback(
     (markerDataList: MarkerData[]): any[] => {
       // NOTE: 먼저 내용이 지정되지 않은 Overlay를 생성합니다.
-      const overlays = markerDataList.map(({ coordinate, path }, index, origin) => {
-        const overlay = new kakao.maps.CustomOverlay({
-          position: generateKakaoLatLng(coordinate),
-        });
-
-        const content = document.createElement("div");
-        content.className = "custom-overlay-wrapper";
-        content.innerHTML = `
-        ${index === 0 ? "" : '<div class="custom-overlay-left-arrow">←</div>'}
-        <div class="custom-overlay">
-          <img class="image" src="${path}"/>
-        </div>
-        ${index === origin.length - 1 ? "" : '<div class="custom-overlay-right-arrow">→</div>'}`;
-
-        overlay.setContent(content);
-        return overlay;
-      });
-
-      overlays.forEach((overlay, index, origin) => {
-        if (!overlay.getContent()) {
-          return;
-        }
-
+      return createBaseOverlay(markerDataList).map((overlay, index, origin) => {
         const prevOverlay = origin[index - 1];
         const nextOverlay = origin[index + 1];
 
@@ -63,11 +65,11 @@ const useOverlay = (
           ?.addEventListener("click", () => {
             setSelectedOverlay(null);
           });
-      });
 
-      return overlays;
+        return overlay;
+      });
     },
-    [kakaoMap]
+    [kakaoMap, createBaseOverlay]
   );
 
   useEffect(() => {
