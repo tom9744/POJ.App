@@ -118,6 +118,15 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
     };
   }, [kakaoMap, selectedOverlay]);
 
+  useEffect(
+    () => () => {
+      markers?.forEach((elem) => elem.setMap(null));
+      polylines?.forEach((elem) => elem.setMap(null));
+      selectedOverlay?.setMap(null);
+    },
+    []
+  );
+
   return <React.Fragment></React.Fragment>;
 }
 
