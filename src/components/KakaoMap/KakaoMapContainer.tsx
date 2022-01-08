@@ -12,9 +12,8 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
   const [polylines, setPolylines] = useState<any[]>([]);
   const [markers, setMarkers] = useState<any[]>([]);
   const [overlays, setOverlays] = useState<any[]>([]);
+  const [selectedOverlay, setSelectedOverlay] = useState<any>(null);
   const clusterer = useCluster(kakaoMap);
-
-  let selectedOverlay: any = null;
 
   const generateOverlays = useCallback(
     (markerDataList: MarkerData[]) => {
@@ -88,10 +87,11 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
         // TODO: Fix the timing issue when using 'useState'
         if (!!selectedOverlay) {
           selectedOverlay.setMap(null);
-          selectedOverlay = null;
+          setSelectedOverlay(null);
+          return;
         }
         overlays[index].setMap(kakaoMap);
-        selectedOverlay = overlays[index];
+        setSelectedOverlay(overlays[index]);
       });
 
       markers.push(marker);
@@ -107,17 +107,25 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
     setPolylines(polylines);
     setOverlays(overlays);
     setMarkers(markers);
-  }, [markerDataList]);
+  }, [kakaoMap, markerDataList, selectedOverlay, generateOverlays]);
 
   useEffect(() => {
+    if (selectedOverlay) {
+      selectedOverlay.setMap(kakaoMap);
+    }
+
     [...markers, ...polylines].forEach((marker) => marker.setMap(kakaoMap));
     clusterer.addMarkers(markers);
     return () => {
       // NOTE: Clear all elements
+      if (selectedOverlay) {
+        selectedOverlay.setMap(null);
+      }
+
       [...markers, ...overlays, ...polylines].forEach((elem) => elem.setMap(null));
       clusterer.removeMarkers(markers);
     };
-  }, [kakaoMap, clusterer, markers, overlays, polylines]);
+  }, [kakaoMap, clusterer, markers, overlays, polylines, selectedOverlay]);
 
   return <React.Fragment></React.Fragment>;
 }
