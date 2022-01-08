@@ -41,12 +41,6 @@ function KakaoMap() {
     }
   }, [map, selectedMarker]);
 
-  useEffect(() => {
-    if (map && markerDataList.length === 0) {
-      setValidMarkers([]);
-    }
-  }, [map, markerDataList]);
-
   // Move the map to the average coordinate of the selected journey.
   useEffect(() => {
     if (map && markerDataList.length > 0) {
@@ -60,13 +54,16 @@ function KakaoMap() {
       }
 
       setValidMarkers(validMarkers);
+    } else {
+      setValidMarkers([]);
     }
   }, [map, markerDataList]);
 
   return (
     <React.Fragment>
       <div id="kakao-map" className={classes.map} ref={mapContainer}></div>
-      <KakaoMapContainer kakaoMap={map} markerDataList={validMarkers}></KakaoMapContainer>
+
+      {validMarkers.length > 0 && <KakaoMapContainer kakaoMap={map} markerDataList={validMarkers}></KakaoMapContainer>}
     </React.Fragment>
   );
 }
