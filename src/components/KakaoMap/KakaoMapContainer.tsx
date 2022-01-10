@@ -29,6 +29,10 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
   }, [markerDataList, generatePolylines]);
 
   useEffect(() => {
+    setSelectedOverlay(null);
+  }, [markerDataList, setSelectedOverlay]);
+
+  useEffect(() => {
     const overlays = generateOverlays(markerDataList);
     const markers = markerDataList.map((markerData, index) => {
       const marker = generateMarker(markerData);
