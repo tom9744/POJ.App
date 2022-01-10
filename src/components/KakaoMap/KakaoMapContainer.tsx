@@ -53,13 +53,6 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
     };
   }, [kakaoMap, clusterer, markers, polylines]);
 
-  useEffect(() => {
-    selectedOverlay?.setMap(kakaoMap);
-    return () => {
-      selectedOverlay?.setMap(null);
-    };
-  }, [kakaoMap, selectedOverlay]);
-
   useEffect(
     () => () => {
       markers?.forEach((elem) => elem.setMap(null));

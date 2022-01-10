@@ -73,6 +73,13 @@ const useOverlay = (
   );
 
   useEffect(() => {
+    selectedOverlay?.setMap(kakaoMap);
+    return () => {
+      selectedOverlay?.setMap(null);
+    };
+  }, [kakaoMap, selectedOverlay]);
+
+  useEffect(() => {
     return () => {
       selectedOverlay?.setMap(null);
     };
