@@ -30,17 +30,14 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
 
   useEffect(() => {
     const overlays = generateOverlays(markerDataList);
-    const markers: any[] = [];
-
-    markerDataList.forEach((markerData, index, origin) => {
+    const markers = markerDataList.map((markerData, index) => {
       const marker = generateMarker(markerData);
 
       kakao.maps.event.addListener(marker, "click", () => {
-        // TODO: Fix the timing issue when using 'useState'
         setSelectedOverlay(!!selectedOverlay ? null : overlays[index]);
       });
 
-      markers.push(marker);
+      return marker;
     });
 
     setMarkers(markers);
