@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { generateMarker, generatePolyline, MarkerData } from "./KakaoMapService";
+import { generateMarker, MarkerData } from "./KakaoMapService";
 import "./CustomOverlay.scss";
 import useCluster from "../../hooks/useCluster";
 import useOverlay from "../../hooks/useOverlay";
+import usePolyline, { PolylineOption } from "../../hooks/usePolyline";
 
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
 
 type KakaoMapContainerProps = { kakaoMap: any; markerDataList: MarkerData[] };
 
+const POLYLINE_OPTION: PolylineOption = {
+  strokeWeight: 3.5,
+  strokeColor: "#FFAE00",
+  strokeOpacity: 0.8,
+  strokeStyle: "solid",
+};
+
 function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps) {
-  const [polylines, setPolylines] = useState<any[]>([]);
   const [markers, setMarkers] = useState<any[]>([]);
 
   const clusterer = useCluster(kakaoMap);
   const { selectedOverlay, setSelectedOverlay, generateOverlays } = useOverlay(kakaoMap);
+  const { polylines, generatePolylines } = usePolyline(POLYLINE_OPTION);
 
   useEffect(() => {
-    const polylines: any[] = [];
+    generatePolylines(markerDataList);
+  }, [markerDataList, generatePolylines]);
+
+  useEffect(() => {
     const overlays = generateOverlays(markerDataList);
     const markers: any[] = [];
 
@@ -30,16 +41,7 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
       });
 
       markers.push(marker);
-
-      if (index < origin.length - 1) {
-        const nextMarkerData = origin[index + 1];
-        const polyline = generatePolyline([markerData, nextMarkerData]);
-
-        polylines.push(polyline);
-      }
     });
-
-    setPolylines(polylines);
 
     setMarkers(markers);
   }, [markerDataList, selectedOverlay, setSelectedOverlay, generateOverlays]);
@@ -64,7 +66,6 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
   useEffect(
     () => () => {
       markers?.forEach((elem) => elem.setMap(null));
-      polylines?.forEach((elem) => elem.setMap(null));
     },
     []
   );

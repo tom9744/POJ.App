@@ -30,21 +30,6 @@ export const generateMarker = ({ coordinate }: MarkerData): any => {
   return newMarker;
 };
 
-export const generatePolyline = ([from, to]: [MarkerData, MarkerData]): any => {
-  const startPos = generateKakaoLatLng(from.coordinate);
-  const endPos = generateKakaoLatLng(to.coordinate);
-
-  const polyline = new kakao.maps.Polyline({
-    path: [startPos, endPos],
-    strokeWeight: 3.5,
-    strokeColor: "#FFAE00",
-    strokeOpacity: 0.8,
-    strokeStyle: "solid",
-  });
-
-  return polyline;
-};
-
 export const isValidCoordinate = (coordinate: Coordinate): boolean => {
   const { latitude, longitude } = coordinate;
 
