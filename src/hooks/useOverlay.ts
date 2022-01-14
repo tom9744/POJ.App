@@ -25,6 +25,7 @@ const useOverlay = (
     return markerDataList.map(({ coordinate }, index, origin) => {
       const overlay = new kakao.maps.CustomOverlay({
         position: generateKakaoLatLng(coordinate),
+        zIndex: 3,
       });
 
       const content = document.createElement("div");
