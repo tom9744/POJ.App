@@ -7,7 +7,7 @@ self.onmessage = async (event) => {
       const { path } = photo;
 
       try {
-        const response = await fetch(path);
+        const response = await fetch(path, { mode: "no-cors" });
         const fileBlob = await response.blob();
 
         if (/image\/.+/.test(fileBlob.type)) {

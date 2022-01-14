@@ -25,29 +25,15 @@ function PhotoGrid({ isEditing, photos, onDeletePhoto }: PhotoGridProps) {
 
   // TODO: Find a better solution to improve speed.
   useEffect(() => {
-    const worker = new Worker("./workers/worker.js");
-    const dummyPhotos = photos.map((photo) => ({
-      ...photo,
-      path: "/images/dummy.jpg",
-    }));
-
-    worker.onmessage = async (event: MessageEvent<ProcessedPhoto[]>) => {
-      const { data: loadedPhotos } = event;
-
-      // NOTE: Wait for all images to be pre-loaded.
-      await Promise.all(loadedPhotos.map(({ path }) => loadImage(path)));
-
-      setLoadedPhotos(loadedPhotos);
+    setTimeout(async () => {
+      await Promise.all(photos.map(({ path }) => loadImage(path)));
+      setLoadedPhotos(photos);
       setIsLoading(false);
-    };
+    }, 500);
 
-    setTimeout(() => worker.postMessage(photos), 500);
-    setLoadedPhotos(dummyPhotos);
     setIsLoading(true);
 
     return () => {
-      worker.terminate(); // NOTE: To avoid memory leak error.
-
       appDispatch({ type: "SET_SELECTED_PHOTO", photo: null });
     };
   }, [photos, appDispatch]);

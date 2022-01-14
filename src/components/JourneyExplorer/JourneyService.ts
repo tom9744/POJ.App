@@ -16,10 +16,6 @@ const modifyDateString = (date: string): string => {
   return date.substring(0, 10).replace(/-/g, ".");
 };
 
-const modifyImagePath = (path: string): string => {
-  return `http://localhost:3030/${path.substring(6)}`;
-};
-
 const processPhoto = (photo: RawPhoto): ProcessedPhoto => {
   if (!photo) {
     throw new Error("[JourneyService] Something went wrong while processing photo data");
@@ -27,7 +23,6 @@ const processPhoto = (photo: RawPhoto): ProcessedPhoto => {
 
   return {
     ...photo,
-    path: modifyImagePath(photo.path),
     modifyDate: modifyDateString(photo.modifyDate),
     elapsedDate: calculateElapsedDate(photo.modifyDate),
   };
