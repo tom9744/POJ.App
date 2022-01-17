@@ -1,10 +1,12 @@
+import {
+  EASTERNMOST_LONGITUDE,
+  NORTHERNMOST_LATITUDE,
+  SOUTHERNMOST_LATITUDE,
+  WESTERNMOST_LONGITUDE,
+} from "./KakaoMap.constant";
+
 // Let Typescript know there exists the 'kakao' namespace.
 declare const kakao: any;
-
-const NORTHERNMOST_LATITUDE = 43;
-const SOUTHERNMOST_LATITUDE = 33;
-const WESTERNMOST_LONGITUDE = 124;
-const EASTERNMOST_LONGITUDE = 132;
 
 export interface Coordinate {
   latitude: number;

@@ -1,2 +1,7 @@
 export const INITIAL_LEVEL = 5;
 export const INITIAL_LATLANG = [37.424245, 126.992091];
+
+export const NORTHERNMOST_LATITUDE = 43;
+export const SOUTHERNMOST_LATITUDE = 33;
+export const WESTERNMOST_LONGITUDE = 124;
+export const EASTERNMOST_LONGITUDE = 132;
