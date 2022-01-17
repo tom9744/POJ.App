@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RawPhoto } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
@@ -46,12 +40,7 @@ async function readFilesAsDataURL(files: File[]): Promise<string[]> {
   return imageSrcList;
 }
 
-function PhotoForm({
-  isActive,
-  journeyTitle,
-  onUpload,
-  onCloseForm,
-}: PhotoFormProps) {
+function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormProps) {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
@@ -92,9 +81,7 @@ function PhotoForm({
 
       // NOTE: Web Worker can't process HTMLImageElemnet Type. So, convert to ImageBitmap
       const bitmaps = await Promise.all(
-        imageElems.map((imageElem) =>
-          createImageBitmap(imageElem, 0, 0, imageElem.width, imageElem.height)
-        )
+        imageElems.map((imageElem) => createImageBitmap(imageElem, 0, 0, imageElem.width, imageElem.height))
       );
 
       worker.postMessage(bitmaps);
@@ -148,7 +135,7 @@ function PhotoForm({
         formData.append(`images`, file);
       });
 
-      const response = await fetch("http://localhost:3030/photos", {
+      const response = await fetch("http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/photos", {
         method: "POST",
         body: formData,
       });
@@ -177,10 +164,7 @@ function PhotoForm({
     const maxWidth = currentTarget.scrollWidth; // Element's width (w/ invisible content)
     const unitWidth = currentTarget.clientWidth; // Element's width (w/o invisible content)
 
-    let nextScrollPosition =
-      deltaY > 0
-        ? currScrollPosition + unitWidth
-        : currScrollPosition - unitWidth;
+    let nextScrollPosition = deltaY > 0 ? currScrollPosition + unitWidth : currScrollPosition - unitWidth;
 
     if (nextScrollPosition < 0) {
       nextScrollPosition = 0;
@@ -207,40 +191,17 @@ function PhotoForm({
 
   return (
     <React.Fragment>
-      <div
-        className={`${classes["uploader-fallback"]} ${
-          isActive ? classes.active : classes.deactive
-        }`}
-      ></div>
+      <div className={`${classes["uploader-fallback"]} ${isActive ? classes.active : classes.deactive}`}></div>
 
-      <div
-        className={`${classes["uploader-wrapper"]} ${
-          isActive ? classes.active : classes.deactive
-        }`}
-      >
-        <ExplorerHeader
-          rightButtons={[
-            { type: "text", textContent: "닫기", handler: onCloseForm },
-          ]}
-        ></ExplorerHeader>
+      <div className={`${classes["uploader-wrapper"]} ${isActive ? classes.active : classes.deactive}`}>
+        <ExplorerHeader rightButtons={[{ type: "text", textContent: "닫기", handler: onCloseForm }]}></ExplorerHeader>
 
         <div className={classes["uploader-content"]}>
           <div className={classes["uploader-content-section"]}>
-            <div
-              className={classes.preview}
-              onWheel={(event) => moveToNextPhoto(event)}
-              ref={previewContainer}
-            >
+            <div className={classes.preview} onWheel={(event) => moveToNextPhoto(event)} ref={previewContainer}>
               {photoPreviews.length > 0 ? (
                 photoPreviews.map((previewURL, index) => {
-                  return (
-                    <img
-                      src={previewURL}
-                      alt=""
-                      key={index}
-                      data-index={index}
-                    />
-                  );
+                  return <img src={previewURL} alt="" key={index} data-index={index} />;
                 })
               ) : (
                 <div className={classes["preview-placeholder"]}></div>
@@ -258,14 +219,7 @@ function PhotoForm({
           <div className={classes["uploader-content-section"]}>
             <form className={classes.form}>
               <label htmlFor="newPhotos"></label>
-              <input
-                type="file"
-                id="newPhotos"
-                accept=".jpg"
-                onChange={fileInputHandler}
-                multiple
-                ref={photoInput}
-              />
+              <input type="file" id="newPhotos" accept=".jpg" onChange={fileInputHandler} multiple ref={photoInput} />
 
               <div className={classes["button-wrapper"]}>
                 <button onClick={openPhotoInput}>사진 추가</button>

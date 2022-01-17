@@ -92,11 +92,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
   }
 };
 
-function JourneyForm({
-  isActive,
-  onCloseForm,
-  onContentAdded,
-}: JourneyFormProps) {
+function JourneyForm({ isActive, onCloseForm, onContentAdded }: JourneyFormProps) {
   const [formState, dispatch] = useReducer(formReducer, INITIAL_STATE);
   const { requestState, sendRequest: createJourney } = useHttp<RawJourney>();
 
@@ -144,7 +140,7 @@ function JourneyForm({
 
         try {
           const createdJourney = await createJourney({
-            url: "http://localhost:3030/journeys",
+            url: "http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/journeys",
             options: {
               method: "POST",
               headers: {
@@ -165,20 +161,14 @@ function JourneyForm({
   );
 
   return (
-    <div
-      className={`${classes["form-wrapper"]} ${
-        isActive ? classes.open : classes.close
-      }`}
-    >
+    <div className={`${classes["form-wrapper"]} ${isActive ? classes.open : classes.close}`}>
       <ExplorerHeader backward={true} onBackward={closeForm}></ExplorerHeader>
 
       {isActive && (
         <article className={classes["form-content"]}>
           <section className={classes["form-content-section"]}>
             <h3 className={classes.title}>기록 남기기</h3>
-            <span className={classes.description}>
-              새로운 기록에 대한 정보를 입력해주세요
-            </span>
+            <span className={classes.description}>새로운 기록에 대한 정보를 입력해주세요</span>
           </section>
 
           <div className={classes.divider}></div>
@@ -217,11 +207,7 @@ function JourneyForm({
                 onChange={changeEndDate}
               />
 
-              <button
-                disabled={requestState.showLoading || !formState.isFormValid}
-              >
-                기록 남기기
-              </button>
+              <button disabled={requestState.showLoading || !formState.isFormValid}>기록 남기기</button>
             </form>
           </section>
         </article>
