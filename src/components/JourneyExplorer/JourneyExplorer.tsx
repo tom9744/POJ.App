@@ -41,7 +41,7 @@ function JourneyExplorer() {
   useEffect((): void => {
     if (!appState.isExplorerActive) return;
 
-    fetchJourneys({ url: "http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/journeys" })
+    fetchJourneys({ url: "https://var-resa.link/journeys" })
       .then((journeys) => {
         appDispatch({ type: "SET_JOURNEY_LIST", journeyList: processJourneys(journeys) });
       })

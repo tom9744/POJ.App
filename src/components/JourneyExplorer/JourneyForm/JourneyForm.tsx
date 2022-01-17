@@ -140,7 +140,7 @@ function JourneyForm({ isActive, onCloseForm, onContentAdded }: JourneyFormProps
 
         try {
           const createdJourney = await createJourney({
-            url: "http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/journeys",
+            url: "https://var-resa.link/journeys",
             options: {
               method: "POST",
               headers: {

@@ -135,7 +135,7 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
         formData.append(`images`, file);
       });
 
-      const response = await fetch("http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/photos", {
+      const response = await fetch("https://var-resa.link/photos", {
         method: "POST",
         body: formData,
       });

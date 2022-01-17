@@ -58,7 +58,7 @@ function JourneyDetail({
 
     try {
       await sendRequest({
-        url: `http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/journeys/${journey.id}`,
+        url: `https://var-resa.link/journeys/${journey.id}`,
         options: { method: "DELETE" },
       });
 
@@ -77,7 +77,7 @@ function JourneyDetail({
 
     try {
       await sendRequest({
-        url: `http://ec2-3-34-98-43.ap-northeast-2.compute.amazonaws.com:3030/photos/${photo.id}`,
+        url: `https://var-resa.link/photos/${photo.id}`,
         options: { method: "DELETE" },
       });
 
