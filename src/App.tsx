@@ -1,4 +1,4 @@
-import React, { Dispatch, MouseEvent, createContext, useEffect, useReducer } from "react";
+import { Dispatch, createContext, useEffect, useReducer } from "react";
 import "./App.scss";
 import BubbleButton from "./components/BubbleButton/BubbleButton";
 import { ProcessedJourney, ProcessedPhoto } from "./components/JourneyExplorer/Journey.interface";

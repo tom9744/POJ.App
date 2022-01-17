@@ -44,6 +44,7 @@ const usePolyline = (
     return () => {
       polylines.forEach((elem) => elem.setMap(null));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { polylines, generatePolylines };

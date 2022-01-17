@@ -1,7 +1,6 @@
-import React from "react";
 import classes from "./JourneyList.module.scss";
 
-import { ProcessedJourney } from "../Journey.interface"; // Temporary
+import { ProcessedJourney } from "../Journey.interface";
 import JourneyItem from "../JourneyItem/JourneyItem";
 
 type JourneyListProps = {
@@ -15,11 +14,7 @@ function JourneyList(props: JourneyListProps) {
   };
 
   const journeyItems = props.journeys.map((journey, index) => (
-    <JourneyItem
-      key={journey.id}
-      journey={journey}
-      onClick={() => selectJourney(index)}
-    ></JourneyItem>
+    <JourneyItem key={journey.id} journey={journey} onClick={() => selectJourney(index)}></JourneyItem>
   ));
 
   return <section className={classes["journey-list"]}>{journeyItems}</section>;

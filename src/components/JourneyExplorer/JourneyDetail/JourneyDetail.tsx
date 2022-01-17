@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import classes from "./JourneyDetail.module.scss";
 
 import { ProcessedJourney, ProcessedPhoto, RawPhoto } from "../Journey.interface"; // Temporary

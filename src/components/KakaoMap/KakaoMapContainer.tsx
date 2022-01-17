@@ -61,6 +61,7 @@ function KakaoMapContainer({ kakaoMap, markerDataList }: KakaoMapContainerProps)
     () => () => {
       markers?.forEach((elem) => elem.setMap(null));
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

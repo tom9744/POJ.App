@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useReducer } from "react";
+import { useCallback, useContext, useEffect, useReducer } from "react";
 import JourneyForm from "./JourneyForm/JourneyForm";
 import classes from "./JourneyExplorer.module.scss";
 

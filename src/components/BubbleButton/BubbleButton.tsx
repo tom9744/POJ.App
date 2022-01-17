@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import { useCallback, useContext } from "react";
 import { AppDispatchContext, AppStateContext } from "../../App";
 import classes from "./BubbleButton.module.scss";
 

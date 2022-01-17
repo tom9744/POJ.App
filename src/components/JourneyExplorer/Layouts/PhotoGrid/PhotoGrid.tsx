@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { AppDispatchContext } from "../../../../App";
 import { ProcessedPhoto } from "../../Journey.interface";
 import classes from "./PhotoGrid.module.scss";

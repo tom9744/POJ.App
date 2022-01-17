@@ -84,6 +84,7 @@ const useOverlay = (
     return () => {
       selectedOverlay?.setMap(null);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { selectedOverlay, setSelectedOverlay, generateOverlays };
