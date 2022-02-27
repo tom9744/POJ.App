@@ -2,6 +2,26 @@ import { readUint32AsString } from "../utils";
 
 const BOX_TYPE_OFFSET = 4;
 
+function findMetaBox(arrayBuffer: ArrayBuffer): {
+  size: number;
+  offset: number;
+} {
+  const dataView = new DataView(arrayBuffer);
+
+  for (let offset = 0; offset < dataView.byteLength; offset++) {
+    const value = readUint32AsString(dataView, offset);
+
+    if (value === "meta") {
+      return {
+        offset: offset - 4,
+        size: dataView.getUint32(offset - 4),
+      };
+    }
+  }
+
+  throw new Error("Could not find a meta box from the array buffer");
+}
+
 /**
  * According to ISO/IEC 14496.
  *
@@ -31,25 +51,47 @@ type ItemInfoBox = {
   itemInfos: ItemInfoEntry[];
 };
 
+type ItemLocationEntry = {
+  itemId: number;
+  dataReferenceIndex: number;
+  baseOffset: number;
+  extentCount: number;
+  extentInfos: {
+    extentOffset: number;
+    extentLength: number;
+  }[];
+};
+
+type ItemLocationBox = {
+  boxSize: number;
+  offsetSize: number;
+  lengthSize: number;
+  baseOffsetSize: number;
+  itemCount: number;
+  items: ItemLocationEntry[];
+};
+
 export interface IMetaBox {
-  size: number;
   itemInfoBox: ItemInfoBox | null;
 }
 
 export class MetaBox implements IMetaBox {
   private dataView: DataView;
+  private offset = 0;
+  private size = 0;
   private ilocOffset = 0;
   private iinfOffset = 0;
 
-  constructor(metaBoxArrayBuffer: ArrayBuffer) {
-    this.dataView = new DataView(metaBoxArrayBuffer);
+  constructor(arrayBuffer: ArrayBuffer) {
+    const { offset, size } = findMetaBox(arrayBuffer);
+
+    this.offset = offset;
+    this.size = size;
+    // NOTE: 오프셋 + 크기 = 필요한 총 길이
+    this.dataView = new DataView(arrayBuffer.slice(0, offset + size));
 
     this.validateBoxType();
-    this.updateOffsets();
-  }
-
-  get size(): number {
-    return this.dataView.byteLength;
+    this.setChildBoxOffsets();
   }
 
   get itemInfoBox(): ItemInfoBox | null {
@@ -87,16 +129,75 @@ export class MetaBox implements IMetaBox {
     return { boxSize, entryCount, itemInfos };
   }
 
+  get itemLocationBox(): ItemLocationBox | null {
+    const boxSize = this.dataView.getUint32(this.ilocOffset);
+    const boxType = readUint32AsString(this.dataView, this.ilocOffset + 4);
+    const firstByte = this.dataView.getUint8(this.ilocOffset + 12);
+    const secontByte = this.dataView.getUint8(this.ilocOffset + 13);
+    const [offsetSize, lengthSize] = this.splitUint8(firstByte);
+    const baseOffsetSize = secontByte >> 4;
+    const itemCount = this.dataView.getUint16(this.ilocOffset + 14);
+    const items: ItemLocationEntry[] = [];
+
+    if (boxType !== ChildBoxType.ItemLocationBox) {
+      return null;
+    }
+
+    if (itemCount > 0) {
+      let offset = this.ilocOffset + 16;
+
+      while (offset < this.ilocOffset + boxSize) {
+        const itemId = this.dataView.getUint16(offset);
+        const dataReferenceIndex = this.dataView.getUint16(offset + 2);
+        const baseOffset = this.dataView.getUint16(offset + 4); // NOTE: Should be double-checked!
+        const extentCount = this.dataView.getUint16(offset + 6);
+        const extentInfos: {
+          extentOffset: number;
+          extentLength: number;
+        }[] = [];
+
+        for (let n = 0; n < extentCount; n++) {
+          extentInfos.push({
+            extentOffset: this.dataView.getUint32(offset + 8 + 2 * n),
+            extentLength: this.dataView.getUint32(offset + 10 + 2 * n),
+          });
+        }
+
+        items.push({
+          itemId,
+          dataReferenceIndex,
+          baseOffset,
+          extentCount,
+          extentInfos,
+        });
+
+        offset += 6 + (baseOffsetSize || 2) + offsetSize + lengthSize;
+      }
+    }
+
+    return {
+      boxSize,
+      offsetSize,
+      lengthSize,
+      baseOffsetSize,
+      itemCount,
+      items,
+    };
+  }
+
   private validateBoxType(): void {
-    const boxType = readUint32AsString(this.dataView, BOX_TYPE_OFFSET);
+    const boxType = readUint32AsString(
+      this.dataView,
+      this.offset + BOX_TYPE_OFFSET
+    );
 
     if (boxType !== "meta") {
       throw new Error("Invaild box type");
     }
   }
 
-  private updateOffsets(): void {
-    for (let offset = 0; offset < this.dataView.byteLength - 4; offset++) {
+  private setChildBoxOffsets(): void {
+    for (let offset = 0; offset < this.size - 4; offset++) {
       const value = readUint32AsString(this.dataView, offset);
 
       if (value === ChildBoxType.ItemLocationBox) {

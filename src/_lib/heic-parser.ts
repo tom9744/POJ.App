@@ -1,36 +1,34 @@
-import { FileTypeBox } from "./models/FileTypeBox.model";
 import { MetaBox } from "./models/MetaBox.model";
-import { readUint32AsString } from "./utils";
-
-function findMetaBoxOffset(arrayBuffer: ArrayBuffer): number {
-  const dataView = new DataView(arrayBuffer);
-
-  for (let offset = 0; offset < dataView.byteLength; offset++) {
-    const value = readUint32AsString(dataView, offset);
-
-    if (value === "meta") {
-      return offset - 4;
-    }
-  }
-
-  throw new Error("Could not find a meta box from the array buffer");
-}
 
 export function parseHEIC(arrayBuffer: ArrayBuffer) {
   if (!arrayBuffer) {
     return;
   }
 
+  const metaBox = new MetaBox(arrayBuffer);
+  const itemInfoBox = metaBox.itemInfoBox;
+  const itemLocationBox = metaBox.itemLocationBox;
+
+  const exifItemInfo = itemInfoBox?.itemInfos.find(
+    (itemInfoEntry) => itemInfoEntry.itemName === "Exif"
+  );
+  const exifItemLocation = itemLocationBox?.items.find(
+    (itemLocation) => itemLocation.itemId === exifItemInfo?.itemId
+  );
+
   const dataView = new DataView(arrayBuffer);
+  const prefixSize =
+    4 + dataView.getUint32(exifItemLocation!.extentInfos[0]!.extentOffset);
+  const exifOffset =
+    prefixSize + exifItemLocation!.extentInfos[0]!.extentOffset;
 
-  const fileTypeBoxSize = dataView.getUint32(0);
-  const fileTypeArrayBuffer = arrayBuffer.slice(0, fileTypeBoxSize);
-  const fileTypeBox = new FileTypeBox(fileTypeArrayBuffer);
-
-  const metaBoxOffset = findMetaBoxOffset(arrayBuffer);
-  const metaBoxSize = dataView.getUint32(metaBoxOffset);
-  const metaArrayBuffer = arrayBuffer.slice(metaBoxOffset, metaBoxSize);
-  const metaBox = new MetaBox(metaArrayBuffer);
-
-  console.log(metaBox.itemInfoBox);
+  console.log(
+    new DataView(
+      arrayBuffer.slice(
+        exifItemLocation!.extentInfos[0]!.extentOffset,
+        exifItemLocation!.extentInfos[0]!.extentLength
+      )
+    )
+  );
+  console.log(dataView.getUint16(exifOffset).toString(16));
 }
