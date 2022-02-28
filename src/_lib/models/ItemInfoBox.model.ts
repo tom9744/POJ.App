@@ -11,6 +11,7 @@ type ItemInfoEntry = {
 interface IItemInfoBox {
   entryCount: number;
   itemInfos: ItemInfoEntry[];
+  findExifItemInfo(): ItemInfoEntry | null;
 }
 
 export class ItemInfoBox implements IItemInfoBox {
@@ -73,5 +74,12 @@ export class ItemInfoBox implements IItemInfoBox {
 
     this._entryCount = entryCount;
     this._itemInfos = itemInfos;
+  }
+
+  findExifItemInfo(): ItemInfoEntry | null {
+    const result = this._itemInfos.find(
+      (itemInfoEntry) => itemInfoEntry.itemName === "Exif"
+    );
+    return result || null;
   }
 }

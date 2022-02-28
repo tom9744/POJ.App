@@ -6,29 +6,30 @@ export function parseHEIC(arrayBuffer: ArrayBuffer) {
   }
 
   const metaBox = new MetaBox(arrayBuffer);
-  const itemInfoBox = metaBox.itemInfoBox;
-  const itemLocationBox = metaBox.itemLocationBox;
+  const exifItemInfo = metaBox.itemInfoBox?.findExifItemInfo();
 
-  const exifItemInfo = itemInfoBox?.itemInfos.find(
-    (itemInfoEntry) => itemInfoEntry.itemName === "Exif"
+  if (!exifItemInfo) {
+    return;
+  }
+
+  const exifItemLocation = metaBox.itemLocationBox?.finditemLocationById(
+    exifItemInfo.itemId
   );
-  const exifItemLocation = itemLocationBox?.items.find(
-    (itemLocation) => itemLocation.itemId === exifItemInfo?.itemId
-  );
 
-  const dataView = new DataView(arrayBuffer);
-  const prefixSize =
-    4 + dataView.getUint32(exifItemLocation!.extentInfos[0]!.extentOffset);
-  const exifOffset =
-    prefixSize + exifItemLocation!.extentInfos[0]!.extentOffset;
+  if (!exifItemLocation?.extentInfos?.[0]) {
+    return;
+  }
 
-  console.log(
-    new DataView(
-      arrayBuffer.slice(
-        exifItemLocation!.extentInfos[0]!.extentOffset,
-        exifItemLocation!.extentInfos[0]!.extentLength
-      )
+  const exifDataView = new DataView(
+    arrayBuffer.slice(
+      exifItemLocation.extentInfos[0].extentOffset,
+      exifItemLocation.extentInfos[0].extentLength
     )
   );
-  console.log(dataView.getUint16(exifOffset).toString(16));
+
+  console.log(
+    exifItemLocation.extentInfos[0].extentOffset,
+    exifItemLocation.extentInfos[0].extentLength
+  );
+  console.log(exifDataView);
 }

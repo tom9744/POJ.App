@@ -58,6 +58,7 @@ interface IItemLocationBox {
   baseOffsetSize: number;
   itemCount: number;
   items: ItemLocationEntry[];
+  finditemLocationById(itemId: number): ItemLocationEntry | null;
 }
 
 export class ItemLocationBox implements IItemLocationBox {
@@ -177,5 +178,12 @@ export class ItemLocationBox implements IItemLocationBox {
       default:
         throw new Error("An unexpected value has been passed.");
     }
+  }
+
+  finditemLocationById(itemId: number): ItemLocationEntry | null {
+    const result = this._items.find(
+      (itemLocationEntry) => itemLocationEntry.itemId === itemId
+    );
+    return result || null;
   }
 }
