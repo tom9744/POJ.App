@@ -125,7 +125,7 @@ export class ItemLocationBox implements IItemLocationBox {
         for (let n = 0; n < extentCount; n++) {
           extentInfos.push({
             extentOffset: this._dataView.getUint32(offset + 8 + 2 * n),
-            extentLength: this._dataView.getUint32(offset + 10 + 2 * n),
+            extentLength: this._dataView.getUint32(offset + 12 + 2 * n),
           });
         }
 
