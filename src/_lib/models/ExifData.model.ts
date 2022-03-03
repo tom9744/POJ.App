@@ -1,8 +1,5 @@
 import { readDataViewAsString } from "../utils";
-import {
-  COMPONENT_SIZE_BY_FORMAT,
-  TagFormat,
-} from "../constants/exif-tags.constant";
+import { IFDEntry } from "./IFDEntry.model";
 
 enum ByteAlign {
   BigEndian = 0x4d4d,
@@ -12,14 +9,6 @@ enum ByteAlign {
 enum TagMark {
   BigEndian = 0x002a,
   LittleEndian = 0x2a00,
-}
-
-interface IFDEntry {
-  tag: number;
-  format: string;
-  componentCount: number;
-  payload: number;
-  payloadSize: number;
 }
 
 /**
@@ -80,21 +69,6 @@ export class ExifData {
     }
   }
 
-  private readIFDEntry(offset: number): IFDEntry {
-    const tag = this._dataView.getUint16(offset, this._isLittle);
-    const format = this._dataView.getUint16(offset + 2, this._isLittle);
-    const componentCount = this._dataView.getUint32(offset + 4, this._isLittle);
-    const payloadSize = COMPONENT_SIZE_BY_FORMAT[format] * componentCount;
-
-    return {
-      tag,
-      format: TagFormat[format],
-      componentCount,
-      payload: this._dataView.getUint32(offset + 8, this._isLittle),
-      payloadSize,
-    };
-  }
-
   readIFD0Entries(): IFDEntry[] {
     const baseOffset = this._firstIFDOffset + 10; // NOTE: First IFD's Offset 값은 Byte Align Offset 값을 기준으로 합니다.
     const entryCount = this._dataView.getUint16(baseOffset, this._isLittle);
@@ -102,7 +76,8 @@ export class ExifData {
 
     for (let n = 0; n < entryCount; n++) {
       // NOTE: IFD Entry는 12 Bytes로 구성됩니다.
-      const entry = this.readIFDEntry(12 * n + baseOffset + 2);
+      const entryOffset = 12 * n + baseOffset + 2;
+      const entry = new IFDEntry(this._dataView, entryOffset, this._isLittle);
 
       entries.push(entry);
     }
