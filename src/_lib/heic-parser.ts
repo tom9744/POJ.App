@@ -1,3 +1,4 @@
+import { ExifData } from "./models/ExifData.model";
 import { MetaBox } from "./models/MetaBox.model";
 
 export function parseHEIC(arrayBuffer: ArrayBuffer) {
@@ -20,16 +21,11 @@ export function parseHEIC(arrayBuffer: ArrayBuffer) {
     return;
   }
 
-  const exifDataView = new DataView(
-    arrayBuffer.slice(
-      exifItemLocation.extentInfos[0].extentOffset,
-      exifItemLocation.extentInfos[0].extentLength
-    )
-  );
-
-  console.log(
+  const exifData = new ExifData(
+    arrayBuffer,
     exifItemLocation.extentInfos[0].extentOffset,
     exifItemLocation.extentInfos[0].extentLength
   );
-  console.log(exifDataView);
+
+  console.log(exifData.readIFD0Entries());
 }
