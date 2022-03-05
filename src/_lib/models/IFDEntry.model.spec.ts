@@ -1,10 +1,17 @@
-import { IFDEntry } from "./IFDEntry.model";
+import {
+  ActualNumberIFDEntry,
+  IFDEntryFactory,
+  IntegerIFDEntry,
+  RatioalIFDEntry,
+  StringIFDEntry,
+} from "./IFDEntry.model";
 
 describe("IFD Entry w/ ASCII String Data.", () => {
-  let entry: IFDEntry;
+  let entry: StringIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.asciiString(), 0, false);
+    const dataView = MockGenerator.asciiString();
+    entry = IFDEntryFactory(dataView, 0, false) as StringIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -15,10 +22,11 @@ describe("IFD Entry w/ ASCII String Data.", () => {
 });
 
 describe("IFD Entry w/ Unsigned Short Data.", () => {
-  let entry: IFDEntry;
+  let entry: IntegerIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.unsignedShort(), 0, false);
+    const dataView = MockGenerator.unsignedShort();
+    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -29,10 +37,11 @@ describe("IFD Entry w/ Unsigned Short Data.", () => {
 });
 
 describe("IFD Entry w/ Unsigned Long Data.", () => {
-  let entry: IFDEntry;
+  let entry: IntegerIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.unsignedLong(), 0, false);
+    const dataView = MockGenerator.unsignedLong();
+    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -43,10 +52,11 @@ describe("IFD Entry w/ Unsigned Long Data.", () => {
 });
 
 describe("IFD Entry w/ Unsigned Rational Data.", () => {
-  let entry: IFDEntry;
+  let entry: RatioalIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.unsignedRational(), 0, false);
+    const dataView = MockGenerator.unsignedRational();
+    entry = IFDEntryFactory(dataView, 0, false) as RatioalIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -61,10 +71,11 @@ describe("IFD Entry w/ Unsigned Rational Data.", () => {
 });
 
 describe("IFD Entry w/ Signed Short Data.", () => {
-  let entry: IFDEntry;
+  let entry: IntegerIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.signedShort(), 0, false);
+    const dataView = MockGenerator.signedShort();
+    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -75,10 +86,11 @@ describe("IFD Entry w/ Signed Short Data.", () => {
 });
 
 describe("IFD Entry w/ Signed Long Data.", () => {
-  let entry: IFDEntry;
+  let entry: IntegerIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.signedLong(), 0, false);
+    const dataView = MockGenerator.signedLong();
+    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -89,10 +101,11 @@ describe("IFD Entry w/ Signed Long Data.", () => {
 });
 
 describe("IFD Entry w/ Signed Rational Data.", () => {
-  let entry: IFDEntry;
+  let entry: RatioalIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.signedRational(), 0, false);
+    const dataView = MockGenerator.signedRational();
+    entry = IFDEntryFactory(dataView, 0, false) as RatioalIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -107,10 +120,11 @@ describe("IFD Entry w/ Signed Rational Data.", () => {
 });
 
 describe("IFD Entry w/ Single Float Data.", () => {
-  let entry: IFDEntry;
+  let entry: ActualNumberIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.singleFloat(), 0, false);
+    const dataView = MockGenerator.singleFloat();
+    entry = IFDEntryFactory(dataView, 0, false) as ActualNumberIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {
@@ -127,10 +141,11 @@ describe("IFD Entry w/ Single Float Data.", () => {
 });
 
 describe("IFD Entry w/ Double Float Data.", () => {
-  let entry: IFDEntry;
+  let entry: ActualNumberIFDEntry;
 
   beforeEach(() => {
-    entry = new IFDEntry(MockGenerator.doubleFloat(), 0, false);
+    const dataView = MockGenerator.doubleFloat();
+    entry = IFDEntryFactory(dataView, 0, false) as ActualNumberIFDEntry;
   });
 
   it("should successfully read its actual data.", () => {

@@ -1,5 +1,5 @@
 import { readDataViewAsString } from "../utils";
-import { IFDEntry } from "./IFDEntry.model";
+import { IFDEntry, IFDEntryFactory } from "./IFDEntry.model";
 
 enum ByteAlign {
   BigEndian = 0x4d4d,
@@ -71,13 +71,16 @@ export class ExifData {
 
   readIFD0Entries(): IFDEntry[] {
     const baseOffset = this._firstIFDOffset + 10; // NOTE: First IFD's Offset 값은 Byte Align Offset 값을 기준으로 합니다.
+    const firstEntryOffset = baseOffset + 2; // NOTE: Entry Count 데이터 (2 Bytes)를 제외한 Offset.
     const entryCount = this._dataView.getUint16(baseOffset, this._isLittle);
     const entries: IFDEntry[] = [];
 
     for (let n = 0; n < entryCount; n++) {
-      // NOTE: IFD Entry는 12 Bytes로 구성됩니다.
-      const entryOffset = 12 * n + baseOffset + 2;
-      const entry = new IFDEntry(this._dataView, entryOffset, this._isLittle);
+      const entry = IFDEntryFactory(
+        this._dataView,
+        firstEntryOffset + 12 * n, // NOTE: IFD Entry는 12 Bytes로 구성됩니다.
+        this._isLittle
+      );
 
       entries.push(entry);
     }
