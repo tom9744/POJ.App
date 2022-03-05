@@ -4,6 +4,22 @@ import {
 } from "../constants/exif-tags.constant";
 import { readDataViewAsString } from "../utils";
 
+enum Signedness {
+  Signed,
+  Unsigend,
+}
+
+enum IntegerType {
+  Byte = 1,
+  Short = 2,
+  Long = 4,
+}
+
+enum ActualNumberType {
+  Float = 4,
+  Double = 8,
+}
+
 interface IIFDEntry {
   tag: number;
   format: number;
@@ -63,15 +79,15 @@ export class IFDEntry implements IIFDEntry {
     );
   }
 
-  private resoveUnsingedInteger(byteSize: 1 | 2 | 4): number[] {
+  private resolveUnsingedInteger(type: IntegerType): number[] {
     const baseOffset =
       this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
     const result: number[] = [];
 
     for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + byteSize * n;
+      const offset = baseOffset + type * n;
 
-      switch (byteSize) {
+      switch (type) {
         case 1:
           result.push(this._dataView.getUint8(offset));
           break;
@@ -87,15 +103,15 @@ export class IFDEntry implements IIFDEntry {
     return result;
   }
 
-  private resoveSingedInteger(byteSize: 1 | 2 | 4): number[] {
+  private resolveSingedInteger(type: IntegerType): number[] {
     const baseOffset =
       this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
     const result: number[] = [];
 
     for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + byteSize * n;
+      const offset = baseOffset + type * n;
 
-      switch (byteSize) {
+      switch (type) {
         case 1:
           result.push(this._dataView.getInt8(offset));
           break;
@@ -111,7 +127,7 @@ export class IFDEntry implements IIFDEntry {
     return result;
   }
 
-  private resolveRational(type: "unsigned" | "signed"): [number, number][] {
+  private resolveRational(signedness: Signedness): [number, number][] {
     const baseOffset =
       this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
     const result: [number, number][] = [];
@@ -120,12 +136,12 @@ export class IFDEntry implements IIFDEntry {
       const offset = baseOffset + 8 * n;
       let numerator: number, denominator: number;
 
-      switch (type) {
-        case "unsigned":
+      switch (signedness) {
+        case Signedness.Unsigend:
           numerator = this._dataView.getUint32(offset, this._isLittle);
           denominator = this._dataView.getUint32(offset + 4, this._isLittle);
           break;
-        case "signed":
+        case Signedness.Signed:
           numerator = this._dataView.getInt32(offset, this._isLittle);
           denominator = this._dataView.getInt32(offset + 4, this._isLittle);
           break;
@@ -137,26 +153,53 @@ export class IFDEntry implements IIFDEntry {
     return result;
   }
 
+  private resolveFloat(type: ActualNumberType) {
+    const baseOffset =
+      this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
+    const result: number[] = [];
+
+    for (let n = 0; n < this.componentCount; n++) {
+      const offset = baseOffset + type * n;
+
+      switch (type) {
+        case ActualNumberType.Float:
+          result.push(this._dataView.getFloat32(offset, this._isLittle));
+          break;
+        case ActualNumberType.Double:
+          result.push(this._dataView.getFloat64(offset, this._isLittle));
+          break;
+      }
+    }
+
+    return result;
+  }
+
   resolvePayload() {
     switch (this.format) {
       case TagFormat.UnsignedByte:
-        return this.resoveUnsingedInteger(1);
+        return this.resolveUnsingedInteger(IntegerType.Byte);
       case TagFormat.ASCIIString:
         return this.resolveStringData();
       case TagFormat.UnsignedShort:
-        return this.resoveUnsingedInteger(2);
+        return this.resolveUnsingedInteger(IntegerType.Short);
       case TagFormat.UnsignedLong:
-        return this.resoveUnsingedInteger(4);
+        return this.resolveUnsingedInteger(IntegerType.Long);
       case TagFormat.UnsignedRational:
-        return this.resolveRational("unsigned");
+        return this.resolveRational(Signedness.Unsigend);
       case TagFormat.SignedByte:
-        return this.resoveSingedInteger(1);
+        return this.resolveSingedInteger(IntegerType.Byte);
+      case TagFormat.Undefined:
+        return this.payload;
       case TagFormat.SignedShort:
-        return this.resoveSingedInteger(2);
+        return this.resolveSingedInteger(IntegerType.Short);
       case TagFormat.SignedLong:
-        return this.resoveSingedInteger(4);
+        return this.resolveSingedInteger(IntegerType.Long);
       case TagFormat.SignedRational:
-        return this.resolveRational("signed");
+        return this.resolveRational(Signedness.Signed);
+      case TagFormat.SingleFloat:
+        return this.resolveFloat(ActualNumberType.Float);
+      case TagFormat.DoubleFloat:
+        return this.resolveFloat(ActualNumberType.Double);
       default:
         return this.payload;
     }

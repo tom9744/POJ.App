@@ -106,6 +106,45 @@ describe("IFD Entry w/ Signed Rational Data.", () => {
   });
 });
 
+describe("IFD Entry w/ Single Float Data.", () => {
+  let entry: IFDEntry;
+
+  beforeEach(() => {
+    entry = new IFDEntry(MockGenerator.singleFloat(), 0, false);
+  });
+
+  it("should successfully read its actual data.", () => {
+    const rawData = entry.resolvePayload() as number[];
+    const processedData = rawData.map((data) => data.toFixed(2));
+
+    expect(processedData).toEqual([
+      (91.12).toFixed(2),
+      (87.18).toFixed(2),
+      (10.11).toFixed(2),
+      (12.97).toFixed(2),
+    ]);
+  });
+});
+
+describe("IFD Entry w/ Double Float Data.", () => {
+  let entry: IFDEntry;
+
+  beforeEach(() => {
+    entry = new IFDEntry(MockGenerator.doubleFloat(), 0, false);
+  });
+
+  it("should successfully read its actual data.", () => {
+    const rawData = entry.resolvePayload() as number[];
+    const processedData = rawData.map((data) => data.toFixed(4));
+
+    expect(processedData).toEqual([
+      (91.1232).toFixed(4),
+      (87.1817).toFixed(4),
+      (10.1127).toFixed(4),
+    ]);
+  });
+});
+
 class MockGenerator {
   private static readonly _byteAlignOffset = 10;
   private static readonly _emptyArrayBuffer = new ArrayBuffer(50);
@@ -208,6 +247,37 @@ class MockGenerator {
 
     dataView.setInt32(this._byteAlignOffset + 32, 0xfffffff4); // -12
     dataView.setInt32(this._byteAlignOffset + 36, 0x000003e8); // 1000
+
+    return dataView;
+  }
+
+  static singleFloat(): DataView {
+    const dataView = new DataView(this._emptyArrayBuffer.slice(0));
+
+    dataView.setUint16(0, 0x9721); // Tag (= Random Number)
+    dataView.setUint16(2, 0x000b); // Format (= Unsigned Rational)
+    dataView.setUint32(4, 0x0004); // Component Count
+    dataView.setUint32(8, 0x0010); // Payload (= Data's Offset)
+
+    dataView.setFloat32(this._byteAlignOffset + 16, 91.12);
+    dataView.setFloat32(this._byteAlignOffset + 20, 87.18);
+    dataView.setFloat32(this._byteAlignOffset + 24, 10.11);
+    dataView.setFloat32(this._byteAlignOffset + 28, 12.97);
+
+    return dataView;
+  }
+
+  static doubleFloat(): DataView {
+    const dataView = new DataView(this._emptyArrayBuffer.slice(0));
+
+    dataView.setUint16(0, 0x8631); // Tag (= Random Number)
+    dataView.setUint16(2, 0x000c); // Format (= Unsigned Rational)
+    dataView.setUint32(4, 0x0003); // Component Count
+    dataView.setUint32(8, 0x0010); // Payload (= Data's Offset)
+
+    dataView.setFloat64(this._byteAlignOffset + 16, 91.1232);
+    dataView.setFloat64(this._byteAlignOffset + 24, 87.1817);
+    dataView.setFloat64(this._byteAlignOffset + 32, 10.1127);
 
     return dataView;
   }
