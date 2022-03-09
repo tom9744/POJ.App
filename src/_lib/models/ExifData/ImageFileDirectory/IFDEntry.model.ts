@@ -1,8 +1,8 @@
 import {
   COMPONENT_SIZE_BY_FORMAT,
   TagFormat,
-} from "../constants/exif-tags.constant";
-import { readDataViewAsString } from "../utils";
+} from "../../../constants/exif-tags.constant";
+import { readDataViewAsString } from "../../../utils";
 
 enum Signedness {
   Signed,
@@ -244,7 +244,9 @@ export function IFDEntryFactory(
   offset: number,
   isLittle: boolean
 ): IFDEntry {
-  switch (dataView.getUint16(offset + 2, isLittle)) {
+  const format = dataView.getUint16(offset + 2, isLittle);
+
+  switch (format) {
     case TagFormat.ASCIIString:
       return new StringIFDEntry(dataView, offset, isLittle);
     case TagFormat.UnsignedByte:

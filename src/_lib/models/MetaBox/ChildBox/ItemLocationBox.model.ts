@@ -1,5 +1,5 @@
-import { MetaChildBoxType } from "../constants/box-type.constant";
-import { readUint32AsString } from "../utils";
+import { MetaChildBoxType } from "../../../constants/box-type.constant";
+import { readUint32AsString } from "../../../utils";
 
 type ExtentInfo = {
   extentOffset: number;

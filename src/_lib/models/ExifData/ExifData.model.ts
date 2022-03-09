@@ -1,5 +1,5 @@
-import { readDataViewAsString } from "../utils";
-import { IFD0 } from "./IFD0.model";
+import { readDataViewAsString } from "../../utils";
+import { IFD0 } from "./ImageFileDirectory/IFD0.model";
 
 enum ByteAlign {
   BigEndian = 0x4d4d,

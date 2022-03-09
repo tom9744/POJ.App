@@ -1,4 +1,4 @@
-import { readUint32AsString } from "../utils";
+import { readUint32AsString } from "../../../utils";
 
 const BOX_SIZE_OFFSET = 0;
 const BOX_TYPE_OFFSET = 4;

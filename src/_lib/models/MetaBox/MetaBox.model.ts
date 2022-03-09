@@ -1,7 +1,7 @@
-import { MetaChildBoxType } from "../constants/box-type.constant";
-import { readUint32AsString } from "../utils";
-import { ItemInfoBox } from "./ItemInfoBox.model";
-import { ItemLocationBox } from "./ItemLocationBox.model";
+import { MetaChildBoxType } from "../../constants/box-type.constant";
+import { readUint32AsString } from "../../utils";
+import { ItemInfoBox } from "./ChildBox/ItemInfoBox.model";
+import { ItemLocationBox } from "./ChildBox/ItemLocationBox.model";
 
 const META_BOX_TYPE = "meta";
 const BOX_TYPE_OFFSET = 4;

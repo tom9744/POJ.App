@@ -1,5 +1,5 @@
-import { ExifData } from "./models/ExifData.model";
-import { MetaBox } from "./models/MetaBox.model";
+import { ExifData } from "./models/ExifData/ExifData.model";
+import { MetaBox } from "./models/MetaBox/MetaBox.model";
 
 export function parseHEIC(arrayBuffer: ArrayBuffer) {
   if (!arrayBuffer) {
