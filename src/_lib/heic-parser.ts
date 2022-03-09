@@ -27,11 +27,5 @@ export function parseHEIC(arrayBuffer: ArrayBuffer) {
     exifItemLocation.extentInfos[0].extentLength
   );
 
-  const ifd0Entries = exifData.readIFD0Entries();
-
-  console.log(ifd0Entries);
-
-  ifd0Entries.forEach((entry) => {
-    console.log(entry.tag, entry.resolvePayload());
-  });
+  console.log(exifData.ifd0.resolvedEntries);
 }

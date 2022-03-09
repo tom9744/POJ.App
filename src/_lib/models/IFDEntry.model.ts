@@ -20,7 +20,9 @@ enum ActualNumberType {
   Double = 8,
 }
 
-interface IIFDEntry {
+export type IFDPayload = string | number | number[] | [number, number][];
+
+export interface IIFDEntry {
   tag: number;
   format: number;
   formatString: string;
@@ -241,12 +243,7 @@ export function IFDEntryFactory(
   dataView: DataView,
   offset: number,
   isLittle: boolean
-):
-  | StringIFDEntry
-  | IntegerIFDEntry
-  | RatioalIFDEntry
-  | ActualNumberIFDEntry
-  | UndefinedIFDEntry {
+): IFDEntry {
   switch (dataView.getUint16(offset + 2, isLittle)) {
     case TagFormat.ASCIIString:
       return new StringIFDEntry(dataView, offset, isLittle);

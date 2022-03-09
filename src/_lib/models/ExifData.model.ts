@@ -1,5 +1,5 @@
 import { readDataViewAsString } from "../utils";
-import { IFDEntry, IFDEntryFactory } from "./IFDEntry.model";
+import { IFD0 } from "./IFD0.model";
 
 enum ByteAlign {
   BigEndian = 0x4d4d,
@@ -20,6 +20,11 @@ export class ExifData {
   private _size: number;
   private _firstIFDOffset: number;
   private _isLittle = true;
+  private _ifd0: IFD0;
+
+  get ifd0() {
+    return this._ifd0;
+  }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {
     this._offset = offset;
@@ -32,6 +37,7 @@ export class ExifData {
     this.validateTagMark();
 
     this._firstIFDOffset = this._dataView.getUint32(14, this._isLittle);
+    this._ifd0 = new IFD0(this._dataView, this._firstIFDOffset, this._isLittle);
   }
 
   private validateExifHeader(): void {
@@ -67,24 +73,5 @@ export class ExifData {
         `Invalid Tag Mark! Expected ${TagMark.BigEndian} or ${TagMark.LittleEndian}, but got ${tagMark}.`
       );
     }
-  }
-
-  readIFD0Entries(): IFDEntry[] {
-    const baseOffset = this._firstIFDOffset + 10; // NOTE: First IFD's Offset 값은 Byte Align Offset 값을 기준으로 합니다.
-    const firstEntryOffset = baseOffset + 2; // NOTE: Entry Count 데이터 (2 Bytes)를 제외한 Offset.
-    const entryCount = this._dataView.getUint16(baseOffset, this._isLittle);
-    const entries: IFDEntry[] = [];
-
-    for (let n = 0; n < entryCount; n++) {
-      const entry = IFDEntryFactory(
-        this._dataView,
-        firstEntryOffset + 12 * n, // NOTE: IFD Entry는 12 Bytes로 구성됩니다.
-        this._isLittle
-      );
-
-      entries.push(entry);
-    }
-
-    return entries;
   }
 }
