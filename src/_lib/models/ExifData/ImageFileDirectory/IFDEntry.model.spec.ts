@@ -1,66 +1,60 @@
-import {
-  ActualNumberIFDEntry,
-  IFDEntryFactory,
-  IntegerIFDEntry,
-  RatioalIFDEntry,
-  StringIFDEntry,
-} from "./IFDEntry.model";
+import { IFDEntry } from "./IFDEntry.model";
 
 describe("IFD Entry w/ ASCII String Data.", () => {
-  let entry: StringIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.asciiString();
-    entry = IFDEntryFactory(dataView, 0, false) as StringIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toBe("Apple\0");
   });
 });
 
 describe("IFD Entry w/ Unsigned Short Data.", () => {
-  let entry: IntegerIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.unsignedShort();
-    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([0x0006]);
   });
 });
 
 describe("IFD Entry w/ Unsigned Long Data.", () => {
-  let entry: IntegerIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.unsignedLong();
-    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([0x00e0]);
   });
 });
 
 describe("IFD Entry w/ Unsigned Rational Data.", () => {
-  let entry: RatioalIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.unsignedRational();
-    entry = IFDEntryFactory(dataView, 0, false) as RatioalIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([
       [299, 1000], // 0.299
@@ -71,45 +65,45 @@ describe("IFD Entry w/ Unsigned Rational Data.", () => {
 });
 
 describe("IFD Entry w/ Signed Short Data.", () => {
-  let entry: IntegerIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.signedShort();
-    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([-12]);
   });
 });
 
 describe("IFD Entry w/ Signed Long Data.", () => {
-  let entry: IntegerIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.signedLong();
-    entry = IFDEntryFactory(dataView, 0, false) as IntegerIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([-321]);
   });
 });
 
 describe("IFD Entry w/ Signed Rational Data.", () => {
-  let entry: RatioalIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.signedRational();
-    entry = IFDEntryFactory(dataView, 0, false) as RatioalIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const data = entry.resolvePayload();
+    const data = entry.payload;
 
     expect(data).toEqual([
       [-299, 1000], // 0.299
@@ -120,15 +114,15 @@ describe("IFD Entry w/ Signed Rational Data.", () => {
 });
 
 describe("IFD Entry w/ Single Float Data.", () => {
-  let entry: ActualNumberIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.singleFloat();
-    entry = IFDEntryFactory(dataView, 0, false) as ActualNumberIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const rawData = entry.resolvePayload() as number[];
+    const rawData = entry.payload as number[];
     const processedData = rawData.map((data) => data.toFixed(2));
 
     expect(processedData).toEqual([
@@ -141,15 +135,15 @@ describe("IFD Entry w/ Single Float Data.", () => {
 });
 
 describe("IFD Entry w/ Double Float Data.", () => {
-  let entry: ActualNumberIFDEntry;
+  let entry: IFDEntry;
 
   beforeEach(() => {
     const dataView = MockGenerator.doubleFloat();
-    entry = IFDEntryFactory(dataView, 0, false) as ActualNumberIFDEntry;
+    entry = new IFDEntry(dataView, 0, false);
   });
 
   it("should successfully read its actual data.", () => {
-    const rawData = entry.resolvePayload() as number[];
+    const rawData = entry.payload as number[];
     const processedData = rawData.map((data) => data.toFixed(4));
 
     expect(processedData).toEqual([

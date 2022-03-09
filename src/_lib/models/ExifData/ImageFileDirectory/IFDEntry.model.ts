@@ -23,246 +23,161 @@ enum ActualNumberType {
 export type IFDPayload = string | number | number[] | [number, number][];
 
 export interface IIFDEntry {
-  tag: number;
-  format: number;
   formatString: string;
-  componentCount: number;
-  payload: number;
+  payload: IFDPayload;
+  isSubIFDEntry: boolean;
 }
 
-export abstract class IFDEntry implements IIFDEntry {
-  constructor(
-    private _dataView: DataView,
-    private _offset: number,
-    private _isLittle: boolean
-  ) {}
-
-  get tag(): number {
-    return this._dataView.getUint16(this._offset, this._isLittle);
-  }
-
-  get format(): number {
-    return this._dataView.getUint16(this._offset + 2, this._isLittle);
-  }
+export class IFDEntry implements IIFDEntry {
+  private _tag: number;
+  private _format: number;
+  private _componentCount: number;
+  private _rawPayload: number; // NOTE: 데이터 크기가 4 Bytes 이상인 경우, 데이터가 위치한 Offset이 기록되어 있습니다.
+  private _resolvedPayload: IFDPayload;
 
   get formatString(): string {
-    return TagFormat[this.format];
+    return TagFormat[this._format];
   }
 
-  get componentCount(): number {
-    return this._dataView.getUint32(this._offset + 4, this._isLittle);
+  get payload(): IFDPayload {
+    return this._resolvedPayload;
   }
 
-  // NOTE: 데이터 크기가 4 Bytes 이상인 경우, 데이터가 위치한 Offset이 기록되어 있습니다.
-  get payload(): number {
-    return this._dataView.getUint32(this._offset + 8, this._isLittle);
+  get isSubIFDEntry(): boolean {
+    return this._tag === 0x8769;
   }
 
-  get payloadSize(): number {
-    return COMPONENT_SIZE_BY_FORMAT[this.format] * this.componentCount;
+  constructor(dataView: DataView, offset: number, isLittle: boolean) {
+    this._tag = dataView.getUint16(offset, isLittle);
+    this._format = dataView.getUint16(offset + 2, isLittle);
+    this._componentCount = dataView.getUint32(offset + 4, isLittle);
+    this._rawPayload = dataView.getUint32(offset + 8, isLittle);
+
+    const componentSize = COMPONENT_SIZE_BY_FORMAT[this._format];
+    const payloadSize = componentSize * this._componentCount;
+    const dataOffset = payloadSize > 4 ? this._rawPayload + 10 : offset + 8; // NOTE: 데이터의 Offset 값은 Byte Align Tag의 Offset 값(= 10)을 기준으로 합니다.
+    this._resolvedPayload = this.resolvePayload(dataView, dataOffset, isLittle);
   }
 
-  protected resolveStringData(): string {
-    if (this.payloadSize > 4) {
-      return readDataViewAsString(
-        this._dataView,
-        this.payload + 10, // NOTE: 데이터의 Offset 값은 Byte Align Offset 값을 기준으로 합니다.
-        this.componentCount
-      );
-    }
-    return readDataViewAsString(
-      this._dataView,
-      this._offset + 8,
-      this.componentCount
-    );
-  }
+  private resolvePayload(
+    dataView: DataView,
+    dataOffset: number,
+    isLittle: boolean
+  ): IFDPayload {
+    const resolveStringData = (): string => {
+      return readDataViewAsString(dataView, dataOffset, this._componentCount);
+    };
+    const resolveUnsingedInteger = (type: IntegerType): number[] => {
+      const result: number[] = [];
 
-  protected resolveUnsingedInteger(type: IntegerType): number[] {
-    const baseOffset =
-      this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
-    const result: number[] = [];
+      for (let n = 0; n < this._componentCount; n++) {
+        const offset = dataOffset + type * n;
 
-    for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + type * n;
-
-      switch (type) {
-        case 1:
-          result.push(this._dataView.getUint8(offset));
-          break;
-        case 2:
-          result.push(this._dataView.getUint16(offset, this._isLittle));
-          break;
-        case 4:
-          result.push(this._dataView.getUint32(offset, this._isLittle));
-          break;
-      }
-    }
-
-    return result;
-  }
-
-  protected resolveSingedInteger(type: IntegerType): number[] {
-    const baseOffset =
-      this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
-    const result: number[] = [];
-
-    for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + type * n;
-
-      switch (type) {
-        case 1:
-          result.push(this._dataView.getInt8(offset));
-          break;
-        case 2:
-          result.push(this._dataView.getInt16(offset, this._isLittle));
-          break;
-        case 4:
-          result.push(this._dataView.getInt32(offset, this._isLittle));
-          break;
-      }
-    }
-
-    return result;
-  }
-
-  protected resolveRational(signedness: Signedness): [number, number][] {
-    const baseOffset =
-      this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
-    const result: [number, number][] = [];
-
-    for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + 8 * n;
-      let numerator: number, denominator: number;
-
-      switch (signedness) {
-        case Signedness.Unsigend:
-          numerator = this._dataView.getUint32(offset, this._isLittle);
-          denominator = this._dataView.getUint32(offset + 4, this._isLittle);
-          break;
-        case Signedness.Signed:
-          numerator = this._dataView.getInt32(offset, this._isLittle);
-          denominator = this._dataView.getInt32(offset + 4, this._isLittle);
-          break;
+        switch (type) {
+          case IntegerType.Byte:
+            result.push(dataView.getUint8(offset));
+            break;
+          case IntegerType.Short:
+            result.push(dataView.getUint16(offset, isLittle));
+            break;
+          case IntegerType.Long:
+            result.push(dataView.getUint32(offset, isLittle));
+            break;
+        }
       }
 
-      result.push([numerator, denominator]);
-    }
+      return result;
+    };
+    const resolveSingedInteger = (type: IntegerType): number[] => {
+      const result: number[] = [];
 
-    return result;
-  }
+      for (let n = 0; n < this._componentCount; n++) {
+        const offset = dataOffset + type * n;
 
-  protected resolveFloat(type: ActualNumberType) {
-    const baseOffset =
-      this.payloadSize > 4 ? this.payload + 10 : this._offset + 8;
-    const result: number[] = [];
-
-    for (let n = 0; n < this.componentCount; n++) {
-      const offset = baseOffset + type * n;
-
-      switch (type) {
-        case ActualNumberType.Float:
-          result.push(this._dataView.getFloat32(offset, this._isLittle));
-          break;
-        case ActualNumberType.Double:
-          result.push(this._dataView.getFloat64(offset, this._isLittle));
-          break;
+        switch (type) {
+          case 1:
+            result.push(dataView.getInt8(offset));
+            break;
+          case 2:
+            result.push(dataView.getInt16(offset, isLittle));
+            break;
+          case 4:
+            result.push(dataView.getInt32(offset, isLittle));
+            break;
+        }
       }
-    }
 
-    return result;
-  }
+      return result;
+    };
+    const resolveRational = (signedness: Signedness): [number, number][] => {
+      const result: [number, number][] = [];
 
-  abstract resolvePayload(): string | number | number[] | [number, number][];
-}
+      for (let n = 0; n < this._componentCount; n++) {
+        const offset = dataOffset + 8 * n;
+        let numerator: number, denominator: number;
 
-export class IntegerIFDEntry extends IFDEntry {
-  resolvePayload(): number[] {
-    switch (this.format) {
+        switch (signedness) {
+          case Signedness.Unsigend:
+            numerator = dataView.getUint32(offset, isLittle);
+            denominator = dataView.getUint32(offset + 4, isLittle);
+            break;
+          case Signedness.Signed:
+            numerator = dataView.getInt32(offset, isLittle);
+            denominator = dataView.getInt32(offset + 4, isLittle);
+            break;
+        }
+
+        result.push([numerator, denominator]);
+      }
+
+      return result;
+    };
+    const resolveFloat = (type: ActualNumberType) => {
+      const result: number[] = [];
+
+      for (let n = 0; n < this._componentCount; n++) {
+        const offset = dataOffset + type * n;
+
+        switch (type) {
+          case ActualNumberType.Float:
+            result.push(dataView.getFloat32(offset, isLittle));
+            break;
+          case ActualNumberType.Double:
+            result.push(dataView.getFloat64(offset, isLittle));
+            break;
+        }
+      }
+
+      return result;
+    };
+
+    switch (this._format) {
       case TagFormat.UnsignedByte:
-        return this.resolveUnsingedInteger(IntegerType.Byte);
-      case TagFormat.UnsignedShort:
-        return this.resolveUnsingedInteger(IntegerType.Short);
-      case TagFormat.UnsignedLong:
-        return this.resolveUnsingedInteger(IntegerType.Long);
-      case TagFormat.SignedByte:
-        return this.resolveSingedInteger(IntegerType.Byte);
-      case TagFormat.SignedShort:
-        return this.resolveSingedInteger(IntegerType.Short);
-      case TagFormat.SignedLong:
-        return this.resolveSingedInteger(IntegerType.Long);
-      default:
-        throw new Error("Invalid Interger IFDEntry");
-    }
-  }
-}
-
-export class ActualNumberIFDEntry extends IFDEntry {
-  resolvePayload(): number[] {
-    switch (this.format) {
-      case TagFormat.SingleFloat:
-        return this.resolveFloat(ActualNumberType.Float);
-      case TagFormat.DoubleFloat:
-        return this.resolveFloat(ActualNumberType.Double);
-      default:
-        throw new Error("Invalid Actual Number IFDEntry");
-    }
-  }
-}
-
-export class RatioalIFDEntry extends IFDEntry {
-  resolvePayload(): [number, number][] {
-    switch (this.format) {
-      case TagFormat.UnsignedRational:
-        return this.resolveRational(Signedness.Unsigend);
-      case TagFormat.SignedRational:
-        return this.resolveRational(Signedness.Signed);
-      default:
-        throw new Error("Invalid Ratioal IFDEntry");
-    }
-  }
-}
-
-export class StringIFDEntry extends IFDEntry {
-  resolvePayload(): string {
-    switch (this.format) {
+        return resolveUnsingedInteger(IntegerType.Byte);
       case TagFormat.ASCIIString:
-        return this.resolveStringData();
+        return resolveStringData();
+      case TagFormat.UnsignedShort:
+        return resolveUnsingedInteger(IntegerType.Short);
+      case TagFormat.UnsignedLong:
+        return resolveUnsingedInteger(IntegerType.Long);
+      case TagFormat.UnsignedRational:
+        return resolveRational(Signedness.Unsigend);
+      case TagFormat.SignedByte:
+        return resolveSingedInteger(IntegerType.Byte);
+      case TagFormat.Undefined:
+        return this._rawPayload;
+      case TagFormat.SignedShort:
+        return resolveSingedInteger(IntegerType.Short);
+      case TagFormat.SignedLong:
+        return resolveSingedInteger(IntegerType.Long);
+      case TagFormat.SignedRational:
+        return resolveRational(Signedness.Signed);
+      case TagFormat.SingleFloat:
+        return resolveFloat(ActualNumberType.Float);
+      case TagFormat.DoubleFloat:
+        return resolveFloat(ActualNumberType.Double);
       default:
-        throw new Error("Invalid String IFDEntry");
+        throw new Error("Invalid IFDEntry Format");
     }
-  }
-}
-
-export class UndefinedIFDEntry extends IFDEntry {
-  resolvePayload(): number {
-    return this.payload;
-  }
-}
-
-export function IFDEntryFactory(
-  dataView: DataView,
-  offset: number,
-  isLittle: boolean
-): IFDEntry {
-  const format = dataView.getUint16(offset + 2, isLittle);
-
-  switch (format) {
-    case TagFormat.ASCIIString:
-      return new StringIFDEntry(dataView, offset, isLittle);
-    case TagFormat.UnsignedByte:
-    case TagFormat.UnsignedShort:
-    case TagFormat.UnsignedLong:
-    case TagFormat.SignedByte:
-    case TagFormat.SignedShort:
-    case TagFormat.SignedLong:
-      return new IntegerIFDEntry(dataView, offset, isLittle);
-    case TagFormat.UnsignedRational:
-    case TagFormat.SignedRational:
-      return new RatioalIFDEntry(dataView, offset, isLittle);
-    case TagFormat.SingleFloat:
-    case TagFormat.DoubleFloat:
-      return new ActualNumberIFDEntry(dataView, offset, isLittle);
-    default:
-      return new UndefinedIFDEntry(dataView, offset, isLittle);
   }
 }

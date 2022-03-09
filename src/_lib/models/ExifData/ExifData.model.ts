@@ -22,8 +22,8 @@ export class ExifData {
   private _isLittle = true;
   private _ifd0: IFD0;
 
-  get ifd0() {
-    return this._ifd0;
+  get IFD0Entries() {
+    return [...this._ifd0.entries];
   }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {
