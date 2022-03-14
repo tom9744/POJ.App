@@ -28,4 +28,5 @@ export function parseHEIC(arrayBuffer: ArrayBuffer) {
   );
 
   console.log(exifData.IFD0Entries);
+  console.log(exifData.subIFDEntries);
 }

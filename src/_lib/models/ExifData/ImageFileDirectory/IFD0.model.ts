@@ -1,4 +1,5 @@
-import { IFDEntry, IIFDEntry } from "./IFDEntry.model";
+import { IIFDEntry } from "./IFDEntry.model";
+import { ImageFileDirectory } from "./ImageFileDirectory.model";
 
 export interface IIFD0 {
   entries: IIFDEntry[];
@@ -6,14 +7,9 @@ export interface IIFD0 {
   nextIFDsOffset: number;
 }
 
-export class IFD0 implements IIFD0 {
+export class IFD0 extends ImageFileDirectory implements IIFD0 {
   private _nextIFDsOffset: number;
   private _subIFDsOffset: number;
-  private _entries: IFDEntry[];
-
-  get entries(): IFDEntry[] {
-    return [...this._entries];
-  }
 
   get subIFDsOffset(): number {
     return this._subIFDsOffset;
@@ -24,26 +20,14 @@ export class IFD0 implements IIFD0 {
   }
 
   constructor(dataView: DataView, firstIFDOffset: number, isLittle: boolean) {
-    const baseOffset = firstIFDOffset + 10; // NOTE: First IFD's Offset 값은 Byte Align Offset 값을 기준으로 합니다.
-    const entryCount = dataView.getUint16(baseOffset, isLittle);
-    const firstEntryOffset = baseOffset + 2; // NOTE: Entry Count 데이터 (2 Bytes)를 제외한 Offset.
-    const entries: IFDEntry[] = [];
+    super(dataView, firstIFDOffset, isLittle);
 
-    for (let n = 0; n < entryCount; n++) {
-      const entry = new IFDEntry(
-        dataView,
-        firstEntryOffset + 12 * n, // NOTE: IFD Entry는 12 Bytes로 구성됩니다.
-        isLittle
-      );
+    // NOTE: SubIFD의 Offset 값이 저장된 엔트리(= ExifOffset)를 찾습니다.
+    const subIFDEntry = this._entries.find((entry) => entry.isSubIFDEntry);
+    // NOTE: IFD0 엔트리 목록이 끝나는 위치에 다음 IFD(= IFD1)의 Offset이 저장되어 있습니다.
+    const lastOffset = this._firstEntryOffset + this._entries.length * 12;
 
-      entries.push(entry);
-    }
-
-    const subIFDEntry = entries.find((entry) => entry.isSubIFDEntry);
-    const lastDataOffset = firstEntryOffset + entries.length * 12;
-
-    this._entries = entries;
-    this._nextIFDsOffset = dataView.getUint32(lastDataOffset, isLittle);
-    this._subIFDsOffset = subIFDEntry?.payload as number;
+    this._subIFDsOffset = (subIFDEntry?.payload as number[])[0];
+    this._nextIFDsOffset = dataView.getUint32(lastOffset, isLittle);
   }
 }
