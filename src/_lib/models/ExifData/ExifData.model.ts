@@ -22,27 +22,27 @@ export class ExifData {
   private _isLittle = true;
   private _IFD0: IFD0 | null = null;
   private _IFD1: ImageFileDirectory | null = null;
-  private _SubIFD: ImageFileDirectory | null = null;
+  private _EXIF: ImageFileDirectory | null = null;
 
-  get IFD0Entries(): IFDEntrySummary | null {
+  get IFD0(): IFDEntrySummary | null {
     if (!this._IFD0?.entries) {
       return null;
     }
     return this.formatEntries(this._IFD0.entries);
   }
 
-  get IFD1Entries(): IFDEntrySummary | null {
+  get IFD1(): IFDEntrySummary | null {
     if (!this._IFD1?.entries) {
       return null;
     }
     return this.formatEntries(this._IFD1.entries);
   }
 
-  get SubIFDEntries(): IFDEntrySummary | null {
-    if (!this._SubIFD?.entries) {
+  get EXIF(): IFDEntrySummary | null {
+    if (!this._EXIF?.entries) {
       return null;
     }
-    return this.formatEntries(this._SubIFD.entries);
+    return this.formatEntries(this._EXIF.entries);
   }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {
@@ -65,7 +65,7 @@ export class ExifData {
     }
 
     if (this._IFD0.offsetToEXIF && this._IFD0.offsetToEXIF > 0) {
-      this._SubIFD = new ImageFileDirectory(
+      this._EXIF = new ImageFileDirectory(
         dataView,
         this._IFD0.offsetToEXIF,
         this._isLittle
