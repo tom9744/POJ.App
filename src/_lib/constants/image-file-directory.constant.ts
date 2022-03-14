@@ -1,22 +1,4 @@
 /**
- * IFD 엔트리가 포함하는 데이터의 형태입니다.
- */
-export enum TagFormat {
-  UnsignedByte = 0x01,
-  ASCIIString = 0x02,
-  UnsignedShort = 0x03,
-  UnsignedLong = 0x04,
-  UnsignedRational = 0x05,
-  SignedByte = 0x06,
-  Undefined = 0x07,
-  SignedShort = 0x08,
-  SignedLong = 0x09,
-  SignedRational = 0x0a,
-  SingleFloat = 0x0b,
-  DoubleFloat = 0x0c,
-}
-
-/**
  * IFD 엔트리에 포함된 컴포넌트 한 개 당 크기입니다.
  */
 export const COMPONENT_SIZE_BY_FORMAT: Record<number, number> = {

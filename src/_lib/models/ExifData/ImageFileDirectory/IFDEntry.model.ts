@@ -1,9 +1,23 @@
 import {
   COMPONENT_SIZE_BY_FORMAT,
   TAG_NAME_BY_TAG_ID,
-  TagFormat,
 } from "../../../constants/image-file-directory.constant";
 import { readDataViewAsString } from "../../../utils";
+
+enum TagFormat {
+  UnsignedByte = 0x01,
+  ASCIIString = 0x02,
+  UnsignedShort = 0x03,
+  UnsignedLong = 0x04,
+  UnsignedRational = 0x05,
+  SignedByte = 0x06,
+  Undefined = 0x07,
+  SignedShort = 0x08,
+  SignedLong = 0x09,
+  SignedRational = 0x0a,
+  SingleFloat = 0x0b,
+  DoubleFloat = 0x0c,
+}
 
 enum Signedness {
   Signed,
