@@ -1,5 +1,6 @@
 import { readDataViewAsString } from "../../utils";
 import { IFD0 } from "./ImageFileDirectory/IFD0.model";
+import { IFDPayload } from "./ImageFileDirectory/IFDEntry.model";
 
 enum ByteAlign {
   BigEndian = 0x4d4d,
@@ -22,8 +23,11 @@ export class ExifData {
   private _isLittle = true;
   private _ifd0: IFD0;
 
-  get IFD0Entries() {
-    return [...this._ifd0.entries];
+  get IFD0Entries(): { [key: string]: IFDPayload } {
+    return this._ifd0.entries.reduce((acc, entry) => {
+      acc[entry.tagString] = entry.payload;
+      return acc;
+    }, {} as { [key: string]: IFDPayload });
   }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {

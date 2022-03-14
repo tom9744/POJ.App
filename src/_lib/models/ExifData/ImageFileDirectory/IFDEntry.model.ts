@@ -1,7 +1,8 @@
 import {
   COMPONENT_SIZE_BY_FORMAT,
+  TAG_NAME_BY_TAG_ID,
   TagFormat,
-} from "../../../constants/exif-tags.constant";
+} from "../../../constants/image-file-directory.constant";
 import { readDataViewAsString } from "../../../utils";
 
 enum Signedness {
@@ -34,6 +35,10 @@ export class IFDEntry implements IIFDEntry {
   private _componentCount: number;
   private _rawPayload: number; // NOTE: 데이터 크기가 4 Bytes 이상인 경우, 데이터가 위치한 Offset이 기록되어 있습니다.
   private _resolvedPayload: IFDPayload;
+
+  get tagString(): string {
+    return TAG_NAME_BY_TAG_ID[this._tag] ?? "Unknown";
+  }
 
   get formatString(): string {
     return TagFormat[this._format];
