@@ -29,7 +29,7 @@ export class IFD0 extends ImageFileDirectory implements IIFD0 {
     super(dataView, firstIFDOffset, isLittle);
 
     // NOTE: IFD0 엔트리 목록이 끝나는 위치에 다음 IFD(= IFD1)의 Offset이 저장되어 있습니다.
-    const farmostOffset = this._firstEntryOffset + this._entries.length * 12;
+    const farmostOffset = this._offsetToFirstEntry + this._entries.length * 12;
 
     this._offsetToIFD1 = dataView.getUint32(farmostOffset, isLittle);
 
