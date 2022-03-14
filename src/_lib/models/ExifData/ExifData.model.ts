@@ -1,6 +1,6 @@
 import { readDataViewAsString } from "../../utils";
 import { IFD0 } from "./ImageFileDirectory/IFD0.model";
-import { IFDPayload } from "./ImageFileDirectory/IFDEntry.model";
+import { IFDEntry, IFDPayload } from "./ImageFileDirectory/IFDEntry.model";
 import { ImageFileDirectory } from "./ImageFileDirectory/ImageFileDirectory.model";
 
 enum ByteAlign {
@@ -13,53 +13,71 @@ enum TagMark {
   LittleEndian = 0x2a00,
 }
 
+type IFDEntrySummary = { [key: string]: IFDPayload };
+
 /**
  * Reference: https://nightohl.tistory.com/entry/EXIF-Format
  */
 export class ExifData {
-  private _dataView: DataView;
-  private _offset: number;
-  private _size: number;
-  private _firstIFDOffset: number;
   private _isLittle = true;
-  private _ifd0: IFD0;
-  private _subIFD: ImageFileDirectory;
+  private _IFD0: IFD0 | null = null;
+  private _IFD1: ImageFileDirectory | null = null;
+  private _SubIFD: ImageFileDirectory | null = null;
 
-  get IFD0Entries(): { [key: string]: IFDPayload } {
-    return this._ifd0.entries.reduce((acc, entry) => {
-      acc[entry.tagString] = entry.payload;
-      return acc;
-    }, {} as { [key: string]: IFDPayload });
+  get IFD0Entries(): IFDEntrySummary | null {
+    if (!this._IFD0?.entries) {
+      return null;
+    }
+    return this.formatEntries(this._IFD0.entries);
   }
 
-  get subIFDEntries(): { [key: string]: IFDPayload } {
-    return this._subIFD.entries.reduce((acc, entry) => {
-      acc[entry.tagString] = entry.payload;
-      return acc;
-    }, {} as { [key: string]: IFDPayload });
+  get IFD1Entries(): IFDEntrySummary | null {
+    if (!this._IFD1?.entries) {
+      return null;
+    }
+    return this.formatEntries(this._IFD1.entries);
+  }
+
+  get SubIFDEntries(): IFDEntrySummary | null {
+    if (!this._SubIFD?.entries) {
+      return null;
+    }
+    return this.formatEntries(this._SubIFD.entries);
   }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {
-    this._offset = offset;
-    this._size = length;
-    this._dataView = new DataView(arrayBuffer.slice(offset, offset + length));
+    const dataView = new DataView(arrayBuffer.slice(offset, offset + length));
 
     // NOTE: 실행 순서가 변경되면 안됩니다.
-    this.validateExifHeader();
-    this.validateByteAlign();
-    this.validateTagMark();
+    this.checkExifHeader(dataView);
+    this.checkByteAlign(dataView);
+    this.checkTagMark(dataView);
 
-    this._firstIFDOffset = this._dataView.getUint32(14, this._isLittle);
-    this._ifd0 = new IFD0(this._dataView, this._firstIFDOffset, this._isLittle);
-    this._subIFD = new ImageFileDirectory(
-      this._dataView,
-      this._ifd0.subIFDsOffset,
-      this._isLittle
-    );
+    const offsetToIFD0 = dataView.getUint32(14, this._isLittle);
+    this._IFD0 = new IFD0(dataView, offsetToIFD0, this._isLittle);
+
+    const offsetToSubIFD = this._IFD0.subIFDsOffset;
+    const offsetToIFD1 = this._IFD0.nextIFDsOffset;
+
+    if (offsetToIFD1 > 0) {
+      this._IFD1 = new ImageFileDirectory(
+        dataView,
+        offsetToIFD1,
+        this._isLittle
+      );
+    }
+
+    if (offsetToSubIFD > 0) {
+      this._SubIFD = new ImageFileDirectory(
+        dataView,
+        offsetToSubIFD,
+        this._isLittle
+      );
+    }
   }
 
-  private validateExifHeader(): void {
-    const exifHeader = readDataViewAsString(this._dataView, 4, 6);
+  private checkExifHeader(dataView: DataView): void {
+    const exifHeader = readDataViewAsString(dataView, 4, 6);
 
     if (exifHeader !== "Exif\0\0") {
       throw new Error(
@@ -68,8 +86,8 @@ export class ExifData {
     }
   }
 
-  private validateByteAlign(): void {
-    const byteAlign = this._dataView.getUint16(10);
+  private checkByteAlign(dataView: DataView): void {
+    const byteAlign = dataView.getUint16(10);
 
     if (
       byteAlign !== ByteAlign.BigEndian &&
@@ -83,13 +101,20 @@ export class ExifData {
     this._isLittle = byteAlign === ByteAlign.LittleEndian;
   }
 
-  private validateTagMark(): void {
-    const tagMark = this._dataView.getUint16(12, this._isLittle);
+  private checkTagMark(dataView: DataView): void {
+    const tagMark = dataView.getUint16(12, this._isLittle);
 
     if (tagMark !== TagMark.BigEndian && tagMark !== TagMark.LittleEndian) {
       throw new Error(
         `Invalid Tag Mark! Expected ${TagMark.BigEndian} or ${TagMark.LittleEndian}, but got ${tagMark}.`
       );
     }
+  }
+
+  private formatEntries(entries: IFDEntry[]): IFDEntrySummary {
+    return entries.reduce((acc, entry) => {
+      acc[entry.tagString] = entry.payload;
+      return acc;
+    }, {} as IFDEntrySummary);
   }
 }
