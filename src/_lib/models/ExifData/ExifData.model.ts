@@ -56,21 +56,18 @@ export class ExifData {
     const offsetToIFD0 = dataView.getUint32(14, this._isLittle);
     this._IFD0 = new IFD0(dataView, offsetToIFD0, this._isLittle);
 
-    const offsetToSubIFD = this._IFD0.subIFDsOffset;
-    const offsetToIFD1 = this._IFD0.nextIFDsOffset;
-
-    if (offsetToIFD1 > 0) {
+    if (this._IFD0.offsetToIFD1 > 0) {
       this._IFD1 = new ImageFileDirectory(
         dataView,
-        offsetToIFD1,
+        this._IFD0.offsetToIFD1,
         this._isLittle
       );
     }
 
-    if (offsetToSubIFD > 0) {
+    if (this._IFD0.offsetToEXIF && this._IFD0.offsetToEXIF > 0) {
       this._SubIFD = new ImageFileDirectory(
         dataView,
-        offsetToSubIFD,
+        this._IFD0.offsetToEXIF,
         this._isLittle
       );
     }
