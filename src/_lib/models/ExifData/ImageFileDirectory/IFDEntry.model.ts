@@ -35,12 +35,13 @@ enum ActualNumberType {
   Double = 8,
 }
 
-export type IFDPayload = string | number | number[] | [number, number][];
+export type IFDPayload = string | number | number[];
 
 export interface IIFDEntry {
   formatString: string;
   payload: IFDPayload;
-  isSubIFDEntry: boolean;
+  isExifOffset: boolean;
+  isGPSInfo: boolean;
 }
 
 export class IFDEntry implements IIFDEntry {
@@ -62,8 +63,12 @@ export class IFDEntry implements IIFDEntry {
     return this._resolvedPayload;
   }
 
-  get isSubIFDEntry(): boolean {
+  get isExifOffset(): boolean {
     return this._tag === 0x8769;
+  }
+
+  get isGPSInfo(): boolean {
+    return this._tag === 0x8825;
   }
 
   constructor(dataView: DataView, offset: number, isLittle: boolean) {
@@ -83,10 +88,7 @@ export class IFDEntry implements IIFDEntry {
     dataOffset: number,
     isLittle: boolean
   ): IFDPayload {
-    const resolveStringData = (): string => {
-      return readDataViewAsString(dataView, dataOffset, this._componentCount);
-    };
-    const resolveUnsingedInteger = (type: IntegerType): number[] => {
+    const resolveUnsingedInteger = (type: IntegerType): number | number[] => {
       const result: number[] = [];
 
       for (let n = 0; n < this._componentCount; n++) {
@@ -105,9 +107,12 @@ export class IFDEntry implements IIFDEntry {
         }
       }
 
+      if (result.length === 1) {
+        return result.pop()!;
+      }
       return result;
     };
-    const resolveSingedInteger = (type: IntegerType): number[] => {
+    const resolveSingedInteger = (type: IntegerType): number | number[] => {
       const result: number[] = [];
 
       for (let n = 0; n < this._componentCount; n++) {
@@ -126,10 +131,13 @@ export class IFDEntry implements IIFDEntry {
         }
       }
 
+      if (result.length === 1) {
+        return result.pop()!;
+      }
       return result;
     };
-    const resolveRational = (signedness: Signedness): [number, number][] => {
-      const result: [number, number][] = [];
+    const resolveRational = (signedness: Signedness): number | number[] => {
+      const result: number[] = [];
 
       for (let n = 0; n < this._componentCount; n++) {
         const offset = dataOffset + 8 * n;
@@ -146,12 +154,15 @@ export class IFDEntry implements IIFDEntry {
             break;
         }
 
-        result.push([numerator, denominator]);
+        result.push(numerator / denominator);
       }
 
+      if (result.length === 1) {
+        return result.pop()!;
+      }
       return result;
     };
-    const resolveFloat = (type: ActualNumberType) => {
+    const resolveFloat = (type: ActualNumberType): number | number[] => {
       const result: number[] = [];
 
       for (let n = 0; n < this._componentCount; n++) {
@@ -167,7 +178,13 @@ export class IFDEntry implements IIFDEntry {
         }
       }
 
+      if (result.length === 1) {
+        return result.pop()!;
+      }
       return result;
+    };
+    const resolveStringData = (): string => {
+      return readDataViewAsString(dataView, dataOffset, this._componentCount);
     };
 
     switch (this._format) {

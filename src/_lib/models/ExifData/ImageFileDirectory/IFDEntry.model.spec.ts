@@ -26,7 +26,7 @@ describe("IFD Entry w/ Unsigned Short Data.", () => {
   it("should successfully read its actual data.", () => {
     const data = entry.payload;
 
-    expect(data).toEqual([0x0006]);
+    expect(data).toEqual(0x0006);
   });
 });
 
@@ -41,7 +41,7 @@ describe("IFD Entry w/ Unsigned Long Data.", () => {
   it("should successfully read its actual data.", () => {
     const data = entry.payload;
 
-    expect(data).toEqual([0x00e0]);
+    expect(data).toEqual(0x00e0);
   });
 });
 
@@ -57,9 +57,9 @@ describe("IFD Entry w/ Unsigned Rational Data.", () => {
     const data = entry.payload;
 
     expect(data).toEqual([
-      [299, 1000], // 0.299
-      [587, 1000], // 0.587
-      [114, 1000], // 0.114
+      299 / 1000, // 0.299
+      587 / 1000, // 0.587
+      114 / 1000, // 0.114
     ]);
   });
 });
@@ -75,7 +75,7 @@ describe("IFD Entry w/ Signed Short Data.", () => {
   it("should successfully read its actual data.", () => {
     const data = entry.payload;
 
-    expect(data).toEqual([-12]);
+    expect(data).toEqual(-12);
   });
 });
 
@@ -90,7 +90,7 @@ describe("IFD Entry w/ Signed Long Data.", () => {
   it("should successfully read its actual data.", () => {
     const data = entry.payload;
 
-    expect(data).toEqual([-321]);
+    expect(data).toEqual(-321);
   });
 });
 
@@ -106,9 +106,9 @@ describe("IFD Entry w/ Signed Rational Data.", () => {
     const data = entry.payload;
 
     expect(data).toEqual([
-      [-299, 1000], // 0.299
-      [-9322, 1000], // 0.587
-      [-12, 1000], // 0.114
+      -299 / 1000, // 0.299
+      -9322 / 1000, // 0.587
+      -12 / 1000, // 0.114
     ]);
   });
 });
