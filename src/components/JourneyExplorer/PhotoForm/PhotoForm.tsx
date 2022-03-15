@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { parseHEIC } from "../../../_lib/heic-parser";
+import { extractExifTags } from "../../../_lib/heic-parser";
 import { RawPhoto } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
@@ -112,7 +112,7 @@ function PhotoForm({
   }, []);
 
   const fileInputHandler = useCallback(
-    async (event: React.ChangeEvent): Promise<void> => {
+    (event: React.ChangeEvent): void => {
       const inputElem = event.target as HTMLInputElement;
       const fileList = inputElem.files;
 
@@ -121,7 +121,7 @@ function PhotoForm({
         return;
       }
 
-      parseHEIC(await fileList[0].arrayBuffer());
+      extractExifTags(fileList[0]);
 
       // const files = Array(fileList.length)
       //   .fill(null)
