@@ -1,7 +1,4 @@
-import {
-  COMPONENT_SIZE_BY_FORMAT,
-  TAG_NAME_BY_TAG_ID,
-} from "../../../constants/image-file-directory.constant";
+import { COMPONENT_SIZE_BY_FORMAT } from "../../../constants/image-file-directory.constant";
 import { readDataViewAsString } from "../../../utils";
 
 enum TagFormat {
@@ -38,6 +35,7 @@ enum ActualNumberType {
 export type IFDPayload = string | number | number[];
 
 export interface IIFDEntry {
+  id: number;
   formatString: string;
   payload: IFDPayload;
   isExifOffset: boolean;
@@ -45,14 +43,14 @@ export interface IIFDEntry {
 }
 
 export class IFDEntry implements IIFDEntry {
-  private _tag: number;
+  private _id: number;
   private _format: number;
   private _componentCount: number;
   private _rawPayload: number; // NOTE: 데이터 크기가 4 Bytes 이상인 경우, 데이터가 위치한 Offset이 기록되어 있습니다.
   private _resolvedPayload: IFDPayload;
 
-  get tagString(): string {
-    return TAG_NAME_BY_TAG_ID[this._tag] ?? "Unknown";
+  get id(): number {
+    return this._id;
   }
 
   get formatString(): string {
@@ -64,15 +62,15 @@ export class IFDEntry implements IIFDEntry {
   }
 
   get isExifOffset(): boolean {
-    return this._tag === 0x8769;
+    return this._id === 0x8769;
   }
 
   get isGPSInfo(): boolean {
-    return this._tag === 0x8825;
+    return this._id === 0x8825;
   }
 
   constructor(dataView: DataView, offset: number, isLittle: boolean) {
-    this._tag = dataView.getUint16(offset, isLittle);
+    this._id = dataView.getUint16(offset, isLittle);
     this._format = dataView.getUint16(offset + 2, isLittle);
     this._componentCount = dataView.getUint32(offset + 4, isLittle);
     this._rawPayload = dataView.getUint32(offset + 8, isLittle);

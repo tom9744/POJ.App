@@ -1,3 +1,7 @@
+import {
+  GPS_TAG_NAME_BY_TAG_ID,
+  TAG_NAME_BY_TAG_ID,
+} from "../../constants/image-file-directory.constant";
 import { readDataViewAsString } from "../../utils";
 import { IFD0 } from "./ImageFileDirectory/IFD0.model";
 import { IFDEntry, IFDPayload } from "./ImageFileDirectory/IFDEntry.model";
@@ -23,6 +27,7 @@ export class ExifData {
   private _IFD0: IFD0 | null = null;
   private _IFD1: ImageFileDirectory | null = null;
   private _EXIF: ImageFileDirectory | null = null;
+  private _GPS: ImageFileDirectory | null = null;
 
   get IFD0(): IFDEntrySummary | null {
     if (!this._IFD0?.entries) {
@@ -43,6 +48,13 @@ export class ExifData {
       return null;
     }
     return this.formatEntries(this._EXIF.entries);
+  }
+
+  get GPS(): IFDEntrySummary | null {
+    if (!this._GPS?.entries) {
+      return null;
+    }
+    return this.formatGPSEntries(this._GPS.entries);
   }
 
   constructor(arrayBuffer: ArrayBuffer, offset: number, length: number) {
@@ -68,6 +80,14 @@ export class ExifData {
       this._EXIF = new ImageFileDirectory(
         dataView,
         this._IFD0.offsetToEXIF,
+        this._isLittle
+      );
+    }
+
+    if (this._IFD0.offsetToGPS && this._IFD0.offsetToGPS > 0) {
+      this._GPS = new ImageFileDirectory(
+        dataView,
+        this._IFD0.offsetToGPS,
         this._isLittle
       );
     }
@@ -110,7 +130,43 @@ export class ExifData {
 
   private formatEntries(entries: IFDEntry[]): IFDEntrySummary {
     return entries.reduce((acc, entry) => {
-      acc[entry.tagString] = entry.payload;
+      const tagName = TAG_NAME_BY_TAG_ID[entry.id] ?? "Unknown";
+
+      acc[tagName] = entry.payload;
+
+      return acc;
+    }, {} as IFDEntrySummary);
+  }
+
+  private formatGPSEntries(entries: IFDEntry[]): IFDEntrySummary {
+    return entries.reduce((acc, { id, payload }) => {
+      const tagName = GPS_TAG_NAME_BY_TAG_ID[id];
+
+      if (!tagName) {
+        return acc;
+      }
+
+      if (!Array.isArray(payload)) {
+        acc[tagName] = payload;
+        return acc;
+      }
+
+      switch (tagName) {
+        case "GPSTimeStamp":
+          const timeStamp = payload
+            .map((value) => (value < 10 ? `0${value}` : `${value}`))
+            .join(":");
+          acc[tagName] = timeStamp;
+          break;
+        case "GPSLongitude":
+        case "GPSDestLongitude":
+        case "GPSLatitude":
+        case "GPSDestLatitude":
+          const [degree, minutes, seconds] = [...payload];
+          acc[tagName] = degree + minutes / 60 + seconds / 3600;
+          break;
+      }
+
       return acc;
     }, {} as IFDEntrySummary);
   }
