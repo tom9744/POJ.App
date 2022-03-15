@@ -182,7 +182,16 @@ export class IFDEntry implements IIFDEntry {
       return result;
     };
     const resolveStringData = (): string => {
-      return readDataViewAsString(dataView, dataOffset, this._componentCount);
+      const result = readDataViewAsString(
+        dataView,
+        dataOffset,
+        this._componentCount
+      );
+      const firstNullIndex = result.indexOf("\0");
+
+      return firstNullIndex !== -1
+        ? result.substring(0, firstNullIndex)
+        : result;
     };
 
     switch (this._format) {

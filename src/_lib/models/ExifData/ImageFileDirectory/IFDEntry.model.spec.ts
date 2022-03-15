@@ -11,7 +11,7 @@ describe("IFD Entry w/ ASCII String Data.", () => {
   it("should successfully read its actual data.", () => {
     const data = entry.payload;
 
-    expect(data).toBe("Apple\0");
+    expect(data).toBe("Apple");
   });
 });
 
