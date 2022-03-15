@@ -10,6 +10,29 @@ function isAllowedFileType(fileType: string): boolean {
   return fileType === AllowedFileType.HEIC || fileType === AllowedFileType.JPEG;
 }
 
+function findApp1Marker(arrayBuffer: ArrayBuffer): {
+  offset: number;
+  size: number;
+} {
+  const dataView = new DataView(arrayBuffer);
+
+  for (let offset = 0; offset < arrayBuffer.byteLength - 2; offset += 2) {
+    const value = dataView.getUint16(offset);
+
+    // NOTE: App1 Marker, Exif 데이터 포함.
+    if (value === 0xffe1) {
+      return { offset, size: dataView.getUint16(offset + 2) };
+    }
+
+    // NOTE: Start of Scan, 헤더 영역 종료.
+    if (value === 0xffda) {
+      break;
+    }
+  }
+
+  throw new Error("Could not find an APP1 marker from the array buffer");
+}
+
 function parseHEIC(arrayBuffer: ArrayBuffer) {
   if (!arrayBuffer) {
     return;
@@ -39,8 +62,10 @@ function parseHEIC(arrayBuffer: ArrayBuffer) {
   console.log(exifData);
 }
 
-function parseJPEG(arrayBuffer: ArrayBuffer) {
-  console.log("JPEG!");
+function parseJPEG(arrayBuffer: ArrayBuffer): ExifData {
+  const { offset, size } = findApp1Marker(arrayBuffer);
+
+  return new ExifData(arrayBuffer, offset, size);
 }
 
 export async function extractExifTags(file: File) {
