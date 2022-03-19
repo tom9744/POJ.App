@@ -1,0 +1,50 @@
+@import "../../assets/scss/variables.scss";
+
+.PasscodeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  width: 100%;
+
+  background-color: white;
+
+  .Message {
+    margin-bottom: 10px;
+
+    font-size: 1.25rem;
+  }
+
+  .InputWrapper {
+    width: 200px;
+  }
+
+  .ConfirmButton {
+    all: unset;
+
+    height: 35px;
+    width: 80px;
+
+    color: white;
+    background-color: $base-color;
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: box-shadow 0.25s;
+
+    &:hover {
+      box-shadow: $base-color 0px 0px 0px 2px inset;
+    }
+
+    &:disabled,
+    &:disabled:hover {
+      color: $disabled-color;
+      background-color: rgba($disabled-color, 0.5);
+      box-shadow: unset;
+      cursor: default;
+    }
+  }
+}
