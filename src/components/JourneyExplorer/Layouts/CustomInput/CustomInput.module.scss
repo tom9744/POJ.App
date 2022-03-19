@@ -1,25 +1,33 @@
 @import "../../../../assets/scss/variables.scss";
 
 .text-input-wrapper {
-  height: 100%;
-  width: 100%;
+  margin-bottom: 10px;
+
+  &.small {
+    width: 200px;
+  }
+
+  &.medium {
+    width: 250px;
+  }
+
+  &.large {
+    width: 300px;
+  }
 
   label,
-  small {
+  .error-message {
     display: flex;
     align-items: center;
 
     height: 20px;
     width: 100%;
 
-    font-size: 0.8rem;
     text-align: start;
   }
 
-  small {
+  .error-message {
     color: red;
-
-    margin-bottom: 10px;
   }
 
   input {

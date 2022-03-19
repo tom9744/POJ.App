@@ -6,28 +6,32 @@ import classes from "./CustomInput.module.scss";
 type CustomInputProps = {
   type: string;
   id: string;
-  label: string;
+  size?: "small" | "medium" | "large";
+  label?: string;
   autoComplete?: boolean;
+  autoFocus?: boolean;
   validators?: Array<(value: string) => boolean | string>;
   onChange: (value: string, isValid: boolean) => void;
 };
 
 function CustomInput({
-  id,
   type,
-  label,
+  id,
+  size = "medium",
+  label = "",
   autoComplete = false,
+  autoFocus = false,
   validators = [],
   onChange,
 }: CustomInputProps) {
   const [enteredValue, setEnteredValue] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
-    setHasError(!isValid && isTouched);
+    setShowMessage(!isValid && isTouched);
   }, [isValid, isTouched]);
 
   useEffect(() => {
@@ -54,17 +58,22 @@ function CustomInput({
   }, []);
 
   return (
-    <div className={`text-input ${classes["text-input-wrapper"]}`}>
-      <label htmlFor={id}>{label}</label>
+    <div className={`${classes["text-input-wrapper"]} ${classes[size]}`}>
+      {label ? <label htmlFor={id}>{label}</label> : null}
+
       <input
         type={type}
         id={id}
         value={enteredValue}
+        autoComplete={autoComplete ? "on" : "off"}
+        autoFocus={autoFocus}
         onChange={changeHandler}
         onBlur={blurHandler}
-        autoComplete={autoComplete ? "on" : "off"}
       />
-      <small>{hasError && errorMessage}</small>
+
+      <small className={classes["error-message"]}>
+        {showMessage && errorMessage}
+      </small>
     </div>
   );
 }
