@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { extractExifTags } from "../../../_lib/heic-parser";
 import { RawPhoto } from "../Journey.interface";
 import ExplorerHeader from "../Layouts/ExplorerHeader/ExplorerHeader";
 import classes from "./PhotoForm.module.scss";
@@ -40,7 +47,12 @@ async function readFilesAsDataURL(files: File[]): Promise<string[]> {
   return imageSrcList;
 }
 
-function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormProps) {
+function PhotoForm({
+  isActive,
+  journeyTitle,
+  onUpload,
+  onCloseForm,
+}: PhotoFormProps) {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
@@ -81,7 +93,9 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
 
       // NOTE: Web Worker can't process HTMLImageElemnet Type. So, convert to ImageBitmap
       const bitmaps = await Promise.all(
-        imageElems.map((imageElem) => createImageBitmap(imageElem, 0, 0, imageElem.width, imageElem.height))
+        imageElems.map((imageElem) =>
+          createImageBitmap(imageElem, 0, 0, imageElem.width, imageElem.height)
+        )
       );
 
       worker.postMessage(bitmaps);
@@ -98,7 +112,7 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
   }, []);
 
   const fileInputHandler = useCallback(
-    async (event: React.ChangeEvent): Promise<void> => {
+    (event: React.ChangeEvent): void => {
       const inputElem = event.target as HTMLInputElement;
       const fileList = inputElem.files;
 
@@ -107,15 +121,17 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
         return;
       }
 
-      const files = Array(fileList.length)
-        .fill(null)
-        .map((_, index) => fileList[index]);
+      extractExifTags(fileList[0]);
 
-      setPhotoFiles(files); // NOTE: Files to be uploaded to the server.
+      // const files = Array(fileList.length)
+      //   .fill(null)
+      //   .map((_, index) => fileList[index]);
 
-      const imageUrls = await readFilesAsDataURL(files);
+      // setPhotoFiles(files); // NOTE: Files to be uploaded to the server.
 
-      resizeImages(imageUrls);
+      // const imageUrls = await readFilesAsDataURL(files);
+
+      // resizeImages(imageUrls);
     },
     [resizeImages]
   );
@@ -168,7 +184,10 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
     const maxWidth = currentTarget.scrollWidth; // Element's width (w/ invisible content)
     const unitWidth = currentTarget.clientWidth; // Element's width (w/o invisible content)
 
-    let nextScrollPosition = deltaY > 0 ? currScrollPosition + unitWidth : currScrollPosition - unitWidth;
+    let nextScrollPosition =
+      deltaY > 0
+        ? currScrollPosition + unitWidth
+        : currScrollPosition - unitWidth;
 
     if (nextScrollPosition < 0) {
       nextScrollPosition = 0;
@@ -195,17 +214,40 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
 
   return (
     <React.Fragment>
-      <div className={`${classes["uploader-fallback"]} ${isActive ? classes.active : classes.deactive}`}></div>
+      <div
+        className={`${classes["uploader-fallback"]} ${
+          isActive ? classes.active : classes.deactive
+        }`}
+      ></div>
 
-      <div className={`${classes["uploader-wrapper"]} ${isActive ? classes.active : classes.deactive}`}>
-        <ExplorerHeader rightButtons={[{ type: "text", textContent: "닫기", handler: onCloseForm }]}></ExplorerHeader>
+      <div
+        className={`${classes["uploader-wrapper"]} ${
+          isActive ? classes.active : classes.deactive
+        }`}
+      >
+        <ExplorerHeader
+          rightButtons={[
+            { type: "text", textContent: "닫기", handler: onCloseForm },
+          ]}
+        ></ExplorerHeader>
 
         <div className={classes["uploader-content"]}>
           <div className={classes["uploader-content-section"]}>
-            <div className={classes.preview} onWheel={(event) => moveToNextPhoto(event)} ref={previewContainer}>
+            <div
+              className={classes.preview}
+              onWheel={(event) => moveToNextPhoto(event)}
+              ref={previewContainer}
+            >
               {photoPreviews.length > 0 ? (
                 photoPreviews.map((previewURL, index) => {
-                  return <img src={previewURL} alt="" key={index} data-index={index} />;
+                  return (
+                    <img
+                      src={previewURL}
+                      alt=""
+                      key={index}
+                      data-index={index}
+                    />
+                  );
                 })
               ) : (
                 <div className={classes["preview-placeholder"]}></div>
@@ -223,7 +265,14 @@ function PhotoForm({ isActive, journeyTitle, onUpload, onCloseForm }: PhotoFormP
           <div className={classes["uploader-content-section"]}>
             <form className={classes.form}>
               <label htmlFor="newPhotos"></label>
-              <input type="file" id="newPhotos" accept=".jpg" onChange={fileInputHandler} multiple ref={photoInput} />
+              <input
+                type="file"
+                id="newPhotos"
+                accept="image/heic, image/jpeg"
+                onChange={fileInputHandler}
+                multiple
+                ref={photoInput}
+              />
 
               <div className={classes["button-wrapper"]}>
                 <button onClick={openPhotoInput}>사진 추가</button>
