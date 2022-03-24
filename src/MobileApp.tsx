@@ -1,8 +1,9 @@
 import React from "react";
 import "./MobileApp.scss";
-import Passcode from "./components/Passcode/Passcode";
+import Passcode from "./pages/Passcode/Passcode";
 import Header from "./components/UI/Header/Header";
 import { useMobileAppState } from "./MobileAppProvider";
+import JourneyList from "./pages/JourneyList/JourneyList";
 
 function MobileApp() {
   const state = useMobileAppState();
@@ -10,7 +11,7 @@ function MobileApp() {
   return (
     <main className="mobile-app">
       <Header></Header>
-      {state.isAuthorized ? <article></article> : <Passcode></Passcode>}
+      {state.isAuthorized ? <JourneyList></JourneyList> : <Passcode></Passcode>}
     </main>
   );
 }

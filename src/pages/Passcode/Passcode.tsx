@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useMobileAppDispatch } from "../../MobileAppProvider";
-import CustomInput from "../JourneyExplorer/Layouts/CustomInput/CustomInput";
-import SquareButton from "../UI/SquareButton/SquareButton";
+import CustomInput from "../../components/JourneyExplorer/Layouts/CustomInput/CustomInput";
+import SquareButton from "../../components/UI/SquareButton/SquareButton";
 import classes from "./Passcode.module.scss";
 
 const 기념일 = "2020-01-18";
@@ -32,12 +32,7 @@ export default function PassCode() {
       <span className={classes.Message}>기념일을 입력해주세요.</span>
 
       <form className={classes.InputWrapper} onSubmit={submitHandler}>
-        <CustomInput
-          type="date"
-          id="passcode"
-          size="small"
-          onChange={changeHandler}
-        ></CustomInput>
+        <CustomInput type="date" id="passcode" size="small" onChange={changeHandler}></CustomInput>
 
         <SquareButton text="확인" size="small"></SquareButton>
       </form>

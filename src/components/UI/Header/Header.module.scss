@@ -4,21 +4,31 @@
   position: absolute;
   top: 0;
 
+  display: flex;
+  align-items: center;
+
   width: 100%;
   min-width: 360px;
   max-width: 420px;
 
-  padding: 0px 16px;
+  padding: 0.75rem 1rem;
+
+  text-align: start;
 
   background-color: white;
 
-  .heading {
-    display: flex;
+  .icon {
+    height: 1.75rem;
+    width: auto;
 
-    height: 40px;
+    margin-right: 0.5rem;
+  }
+
+  .heading {
+    height: 1.75rem;
     width: 100%;
 
-    line-height: 40px;
-    font-size: 1.5rem;
+    line-height: 2rem;
+    font-size: 1.75rem;
   }
 }
