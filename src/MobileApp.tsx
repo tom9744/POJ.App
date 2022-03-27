@@ -1,11 +1,10 @@
 import "./MobileApp.scss";
+import { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useMobileAppState } from "./MobileAppProvider";
 import Passcode from "./pages/Passcode/Passcode";
 import Header from "./components/UI/Header/Header";
 import JourneyList from "./pages/JourneyList/JourneyList";
-import Footer from "./components/UI/Footer/Footer";
-import { useEffect } from "react";
 
 function MobileApp() {
   const appState = useMobileAppState();
@@ -26,8 +25,6 @@ function MobileApp() {
         <Route path="/" element={<JourneyList></JourneyList>}></Route>
         <Route path="/auth" element={<Passcode></Passcode>}></Route>
       </Routes>
-
-      {appState.isAuthorized ? <Footer></Footer> : null}
     </main>
   );
 }

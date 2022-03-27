@@ -1,3 +1,4 @@
+import Footer from "../../components/UI/Footer/Footer";
 import { useJourneyList } from "./hooks/useJourneyList";
 import classes from "./JourneyList.module.scss";
 import JourneyListItem from "./JourneyListItem/JourneyListItem";
@@ -15,6 +16,8 @@ function JourneyList() {
           return <JourneyListItem key={journey.id} journey={journey}></JourneyListItem>;
         })}
       </ul>
+
+      <Footer></Footer>
     </article>
   );
 }
