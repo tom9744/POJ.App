@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMobileAppDispatch } from "../../MobileAppProvider";
 import CustomInput from "../../components/JourneyExplorer/Layouts/CustomInput/CustomInput";
 import SquareButton from "../../components/UI/SquareButton/SquareButton";
@@ -9,6 +10,7 @@ const 기념일 = "2020-01-18";
 export default function PassCode() {
   const [passcode, setPasscode] = useState("");
   const dispatch = useMobileAppDispatch();
+  const navigate = useNavigate();
 
   const changeHandler = useCallback((value: string): void => {
     setPasscode(value);
@@ -23,6 +25,7 @@ export default function PassCode() {
       }
 
       dispatch({ name: "AUTHORIZE_USER" });
+      navigate("/", { replace: true });
     },
     [passcode, dispatch]
   );
