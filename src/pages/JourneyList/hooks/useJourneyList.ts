@@ -111,6 +111,8 @@ export const useJourneyList = () => {
         setJourneyList(journeyList);
       })
       .catch((error) => console.error(error));
+
+    return () => setJourneyList([]);
   }, [sendRequest, sortByElapsedDate]);
 
   return {
