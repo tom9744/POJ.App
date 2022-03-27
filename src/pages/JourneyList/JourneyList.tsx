@@ -12,7 +12,7 @@ function JourneyList() {
 
       <ul className={classes["journey-list-wrapper"]}>
         {journeyList.map((journey) => {
-          return <JourneyListItem journey={journey}></JourneyListItem>;
+          return <JourneyListItem key={journey.id} journey={journey}></JourneyListItem>;
         })}
       </ul>
     </article>
