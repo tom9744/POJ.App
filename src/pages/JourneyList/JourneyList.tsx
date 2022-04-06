@@ -1,4 +1,5 @@
 import Footer from "../../components/UI/Footer/Footer";
+import Header from "../../components/UI/Header/Header";
 import { useJourneyList } from "./hooks/useJourneyList";
 import classes from "./JourneyList.module.scss";
 import JourneyListItem from "./JourneyListItem/JourneyListItem";
@@ -9,6 +10,8 @@ function JourneyList() {
 
   return (
     <article className={classes["journey-list-container"]}>
+      <Header></Header>
+
       <SearchBar></SearchBar>
 
       <ul className={classes["journey-list-wrapper"]}>
