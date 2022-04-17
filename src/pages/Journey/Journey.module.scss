@@ -1,0 +1,99 @@
+@import "../../assets/scss/variables.scss";
+
+.journey-container {
+  height: 100%;
+  width: 100%;
+
+  background-color: white;
+
+  overflow: hidden scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    height: 3.25rem;
+    width: 100%;
+    min-width: 360px;
+    max-width: 420px;
+
+    padding: 0.75rem 1rem;
+
+    .header-button {
+      all: unset;
+      cursor: pointer;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+  }
+
+  .journey-content-section {
+    padding: 1.5rem;
+
+    &:last-child {
+      flex: 1;
+    }
+
+    .title {
+      margin-bottom: 1rem;
+
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .description {
+      font-size: 0.85rem;
+      color: rgb(125, 125, 125);
+    }
+
+    .button-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-top: 1rem;
+
+      button {
+        all: unset;
+
+        height: 25px;
+        width: 100px;
+
+        margin: 0px 5px;
+
+        color: white;
+        background-color: $base-color;
+        border-radius: 25px;
+
+        cursor: pointer;
+
+        transition: box-shadow 0.25s;
+
+        &:hover {
+          box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
+        }
+
+        &:disabled,
+        &:disabled:hover {
+          color: $disabled-color;
+          background-color: rgba($disabled-color, 0.5);
+          box-shadow: unset;
+          cursor: default;
+        }
+      }
+    }
+  }
+
+  .divider {
+    width: calc(100% - 25px);
+    margin: 10px;
+    border-top: 1px solid rgb(239, 239, 240);
+  }
+}
