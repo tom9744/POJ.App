@@ -66,12 +66,12 @@ class Journey implements IJoureny {
 
   private _startDate: string;
   get startDate(): string {
-    return this._startDate;
+    return this.prettifyDate(this._startDate);
   }
 
   private _endDate: string;
   get endDate(): string {
-    return this._endDate;
+    return this.prettifyDate(this._endDate);
   }
 
   private _elapsedDate: IElapsedDate;
@@ -93,6 +93,10 @@ class Journey implements IJoureny {
     this._elapsedDate = new ElapsedDate(arg.startDate);
     this._photos = arg.photos;
   }
+
+  private prettifyDate = (date: string): string => {
+    return date.substring(0, 10).replace(/-/g, ".");
+  };
 }
 
 export const useJourneyList = () => {
