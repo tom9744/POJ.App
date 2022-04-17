@@ -1,19 +1,15 @@
 import { ExifData } from "./models/ExifData/ExifData.model";
 import { MetaBox } from "./models/MetaBox/MetaBox.model";
 
-enum AllowedFileType {
-  JPEG = "image/jpeg",
-  HEIC = "image/heic",
+type App1Marker = { offset: number; size: number };
+
+type AllowedFileType = "image/jpeg" | "image/heic";
+
+function isAllowedFileType(fileType: string): fileType is AllowedFileType {
+  return fileType === "image/jpeg" || fileType === "image/heic";
 }
 
-function isAllowedFileType(fileType: string): boolean {
-  return fileType === AllowedFileType.HEIC || fileType === AllowedFileType.JPEG;
-}
-
-function findApp1Marker(arrayBuffer: ArrayBuffer): {
-  offset: number;
-  size: number;
-} {
+function findApp1Marker(arrayBuffer: ArrayBuffer): App1Marker | undefined {
   const dataView = new DataView(arrayBuffer);
 
   for (let offset = 0; offset < arrayBuffer.byteLength - 2; offset += 2) {
@@ -29,11 +25,9 @@ function findApp1Marker(arrayBuffer: ArrayBuffer): {
       break;
     }
   }
-
-  throw new Error("Could not find an APP1 marker from the array buffer");
 }
 
-function parseHEIC(arrayBuffer: ArrayBuffer) {
+function parseHEIC(arrayBuffer: ArrayBuffer): ExifData | undefined {
   if (!arrayBuffer) {
     return;
   }
@@ -45,42 +39,46 @@ function parseHEIC(arrayBuffer: ArrayBuffer) {
     return;
   }
 
-  const exifItemLocation = metaBox.itemLocationBox?.finditemLocationById(
-    exifItemInfo.itemId
-  );
+  const exifItemLocation = metaBox.itemLocationBox?.finditemLocationById(exifItemInfo.itemId);
 
   if (!exifItemLocation?.extentInfos?.[0]) {
     return;
   }
 
-  const exifData = new ExifData(
-    arrayBuffer,
-    exifItemLocation.extentInfos[0].extentOffset,
-    exifItemLocation.extentInfos[0].extentLength
-  );
-
-  console.log(exifData);
+  return new ExifData(arrayBuffer, exifItemLocation.extentInfos[0].extentOffset, exifItemLocation.extentInfos[0].extentLength);
 }
 
-function parseJPEG(arrayBuffer: ArrayBuffer): ExifData {
-  const { offset, size } = findApp1Marker(arrayBuffer);
+function parseJPEG(arrayBuffer: ArrayBuffer): ExifData | undefined {
+  const marker = findApp1Marker(arrayBuffer);
 
-  return new ExifData(arrayBuffer, offset, size);
-}
-
-export async function extractExifTags(file: File) {
-  if (!file || !isAllowedFileType(file.type)) {
+  if (!marker) {
     return;
+  }
+
+  return new ExifData(arrayBuffer, marker.offset, marker.size);
+}
+
+export async function extractExifTags(file: File): Promise<ExifData | null> {
+  if (!file) {
+    throw new Error(`No file has been provided.`);
+  }
+
+  if (!isAllowedFileType(file.type)) {
+    throw new Error(`The file tpye is not supported, ${file.type}`);
   }
 
   const arrayBuffer = await file.arrayBuffer();
 
+  let result: ExifData | null = null;
+
   switch (file.type) {
-    case AllowedFileType.HEIC:
-      parseHEIC(arrayBuffer);
+    case "image/heic":
+      result = parseHEIC(arrayBuffer) ?? null;
       break;
-    case AllowedFileType.JPEG:
-      parseJPEG(arrayBuffer);
+    case "image/jpeg":
+      result = parseJPEG(arrayBuffer) ?? null;
       break;
   }
+
+  return result;
 }

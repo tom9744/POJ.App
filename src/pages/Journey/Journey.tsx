@@ -4,10 +4,11 @@ import { useJourney } from "../JourneyList/hooks/useJourneyList";
 import useHttp from "../../hooks/useHttp";
 import classes from "./Journey.module.scss";
 import PhotoGrid from "../../components/UI/PhotoGrid/PhotoGrid";
+import { IPhotoData } from "../JourneyList/JourneyData.model";
 
 function Journey() {
   const { jourenyId } = useParams();
-  const { journey } = useJourney(Number(jourenyId));
+  const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
   const { requestState, sendRequest: deleteJourney } = useHttp<void>();
 
   const photoInput = useRef<HTMLInputElement>(null);
@@ -17,14 +18,41 @@ function Journey() {
     navigate(-1);
   }, [navigate]);
 
-  const inputChangeHandler = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files;
+  const inputChangeHandler = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const fileList = event.target.files;
 
-    if (!fileList?.length) {
-      alert("사진이 선택되지 않았습니다.");
-      return;
-    }
-  }, []);
+      if (!journey?.title || !fileList?.length) {
+        alert("선택된 사진이 없습니다. 업로드 할 사진을 선택해주세요.");
+        return;
+      }
+
+      const formData = new FormData();
+      Array.from(fileList).forEach((file) => {
+        formData.append(`images`, file);
+      });
+      formData.append("journeyTitle", journey.title);
+
+      const response = await fetch("https://var-resa.link/photos", {
+        method: "POST",
+        headers: [
+          ["Access-Control-Allow-Origin", "*"],
+          ["Access-Control-Allow-Headers", "Content-Type"],
+        ],
+        body: formData,
+      });
+
+      if (!response.ok) {
+        alert("업로드 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+
+      const uploadedPhotos: IPhotoData[] = await response.json();
+
+      setPhotoList([...photoList, ...uploadedPhotos]);
+    },
+    [journey, photoList, setPhotoList]
+  );
 
   const uploadPhotoHandler = useCallback((): void => {
     if (!photoInput?.current) {
@@ -68,10 +96,10 @@ function Journey() {
       <section className={classes["journey-content-section"]}>
         <h3 className={classes.title}>{journey.title}</h3>
         <p className={classes.description}>{`${journey.startDate} - ${journey.endDate}`}</p>
-        <p className={classes.description}>총 {journey.photos.length} 장의 사진</p>
+        <p className={classes.description}>총 {photoList.length} 장의 사진</p>
 
         <div className={classes["button-wrapper"]}>
-          <input type="file" accept="image/heic, image/jpeg" name="upload" id="upload" multiple={true} ref={photoInput} onChange={inputChangeHandler} />
+          <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInput} onChange={inputChangeHandler} />
           <button disabled={requestState.showLoading} onClick={uploadPhotoHandler}>
             사진 추가
           </button>
@@ -81,7 +109,7 @@ function Journey() {
       <div className={classes.divider}></div>
 
       <section className={classes["journey-content-section"]}>
-        <PhotoGrid photoList={journey.photos}></PhotoGrid>
+        <PhotoGrid photoList={photoList}></PhotoGrid>
       </section>
     </article>
   ) : null;

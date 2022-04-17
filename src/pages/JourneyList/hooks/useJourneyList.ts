@@ -124,6 +124,7 @@ export const useJourneyList = () => {
 
 export const useJourney = (journeyId: number) => {
   const [journey, setJourney] = useState<IJoureny | null>(null);
+  const [photoList, setPhotoList] = useState<IPhotoData[]>([]);
   const { requestState, sendRequest } = useHttp<IJourneyData>();
 
   const sortByElapsedDate = useCallback((itemA: IJoureny, itemB: IJoureny) => {
@@ -133,17 +134,21 @@ export const useJourney = (journeyId: number) => {
   useEffect(() => {
     if (!journeyId) {
       setJourney(null);
+      setPhotoList([]);
       return;
     }
 
     sendRequest({ url: `${BASE_URL}/journeys/${journeyId}` })
-      .then((jourenyData) => {
-        setJourney(new Journey(jourenyData));
+      .then((journeyData) => {
+        const journey = new Journey(journeyData);
+
+        setJourney(journey);
+        setPhotoList(journey.photos);
       })
       .catch((error) => console.error(error));
 
     return () => setJourney(null);
   }, [journeyId, sendRequest, sortByElapsedDate]);
 
-  return { requestState, journey };
+  return { requestState, journey, photoList, setPhotoList };
 };
