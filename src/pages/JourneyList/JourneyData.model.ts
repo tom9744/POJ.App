@@ -4,7 +4,8 @@ export interface IPhotoData {
   latitude: number;
   longitude: number;
   modifyDate: string;
-  path: string;
+  originalPath: string;
+  thumbnailPath: string;
 }
 
 export interface IJourneyData {

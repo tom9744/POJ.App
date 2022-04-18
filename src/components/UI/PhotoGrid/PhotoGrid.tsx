@@ -10,7 +10,7 @@ function PhotoGrid({ photoList }: PhotoGridProps) {
     <div className={classes["photo-grid"]}>
       {photoList.map((photo, index) => (
         <div key={photo.id} className={classes["photo-cell"]}>
-          <img className={classes.image} src={photo.path} alt={`${index + 1}번 이미지`} height={250} width={250} />
+          <img className={classes.image} src={photo.thumbnailPath} alt={`${index + 1}번 이미지`} height={250} width={250} />
         </div>
       ))}
     </div>
