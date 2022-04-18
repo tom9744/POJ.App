@@ -1,6 +1,8 @@
 @import "../../assets/scss/variables.scss";
 
 .journey-container {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
 
@@ -8,7 +10,7 @@
 
   background-color: white;
 
-  overflow: hidden scroll;
+  overflow: hidden;
 
   &::-webkit-scrollbar {
     display: none;
@@ -45,6 +47,8 @@
 
     &:last-child {
       flex: 1;
+
+      overflow: scroll;
     }
 
     .title {
