@@ -1,18 +1,26 @@
-import { useCallback, useRef } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useJourney } from "../JourneyList/hooks/useJourneyList";
-import useHttp from "../../hooks/useHttp";
 import classes from "./Journey.module.scss";
 import PhotoGrid from "../../components/UI/PhotoGrid/PhotoGrid";
 import { IPhotoData } from "../JourneyList/JourneyData.model";
+import { FaRegTrashAlt } from "react-icons/fa";
+import useHttp from "../../hooks/useHttp";
+
+type Mode = "View" | "Edit";
 
 function Journey() {
+  const navigate = useNavigate();
+  const photoInput = useRef<HTMLInputElement>(null);
+
   const { jourenyId } = useParams();
   const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
-  const { requestState, sendRequest: deleteJourney } = useHttp<void>();
+  const { sendRequest: deletePhoto } = useHttp<void>();
 
-  const photoInput = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+  const [mode, setMode] = useState<Mode>("View");
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([]);
+
+  const isEditMode = useMemo(() => mode === "Edit", [mode]);
 
   const navigateBack = useCallback((): void => {
     navigate(-1);
@@ -61,23 +69,39 @@ function Journey() {
     photoInput.current.click();
   }, []);
 
-  const deletePhotoHandler = useCallback(async (): Promise<void> => {
-    // TODO: Implement Confrimation Modal
-    if (!journey || !window.confirm("정말 일정을 삭제하시겠습니까?")) {
+  const changeModeHandler = useCallback((): void => {
+    if (mode === "Edit") {
+      setMode("View");
+      setSelectedPhotoIds([]);
       return;
     }
+    setMode("Edit");
+  }, [mode]);
 
-    try {
-      await deleteJourney({
-        url: `https://var-resa.link/journeys/${journey.id}`,
-        options: { method: "DELETE" },
-      });
+  const selectPhotoHandler = useCallback(
+    (photoId: number): void => {
+      if (!isEditMode) {
+        return;
+      }
 
-      navigateBack();
-    } catch (error) {
-      console.error(error);
-    }
-  }, [journey, deleteJourney, navigateBack]);
+      if (selectedPhotoIds.includes(photoId)) {
+        setSelectedPhotoIds(selectedPhotoIds.filter((id) => id !== photoId));
+        return;
+      }
+
+      setSelectedPhotoIds([...selectedPhotoIds, photoId]);
+    },
+    [isEditMode, selectedPhotoIds]
+  );
+
+  const deletePhotoHandler = useCallback(async () => {
+    const remainingPhotoList = photoList.filter((photo) => !selectedPhotoIds.includes(photo.id));
+
+    setPhotoList(remainingPhotoList);
+    setMode("View");
+
+    Promise.all(selectedPhotoIds.map(async (id) => await deletePhoto({ url: `https://var-resa.link/photos/${id}`, options: { method: "DELETE" } })));
+  }, [photoList, selectedPhotoIds, setPhotoList, deletePhoto]);
 
   return journey ? (
     <article className={classes["journey-container"]}>
@@ -88,9 +112,17 @@ function Journey() {
 
         <div className={classes.spacer}></div>
 
-        <button className={classes["header-button"]} onClick={deletePhotoHandler}>
-          삭제
-        </button>
+        {isEditMode ? (
+          <React.Fragment>
+            <button className={classes["header-button"]} onClick={changeModeHandler}>
+              취소
+            </button>
+          </React.Fragment>
+        ) : (
+          <button className={classes["header-button"]} onClick={changeModeHandler}>
+            편집
+          </button>
+        )}
       </section>
 
       <section className={classes["journey-content-section"]}>
@@ -100,7 +132,7 @@ function Journey() {
 
         <div className={classes["button-wrapper"]}>
           <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInput} onChange={inputChangeHandler} />
-          <button disabled={requestState.showLoading} onClick={uploadPhotoHandler}>
+          <button disabled={isEditMode} onClick={uploadPhotoHandler}>
             사진 추가
           </button>
         </div>
@@ -109,8 +141,14 @@ function Journey() {
       <div className={classes.divider}></div>
 
       <section className={classes["journey-content-section"]}>
-        <PhotoGrid photoList={photoList}></PhotoGrid>
+        <PhotoGrid photoList={photoList} selectedPhotoIds={selectedPhotoIds} onSelectPhoto={selectPhotoHandler}></PhotoGrid>
       </section>
+
+      {isEditMode ? (
+        <section className={classes.footer}>
+          <FaRegTrashAlt className={`${classes.icon} ${selectedPhotoIds.length > 0 ? "" : classes.disabled}`} onClick={deletePhotoHandler}></FaRegTrashAlt>
+        </section>
+      ) : null}
     </article>
   ) : null;
 }
