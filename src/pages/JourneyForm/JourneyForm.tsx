@@ -67,7 +67,7 @@ function JourneyForm() {
 
   const navigateBack = useCallback(() => {
     navigate(-1);
-  }, []);
+  }, [navigate]);
 
   return (
     <div className={classes["form-container"]}>

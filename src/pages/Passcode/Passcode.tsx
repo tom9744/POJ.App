@@ -27,7 +27,7 @@ export default function PassCode() {
       dispatch({ name: "AUTHORIZE_USER" });
       navigate("/", { replace: true });
     },
-    [passcode, dispatch]
+    [passcode, dispatch, navigate]
   );
 
   return (

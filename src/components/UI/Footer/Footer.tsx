@@ -8,7 +8,7 @@ function Footer() {
 
   const navigateToForm = useCallback(() => {
     navigate("/form");
-  }, []);
+  }, [navigate]);
 
   return (
     <footer className={classes["footer-wrapper"]} onClick={navigateToForm}>
