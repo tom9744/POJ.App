@@ -1,0 +1,43 @@
+@import "../../../assets/scss/variables.scss";
+@import "../../../assets/scss/mixins.scss";
+
+.journey-list-item-container {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-bottom: 0.5px solid rgba(226, 226, 226, 0.8);
+  text-align: start;
+  cursor: pointer;
+
+  &:first-child {
+    border-top: 0.5px solid rgba(226, 226, 226, 0.8);
+  }
+
+  .title-wrapper {
+    display: flex;
+    margin-bottom: 0.75rem;
+
+    .title {
+      @include text-ellipsis;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .elapsed-date {
+      font-size: 0.85em;
+      color: rgb(135, 135, 135);
+    }
+  }
+
+  .description-wrapper {
+    .description {
+      @include text-ellipsis;
+      width: 100%;
+      text-align: start;
+    }
+  }
+}

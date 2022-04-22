@@ -1,0 +1,10 @@
+.journey-list-container {
+  height: calc(100%);
+  width: 100%;
+  padding-top: 3.25rem;
+
+  .journey-list-wrapper {
+    height: calc(100% - 3rem);
+    overflow: hidden scroll;
+  }
+}

@@ -1,0 +1,40 @@
+@import "../../../assets/scss/variables.scss";
+
+.button {
+  all: unset;
+
+  color: white;
+  background-color: $base-color;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: box-shadow 0.25s;
+
+  &:hover {
+    box-shadow: $base-color 0px 0px 0px 2px inset;
+  }
+
+  &:disabled,
+  &:disabled:hover {
+    color: $disabled-color;
+    background-color: rgba($disabled-color, 0.5);
+    box-shadow: unset;
+    cursor: default;
+  }
+
+  &.small {
+    height: 35px;
+    width: 100px;
+  }
+
+  &.medium {
+    height: 40px;
+    width: 150px;
+  }
+
+  &.large {
+    height: 45px;
+    width: 200px;
+  }
+}
