@@ -3,6 +3,8 @@
   width: 100%;
   padding-top: 3.25rem;
 
+  overflow: hidden;
+
   .journey-list-wrapper {
     height: calc(100% - 3rem);
     overflow: hidden scroll;
