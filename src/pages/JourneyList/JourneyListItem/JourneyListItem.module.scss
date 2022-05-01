@@ -2,6 +2,34 @@
 @import "../../../assets/scss/mixins.scss";
 
 .journey-list-item-container {
+  position: relative;
+
+  transition: transform 0.25s;
+
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+
+  &.swiped {
+    transform: translateX(-100px);
+  }
+
+  .delete-button {
+    all: unset;
+
+    position: absolute;
+    top: 0;
+    right: -100px;
+
+    height: 100%;
+    width: 100px;
+
+    background-color: rgb(255, 100, 100);
+    color: white;
+  }
+}
+
+.journey-list-item-wrapper {
+  position: relative;
   width: 100%;
   padding: 0.75rem 1rem;
   background-color: white;

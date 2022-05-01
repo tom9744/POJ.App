@@ -119,7 +119,7 @@ export const useJourneyList = () => {
     return () => setJourneyList([]);
   }, [sendRequest, sortByElapsedDate]);
 
-  return { requestState, journeyList };
+  return { requestState, journeyList, setJourneyList };
 };
 
 export const useJourney = (journeyId: number) => {
