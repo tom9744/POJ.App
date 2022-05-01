@@ -90,6 +90,7 @@ function Journey() {
     const remainingPhotoList = photoList.filter((photo) => !selectedPhotoIds.includes(photo.id));
 
     setPhotoList(remainingPhotoList);
+    setSelectedPhotoIds([]);
     setMode("View");
 
     Promise.all(selectedPhotoIds.map(async (id) => await deletePhoto({ url: `https://var-resa.link/photos/${id}`, options: { method: "DELETE" } })));
