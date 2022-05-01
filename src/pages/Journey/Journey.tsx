@@ -133,7 +133,7 @@ function Journey() {
 
       <div className={classes.divider}></div>
 
-      <section className={`${classes["journey-content-section"]} ${classes["photo-lit"]}`}>
+      <section className={`${classes["journey-content-section"]} ${classes["photo-list"]}`}>
         <PhotoGrid photoList={photoList} selectedPhotoIds={selectedPhotoIds} onSelectPhoto={selectPhotoHandler}></PhotoGrid>
       </section>
 
