@@ -35,6 +35,14 @@
     .header-button {
       all: unset;
       cursor: pointer;
+
+      &.alert {
+        color: red;
+      }
+
+      &:disabled {
+        color: gray;
+      }
     }
 
     .spacer {
@@ -111,7 +119,7 @@
     border-top: 1px solid rgb(239, 239, 240);
   }
 
-  .footer {
+  .progress-bar {
     position: absolute;
     bottom: 0;
 
@@ -130,18 +138,5 @@
 
     background-color: white;
     border-top: 0.5px solid rgba(226, 226, 226, 0.8);
-
-    .icon {
-      height: 1.75rem;
-      width: auto;
-
-      cursor: pointer;
-
-      &.disabled {
-        color: lightgray;
-
-        cursor: default;
-      }
-    }
   }
 }

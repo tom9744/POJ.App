@@ -4,7 +4,6 @@ import { useJourney } from "../JourneyList/hooks/useJourneyList";
 import classes from "./Journey.module.scss";
 import PhotoGrid from "../../components/UI/PhotoGrid/PhotoGrid";
 import { IPhotoData } from "../JourneyList/JourneyData.model";
-import { FaRegTrashAlt } from "react-icons/fa";
 import useHttp from "../../hooks/useHttp";
 import useUploadFiles from "../../hooks/useUpload";
 
@@ -99,9 +98,17 @@ function Journey() {
   return journey ? (
     <article className={classes["journey-container"]}>
       <section className={classes.header}>
-        <button className={classes["header-button"]} onClick={navigateBack}>
-          뒤로
-        </button>
+        {isEditMode ? (
+          <React.Fragment>
+            <button className={`${classes["header-button"]} ${classes.alert}`} disabled={selectedPhotoIds.length === 0} onClick={deletePhotoHandler}>
+              사진 삭제
+            </button>
+          </React.Fragment>
+        ) : (
+          <button className={classes["header-button"]} onClick={navigateBack}>
+            뒤로
+          </button>
+        )}
 
         <div className={classes.spacer}></div>
 
@@ -137,13 +144,7 @@ function Journey() {
         <PhotoGrid photoList={photoList} selectedPhotoIds={selectedPhotoIds} onSelectPhoto={selectPhotoHandler}></PhotoGrid>
       </section>
 
-      {isEditMode ? (
-        <section className={classes.footer}>
-          <FaRegTrashAlt className={`${classes.icon} ${selectedPhotoIds.length > 0 ? "" : classes.disabled}`} onClick={deletePhotoHandler}></FaRegTrashAlt>
-        </section>
-      ) : null}
-
-      {showProgressBar ? <section className={classes.footer}>사진을 업로드하고 있습니다...{progression}%</section> : null}
+      {showProgressBar ? <section className={classes["progress-bar"]}>사진을 업로드하고 있습니다...{progression}%</section> : null}
     </article>
   ) : null;
 }
