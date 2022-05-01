@@ -6,6 +6,7 @@ import PhotoGrid from "../../components/UI/PhotoGrid/PhotoGrid";
 import { IPhotoData } from "../JourneyList/JourneyData.model";
 import { FaRegTrashAlt } from "react-icons/fa";
 import useHttp from "../../hooks/useHttp";
+import useUploadFiles from "../../hooks/useUpload";
 
 type Mode = "View" | "Edit";
 
@@ -16,6 +17,7 @@ function Journey() {
   const { jourenyId } = useParams();
   const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
   const { sendRequest: deletePhoto } = useHttp<void>();
+  const { showProgressBar, progression, uploadFiles } = useUploadFiles();
 
   const [mode, setMode] = useState<Mode>("View");
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([]);
@@ -41,25 +43,15 @@ function Journey() {
       });
       formData.append("journeyTitle", journey.title);
 
-      const response = await fetch("https://var-resa.link/photos", {
-        method: "POST",
-        headers: [
-          ["Access-Control-Allow-Origin", "*"],
-          ["Access-Control-Allow-Headers", "Content-Type"],
-        ],
-        body: formData,
-      });
+      try {
+        const uploadedPhotos = await uploadFiles<IPhotoData[]>("https://var-resa.link/photos", formData);
 
-      if (!response.ok) {
+        setPhotoList([...photoList, ...uploadedPhotos]);
+      } catch (error) {
         alert("업로드 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        return;
       }
-
-      const uploadedPhotos: IPhotoData[] = await response.json();
-
-      setPhotoList([...photoList, ...uploadedPhotos]);
     },
-    [journey, photoList, setPhotoList]
+    [journey, photoList, uploadFiles, setPhotoList]
   );
 
   const uploadPhotoHandler = useCallback((): void => {
@@ -132,7 +124,7 @@ function Journey() {
 
         <div className={classes["button-wrapper"]}>
           <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInput} onChange={inputChangeHandler} />
-          <button disabled={isEditMode} onClick={uploadPhotoHandler}>
+          <button disabled={isEditMode || showProgressBar} onClick={uploadPhotoHandler}>
             사진 추가
           </button>
         </div>
@@ -140,7 +132,7 @@ function Journey() {
 
       <div className={classes.divider}></div>
 
-      <section className={classes["journey-content-section"]}>
+      <section className={`${classes["journey-content-section"]} ${classes["photo-lit"]}`}>
         <PhotoGrid photoList={photoList} selectedPhotoIds={selectedPhotoIds} onSelectPhoto={selectPhotoHandler}></PhotoGrid>
       </section>
 
@@ -149,6 +141,8 @@ function Journey() {
           <FaRegTrashAlt className={`${classes.icon} ${selectedPhotoIds.length > 0 ? "" : classes.disabled}`} onClick={deletePhotoHandler}></FaRegTrashAlt>
         </section>
       ) : null}
+
+      {showProgressBar ? <section className={classes.footer}>사진을 업로드하고 있습니다...{progression}%</section> : null}
     </article>
   ) : null;
 }
