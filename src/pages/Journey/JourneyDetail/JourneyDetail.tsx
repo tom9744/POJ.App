@@ -4,18 +4,19 @@ import { useJourney } from "../hooks/useJourney";
 import classes from "./JourneyDetail.module.scss";
 import PhotoGrid from "../../../components/UI/PhotoGrid/PhotoGrid";
 import { IPhotoData } from "../../../types/apis";
-import useHttp from "../../../hooks/useHttp";
+import { useDelete } from "../hooks/useDelete";
 import useUploadFiles from "../../../hooks/useUpload";
 
 type Mode = "View" | "Edit";
 
 function Journey() {
-  const navigate = useNavigate();
   const photoInput = useRef<HTMLInputElement>(null);
+
+  const deleteItem = useDelete({ dataType: "PHOTO" });
+  const navigate = useNavigate();
 
   const { jourenyId } = useParams();
   const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
-  const { sendRequest: deletePhoto } = useHttp<void>();
   const { showProgressBar, progression, uploadFiles } = useUploadFiles();
 
   const [mode, setMode] = useState<Mode>("View");
@@ -92,8 +93,8 @@ function Journey() {
     setSelectedPhotoIds([]);
     setMode("View");
 
-    Promise.all(selectedPhotoIds.map(async (id) => await deletePhoto({ url: `https://var-resa.link/photos/${id}`, options: { method: "DELETE" } })));
-  }, [photoList, selectedPhotoIds, setPhotoList, deletePhoto]);
+    await Promise.all(selectedPhotoIds.map(async (id) => await deleteItem(id)));
+  }, [photoList, selectedPhotoIds, setPhotoList]);
 
   return journey ? (
     <article className={classes["journey-container"]}>

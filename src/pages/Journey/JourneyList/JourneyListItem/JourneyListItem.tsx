@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useHttp from "../../../../hooks/useHttp";
 import { IJoureny } from "../../../../models/journey.model";
+import { useDelete } from "../../hooks/useDelete";
 import classes from "./JourneyListItem.module.scss";
 
 type Props = {
@@ -10,12 +10,11 @@ type Props = {
 };
 
 function JourneyListItem({ journey, onDelete }: Props) {
+  const deleteItem = useDelete({ dataType: "JOURNEY" });
   const navigate = useNavigate();
 
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [isSwiped, setIsSwiped] = useState<boolean>(false);
-
-  const { sendRequest: deleteJourney } = useHttp<void>();
 
   const touchStartHandler = useCallback((event: React.TouchEvent<HTMLLIElement>) => {
     setTouchStartX(event.touches[0].pageX);
@@ -51,18 +50,11 @@ function JourneyListItem({ journey, onDelete }: Props) {
         return;
       }
 
-      try {
-        await deleteJourney({
-          url: `https://var-resa.link/journeys/${journeyId}`,
-          options: { method: "DELETE" },
-        });
+      await deleteItem(journeyId);
 
-        onDelete(journeyId);
-      } catch (error) {
-        alert("삭제 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
+      onDelete(journeyId);
     },
-    [deleteJourney, onDelete]
+    [onDelete]
   );
 
   return (
