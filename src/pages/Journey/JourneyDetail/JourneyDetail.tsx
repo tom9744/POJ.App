@@ -8,7 +8,8 @@ import { IPhotoData } from "../../../types/apis";
 function Journey() {
   const photoInputElem = useRef<HTMLInputElement>(null);
 
-  const deleteItem = useDelete({ dataType: "PHOTO" });
+  const deleteJourney = useDelete({ dataType: "JOURNEY" });
+  const deletePhoto = useDelete({ dataType: "PHOTO" });
   const navigate = useNavigate();
 
   const { jourenyId } = useParams();
@@ -28,27 +29,27 @@ function Journey() {
   }, [isEditMode]);
 
   const inputChangeHandler = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const fileList = event.target.files;
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      if (!journey?.title) {
+        return;
+      }
 
-      if (!journey?.title || !fileList?.length) {
-        alert("선택된 사진이 없습니다. 업로드 할 사진을 선택해주세요.");
+      const { files } = event.target;
+
+      if (!files?.length) {
+        alert("사진을 선택하지 않았습니다.");
         return;
       }
 
       const formData = new FormData();
-      Array.from(fileList).forEach((file) => {
+      Array.from(files).forEach((file) => {
         formData.append(`images`, file);
       });
       formData.append("journeyTitle", journey.title);
 
-      try {
-        const uploadedPhotos = await uploadFiles<IPhotoData[]>("https://var-resa.link/photos", formData);
-
-        setPhotoList([...photoList, ...uploadedPhotos]);
-      } catch (error) {
-        alert("업로드 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
+      uploadFiles<IPhotoData[]>("https://var-resa.link/photos", formData)
+        .then((uploadedPhotos) => setPhotoList([...photoList, ...uploadedPhotos]))
+        .catch(() => alert("업로드 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
     },
     [journey, photoList, uploadFiles, setPhotoList]
   );
@@ -63,31 +64,41 @@ function Journey() {
         setSelectedPhotoIds(selectedPhotoIds.filter((id) => id !== photoId));
         return;
       }
-
       setSelectedPhotoIds([...selectedPhotoIds, photoId]);
     },
     [isEditMode, selectedPhotoIds]
   );
 
-  const deletePhotoHandler = useCallback(() => {
+  const deletePhotoHandler = useCallback((): void => {
     if (!isEditMode) {
       return;
     }
 
-    const remainingPhotoList = photoList.filter((photo) => !selectedPhotoIds.includes(photo.id));
+    Promise.all(selectedPhotoIds.map(async (id) => await deletePhoto(id)))
+      .then(() => {
+        const remainingPhotoList = photoList.filter((photo) => !selectedPhotoIds.includes(photo.id));
+        setPhotoList(remainingPhotoList);
+        toggleMode();
+      })
+      .catch(() => alert("사진을 삭제하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
+  }, [isEditMode, photoList, selectedPhotoIds, setPhotoList, toggleMode, deletePhoto]);
 
-    selectedPhotoIds.forEach((id) => deleteItem(id));
+  const deleteJourneyHandler = useCallback((): void => {
+    if (!journey?.id || !window.confirm("정말 기록을 삭제하시겠습니까?")) {
+      return;
+    }
 
-    setPhotoList(remainingPhotoList);
-    toggleMode();
-  }, [isEditMode, photoList, selectedPhotoIds, setPhotoList, toggleMode, deleteItem]);
+    deleteJourney(journey.id)
+      .then(() => navigate(-1))
+      .catch(() => alert("기록을 삭제하는 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."));
+  }, [journey, deleteJourney, navigate]);
 
   return journey ? (
     <article className={classes["journey-container"]}>
       <section className={classes.header}>
         {isEditMode ? (
-          <button className={`${classes["header-button"]} ${classes.alert}`} disabled={selectedPhotoIds.length === 0} onClick={deletePhotoHandler}>
-            사진 삭제
+          <button className={`${classes["header-button"]} ${classes.alert}`} onClick={deleteJourneyHandler}>
+            기록 삭제
           </button>
         ) : (
           <button className={classes["header-button"]} onClick={() => navigate(-1)}>
@@ -108,10 +119,18 @@ function Journey() {
         <p className={classes.description}>총 {photoList.length} 장의 사진</p>
 
         <div className={classes["button-wrapper"]}>
-          <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInputElem} onChange={inputChangeHandler} />
-          <button disabled={isEditMode || showProgressBar} onClick={() => photoInputElem?.current?.click()}>
-            사진 추가
-          </button>
+          {isEditMode ? (
+            <button className={classes.alert} disabled={selectedPhotoIds.length === 0} onClick={deletePhotoHandler}>
+              사진 삭제
+            </button>
+          ) : (
+            <React.Fragment>
+              <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInputElem} onChange={inputChangeHandler} />
+              <button disabled={isEditMode || showProgressBar} onClick={() => photoInputElem?.current?.click()}>
+                사진 추가
+              </button>
+            </React.Fragment>
+          )}
         </div>
       </section>
 

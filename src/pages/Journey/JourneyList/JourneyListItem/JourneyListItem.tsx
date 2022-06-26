@@ -1,68 +1,22 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { IJoureny } from "../../../../models/journey.model";
-import { useDelete } from "../../hooks";
 import classes from "./JourneyListItem.module.scss";
 
-type Props = {
-  journey: IJoureny;
-  onDelete: (journeyId: number) => void;
-};
+type Props = { journey: IJoureny };
 
-function JourneyListItem({ journey, onDelete }: Props) {
-  const deleteItem = useDelete({ dataType: "JOURNEY" });
+function JourneyListItem({ journey }: Props) {
   const navigate = useNavigate();
 
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [isSwiped, setIsSwiped] = useState<boolean>(false);
-
-  const touchStartHandler = useCallback((event: React.TouchEvent<HTMLLIElement>) => {
-    setTouchStartX(event.touches[0].pageX);
-  }, []);
-
-  const touchEndHandler = useCallback(
-    (event: React.TouchEvent<HTMLLIElement>, journeyId: number): void => {
-      if (!touchStartX) {
-        return;
-      }
-
-      const touchEndX = event.changedTouches[0].pageX;
-
-      if (touchStartX > touchEndX) {
-        setIsSwiped(true);
-        return;
-      }
-
-      if (!isSwiped && touchStartX === touchEndX) {
-        navigate(`/journeys/${journeyId}`);
-        return;
-      }
-
-      setIsSwiped(false);
-      setTouchStartX(null);
+  const navigateToDetail = useCallback(
+    (journeyId: number): void => {
+      navigate(`/journeys/${journeyId}`);
     },
-    [isSwiped, touchStartX, navigate]
-  );
-
-  const deleteHandler = useCallback(
-    async (journeyId: number): Promise<void> => {
-      if (!window.confirm("정말 일정을 삭제하시겠습니까?")) {
-        return;
-      }
-
-      await deleteItem(journeyId);
-
-      onDelete(journeyId);
-    },
-    [onDelete]
+    [navigate]
   );
 
   return (
-    <li
-      className={`${classes["journey-list-item-container"]} ${isSwiped && classes["swiped"]}`}
-      onTouchStart={touchStartHandler}
-      onTouchEnd={(event) => touchEndHandler(event, journey.id)}
-    >
+    <li className={classes["journey-list-item-container"]} onClick={() => navigateToDetail(journey.id)}>
       <div className={classes["journey-list-item-wrapper"]}>
         <div className={classes["title-wrapper"]}>
           <h3 className={classes.title}>{journey.title}</h3>
@@ -74,10 +28,6 @@ function JourneyListItem({ journey, onDelete }: Props) {
           <span className={classes["description"]}>{journey.description}</span>
         </div>
       </div>
-
-      <button className={classes["delete-button"]} onClick={() => deleteHandler(journey.id)}>
-        삭제
-      </button>
     </li>
   );
 }

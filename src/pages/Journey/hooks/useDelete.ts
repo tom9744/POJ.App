@@ -20,12 +20,9 @@ export const useDelete = (config: { dataType: DataType }) => {
   const deleteItem = useCallback(
     async (id: number) => {
       try {
-        await sendRequest({
-          url: `${targetUrl}/${id}`,
-          options: { method: "DELETE" },
-        });
+        await sendRequest({ url: `${targetUrl}/${id}`, options: { method: "DELETE" } });
       } catch (error) {
-        alert("삭제 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.");
+        throw error;
       }
     },
     [targetUrl, sendRequest]

@@ -8,7 +8,7 @@ import JourneyListItem from "./JourneyListItem/JourneyListItem";
 import SearchBar from "./SearchBar/SearchBar";
 
 function JourneyList() {
-  const { journeyList, setJourneyList } = useJourneyList();
+  const { journeyList } = useJourneyList();
 
   const [searchResult, setSearchResult] = useState<IJoureny[]>([]);
   const [keyword, setKeyword] = useState<string>("");
@@ -16,13 +16,6 @@ function JourneyList() {
   const searchHandler = useCallback((keyword: string) => {
     setKeyword(keyword);
   }, []);
-
-  const deleteJourneyHandler = useCallback(
-    (journeyId: number): void => {
-      setJourneyList(journeyList.filter((journey) => journey.id !== journeyId));
-    },
-    [journeyList, setJourneyList]
-  );
 
   useEffect((): void => {
     if (!keyword) {
@@ -42,7 +35,7 @@ function JourneyList() {
 
       <ul className={classes["journey-list-wrapper"]}>
         {searchResult.map((journey) => {
-          return <JourneyListItem key={journey.id} journey={journey} onDelete={deleteJourneyHandler}></JourneyListItem>;
+          return <JourneyListItem key={journey.id} journey={journey}></JourneyListItem>;
         })}
       </ul>
 

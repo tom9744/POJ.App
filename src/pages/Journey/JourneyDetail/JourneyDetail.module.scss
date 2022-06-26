@@ -37,7 +37,7 @@
       cursor: pointer;
 
       &.alert {
-        color: red;
+        color: $error-color;
       }
 
       &:disabled {
@@ -98,12 +98,11 @@
 
         transition: box-shadow 0.25s;
 
-        &:hover {
-          box-shadow: rgb(115, 115, 225) 0px 0px 0px 2px inset;
+        &.alert {
+          background-color: $error-color;
         }
 
-        &:disabled,
-        &:disabled:hover {
+        &:disabled {
           color: $disabled-color;
           background-color: rgba($disabled-color, 0.5);
           box-shadow: unset;
