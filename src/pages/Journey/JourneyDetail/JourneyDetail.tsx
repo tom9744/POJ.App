@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useJourney } from "../hooks/useJourney";
 import classes from "./JourneyDetail.module.scss";
@@ -7,10 +7,8 @@ import { IPhotoData } from "../../../types/apis";
 import { useDelete } from "../hooks/useDelete";
 import useUploadFiles from "../../../hooks/useUpload";
 
-type Mode = "View" | "Edit";
-
 function Journey() {
-  const photoInput = useRef<HTMLInputElement>(null);
+  const photoInputElem = useRef<HTMLInputElement>(null);
 
   const deleteItem = useDelete({ dataType: "PHOTO" });
   const navigate = useNavigate();
@@ -19,14 +17,17 @@ function Journey() {
   const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
   const { showProgressBar, progression, uploadFiles } = useUploadFiles();
 
-  const [mode, setMode] = useState<Mode>("View");
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([]);
 
-  const isEditMode = useMemo(() => mode === "Edit", [mode]);
-
-  const navigateBack = useCallback((): void => {
-    navigate(-1);
-  }, [navigate]);
+  const toggleMode = useCallback((): void => {
+    if (!isEditMode) {
+      setIsEditMode(true);
+      return;
+    }
+    setSelectedPhotoIds([]);
+    setIsEditMode(false);
+  }, [isEditMode]);
 
   const inputChangeHandler = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,22 +55,6 @@ function Journey() {
     [journey, photoList, uploadFiles, setPhotoList]
   );
 
-  const uploadPhotoHandler = useCallback((): void => {
-    if (!photoInput?.current) {
-      return;
-    }
-    photoInput.current.click();
-  }, []);
-
-  const changeModeHandler = useCallback((): void => {
-    if (mode === "Edit") {
-      setMode("View");
-      setSelectedPhotoIds([]);
-      return;
-    }
-    setMode("Edit");
-  }, [mode]);
-
   const selectPhotoHandler = useCallback(
     (photoId: number): void => {
       if (!isEditMode) {
@@ -86,44 +71,37 @@ function Journey() {
     [isEditMode, selectedPhotoIds]
   );
 
-  const deletePhotoHandler = useCallback(async () => {
+  const deletePhotoHandler = useCallback(() => {
+    if (!isEditMode) {
+      return;
+    }
+
     const remainingPhotoList = photoList.filter((photo) => !selectedPhotoIds.includes(photo.id));
 
-    setPhotoList(remainingPhotoList);
-    setSelectedPhotoIds([]);
-    setMode("View");
+    selectedPhotoIds.forEach((id) => deleteItem(id));
 
-    await Promise.all(selectedPhotoIds.map(async (id) => await deleteItem(id)));
-  }, [photoList, selectedPhotoIds, setPhotoList]);
+    setPhotoList(remainingPhotoList);
+    toggleMode();
+  }, [isEditMode, photoList, selectedPhotoIds, setPhotoList, toggleMode, deleteItem]);
 
   return journey ? (
     <article className={classes["journey-container"]}>
       <section className={classes.header}>
         {isEditMode ? (
-          <React.Fragment>
-            <button className={`${classes["header-button"]} ${classes.alert}`} disabled={selectedPhotoIds.length === 0} onClick={deletePhotoHandler}>
-              사진 삭제
-            </button>
-          </React.Fragment>
+          <button className={`${classes["header-button"]} ${classes.alert}`} disabled={selectedPhotoIds.length === 0} onClick={deletePhotoHandler}>
+            사진 삭제
+          </button>
         ) : (
-          <button className={classes["header-button"]} onClick={navigateBack}>
+          <button className={classes["header-button"]} onClick={() => navigate(-1)}>
             뒤로
           </button>
         )}
 
         <div className={classes.spacer}></div>
 
-        {isEditMode ? (
-          <React.Fragment>
-            <button className={classes["header-button"]} onClick={changeModeHandler}>
-              취소
-            </button>
-          </React.Fragment>
-        ) : (
-          <button className={classes["header-button"]} onClick={changeModeHandler}>
-            편집
-          </button>
-        )}
+        <button className={classes["header-button"]} onClick={toggleMode}>
+          {isEditMode ? "취소" : "편집"}
+        </button>
       </section>
 
       <section className={classes["journey-content-section"]}>
@@ -132,8 +110,8 @@ function Journey() {
         <p className={classes.description}>총 {photoList.length} 장의 사진</p>
 
         <div className={classes["button-wrapper"]}>
-          <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInput} onChange={inputChangeHandler} />
-          <button disabled={isEditMode || showProgressBar} onClick={uploadPhotoHandler}>
+          <input type="file" accept="image/jpeg" name="upload" id="upload" multiple={true} ref={photoInputElem} onChange={inputChangeHandler} />
+          <button disabled={isEditMode || showProgressBar} onClick={() => photoInputElem?.current?.click()}>
             사진 추가
           </button>
         </div>
