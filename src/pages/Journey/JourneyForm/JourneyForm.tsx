@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
-import useHttp from "../../hooks/useHttp";
-import CustomInput from "../../components/JourneyExplorer/Layouts/CustomInput/CustomInput";
-import { JourneyDTO, RawJourney } from "../../components/JourneyExplorer/Journey.interface";
+import useHttp from "../../../hooks/useHttp";
+import CustomInput from "../../../components/JourneyExplorer/Layouts/CustomInput/CustomInput";
+import { JourneyDTO, RawJourney } from "../../../components/JourneyExplorer/Journey.interface";
 import { formReducer, INITIAL_STATE } from "./JourneyForm.reducer";
-import { isNotEmpty, isValidDate } from "../../utils/FormVaildations";
+import { isNotEmpty, isValidDate } from "../../../utils/FormVaildations";
 import classes from "./JourneyForm.module.scss";
 
 function JourneyForm() {

@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useMobileAppState } from "./MobileAppProvider";
 import Passcode from "./pages/Passcode/Passcode";
-import JourneyList from "./pages/JourneyList/JourneyList";
-import JourneyForm from "./pages/JourneyForm/JourneyForm";
-import Journey from "./pages/Journey/Journey";
+import JourneyList from "./pages/Journey/JourneyList/JourneyList";
+import JourneyForm from "./pages/Journey/JourneyForm/JourneyForm";
+import Journey from "./pages/Journey/JourneyDetail/JourneyDetail";
 
 function MobileApp() {
   const appState = useMobileAppState();
