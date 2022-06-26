@@ -1,11 +1,9 @@
 import React, { useCallback, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useJourney } from "../hooks/useJourney";
 import classes from "./JourneyDetail.module.scss";
 import PhotoGrid from "../../../components/UI/PhotoGrid/PhotoGrid";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDelete, useJourney, useUploadProgress } from "../hooks";
 import { IPhotoData } from "../../../types/apis";
-import { useDelete } from "../hooks/useDelete";
-import useUploadFiles from "../../../hooks/useUpload";
 
 function Journey() {
   const photoInputElem = useRef<HTMLInputElement>(null);
@@ -15,7 +13,7 @@ function Journey() {
 
   const { jourenyId } = useParams();
   const { journey, photoList, setPhotoList } = useJourney(Number(jourenyId));
-  const { showProgressBar, progression, uploadFiles } = useUploadFiles();
+  const { showProgressBar, progression, uploadFiles } = useUploadProgress();
 
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([]);

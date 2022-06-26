@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IJoureny } from "../../../../models/journey.model";
-import { useDelete } from "../../hooks/useDelete";
+import { useDelete } from "../../hooks";
 import classes from "./JourneyListItem.module.scss";
 
 type Props = {

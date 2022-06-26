@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-const useUploadFiles = () => {
+export const useUploadProgress = () => {
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false);
   const [progression, setProgresstion] = useState<number>(0);
 
@@ -42,7 +42,3 @@ const useUploadFiles = () => {
 
   return { showProgressBar, progression, uploadFiles };
 };
-
-export const BASE_URL = "https://var-resa.link";
-
-export default useUploadFiles;
