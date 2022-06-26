@@ -32,6 +32,10 @@ function JourneyForm() {
     dispatch({ type: "CHANGE_END_DATE", props: { value, isValid } });
   }, []);
 
+  const navigateBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
   const submitHandler = useCallback(
     async (event: React.FormEvent): Promise<void> => {
       event.preventDefault();
@@ -57,6 +61,8 @@ function JourneyForm() {
               body: JSON.stringify(newJourney),
             },
           });
+
+          navigateBack();
         } catch (error) {
           console.error(error);
         }
@@ -64,10 +70,6 @@ function JourneyForm() {
     },
     [formState, createJourney]
   );
-
-  const navigateBack = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
 
   return (
     <div className={classes["form-container"]}>
