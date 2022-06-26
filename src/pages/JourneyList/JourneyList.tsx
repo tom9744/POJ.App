@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Footer from "../../components/UI/Footer/Footer";
 import Header from "../../components/UI/Header/Header";
-import { IJoureny, useJourneyList } from "./hooks/useJourneyList";
+import { IJoureny } from "../../models/journey.model";
+import { useJourneyList } from "./hooks/useJourneyList";
 import classes from "./JourneyList.module.scss";
 import JourneyListItem from "./JourneyListItem/JourneyListItem";
 import SearchBar from "./SearchBar/SearchBar";
