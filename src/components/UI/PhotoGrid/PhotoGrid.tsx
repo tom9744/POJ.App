@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { IPhotoData } from "../../../pages/JourneyList/JourneyData.model";
+import { IPhotoData } from "../../../types/apis";
 import { FaCheckCircle } from "react-icons/fa";
 import classes from "./PhotoGrid.module.scss";
 

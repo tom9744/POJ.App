@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useJourney } from "../JourneyList/hooks/useJourneyList";
 import classes from "./Journey.module.scss";
 import PhotoGrid from "../../components/UI/PhotoGrid/PhotoGrid";
-import { IPhotoData } from "../JourneyList/JourneyData.model";
+import { IPhotoData } from "../../types/apis";
 import useHttp from "../../hooks/useHttp";
 import useUploadFiles from "../../hooks/useUpload";
 

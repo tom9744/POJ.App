@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { IJourneyData, IPhotoData } from "../JourneyData.model";
+import { IJourneyData, IPhotoData } from "../../../types/apis";
 import useHttp, { BASE_URL } from "../../../hooks/useHttp";
 
 export interface IElapsedDate {
