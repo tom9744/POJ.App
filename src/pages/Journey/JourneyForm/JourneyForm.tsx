@@ -68,7 +68,7 @@ function JourneyForm() {
         }
       }
     },
-    [formState, createJourney]
+    [formState, createJourney, navigateBack]
   );
 
   return (
